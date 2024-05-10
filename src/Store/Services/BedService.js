@@ -46,6 +46,15 @@ export const BedService = createApi({
         };
       },
     }),
+    updateBedAvailability: builder.mutation({
+      query: (updateData) => {
+        return {
+          url: `ManageBeds-PUT-IsBedAvailableOrNot/${updateData.bedId}`,
+          method: "PUT",
+          body: updateData.data,
+        };
+      },
+    }),
   }),
 });
 
@@ -55,4 +64,5 @@ export const {
   useGetAllBedsQuery,
   useGetBedByIdQuery,
   useUpdateBedIsAppointmentApplicableMutation,
+  useUpdateBedAvailabilityMutation,
 } = BedService;

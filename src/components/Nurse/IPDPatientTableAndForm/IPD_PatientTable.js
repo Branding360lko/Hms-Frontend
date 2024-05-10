@@ -49,6 +49,7 @@ import {
 import BedSelector from "../AddBedSelector/AddBedSelector";
 
 import { Link } from "react-router-dom";
+import { useUpdateBedAvailabilityMutation } from "../../../Store/Services/BedService";
 
 export default function IPD_PatientTable() {
   const dispatch = useDispatch();
@@ -142,105 +143,114 @@ export default function IPD_PatientTable() {
 
   const [selectedBed, setSelectedBed] = React.useState(null);
 
-  const handleAddBedFormOpen = (e) => {
+  const [updateBedAvailability, responseUpdateBedAvailability] =
+    useUpdateBedAvailabilityMutation();
+
+  // console.log("selectedBed:", selectedBed);
+
+  const { beds } = useSelector((state) => state.BedState);
+
+  // console.log("beds in ipd:", beds);
+
+  function handleAddBedFormOpen(e) {
     e.preventDefault();
 
     setAddBedFormOpen(true);
-  };
+  }
 
   const handleBedSelect = (bed) => {
     setSelectedBed(bed);
   };
 
-  const bedData = [
-    // Floor 1
-    { bdId: "1", floorNo: 1, bedType: "pvt", availability: false },
-    { bdId: "2", floorNo: 1, bedType: "dlx", availability: true },
-    { bdId: "3", floorNo: 1, bedType: "sem", availability: true },
-    { bdId: "4", floorNo: 1, bedType: "gen", availability: false },
-    { bdId: "5", floorNo: 1, bedType: "pvt", availability: true },
-    { bdId: "6", floorNo: 1, bedType: "sem", availability: false },
-    { bdId: "7", floorNo: 1, bedType: "dlx", availability: true },
-    { bdId: "8", floorNo: 1, bedType: "gen", availability: false },
-    { bdId: "9", floorNo: 1, bedType: "pvt", availability: false },
-    { bdId: "10", floorNo: 1, bedType: "sem", availability: true },
-    { bdId: "11", floorNo: 1, bedType: "dlx", availability: true },
-    { bdId: "12", floorNo: 1, bedType: "gen", availability: true },
-    { bdId: "13", floorNo: 1, bedType: "pvt", availability: false },
-    { bdId: "14", floorNo: 1, bedType: "sem", availability: true },
-    { bdId: "15", floorNo: 1, bedType: "dlx", availability: false },
-    { bdId: "16", floorNo: 1, bedType: "gen", availability: true },
-    { bdId: "17", floorNo: 1, bedType: "pvt", availability: true },
-    { bdId: "18", floorNo: 1, bedType: "sem", availability: true },
-    { bdId: "19", floorNo: 1, bedType: "dlx", availability: false },
-    { bdId: "20", floorNo: 1, bedType: "gen", availability: false },
+  // const bedData = [
+  //   // Floor 1
+  //   { bdId: "1", floorNo: 1, bedType: "pvt", availability: false },
+  //   { bdId: "2", floorNo: 1, bedType: "dlx", availability: true },
+  //   { bdId: "3", floorNo: 1, bedType: "sem", availability: true },
+  //   { bdId: "4", floorNo: 1, bedType: "gen", availability: false },
+  //   { bdId: "5", floorNo: 1, bedType: "pvt", availability: true },
+  //   { bdId: "6", floorNo: 1, bedType: "sem", availability: false },
+  //   { bdId: "7", floorNo: 1, bedType: "dlx", availability: true },
+  //   { bdId: "8", floorNo: 1, bedType: "gen", availability: false },
+  //   { bdId: "9", floorNo: 1, bedType: "pvt", availability: false },
+  //   { bdId: "10", floorNo: 1, bedType: "sem", availability: true },
+  //   { bdId: "11", floorNo: 1, bedType: "dlx", availability: true },
+  //   { bdId: "12", floorNo: 1, bedType: "gen", availability: true },
+  //   { bdId: "13", floorNo: 1, bedType: "pvt", availability: false },
+  //   { bdId: "14", floorNo: 1, bedType: "sem", availability: true },
+  //   { bdId: "15", floorNo: 1, bedType: "dlx", availability: false },
+  //   { bdId: "16", floorNo: 1, bedType: "gen", availability: true },
+  //   { bdId: "17", floorNo: 1, bedType: "pvt", availability: true },
+  //   { bdId: "18", floorNo: 1, bedType: "sem", availability: true },
+  //   { bdId: "19", floorNo: 1, bedType: "dlx", availability: false },
+  //   { bdId: "20", floorNo: 1, bedType: "gen", availability: false },
 
-    // Floor 2
-    { bdId: "21", floorNo: 2, bedType: "pvt", availability: false },
-    { bdId: "22", floorNo: 2, bedType: "dlx", availability: true },
-    { bdId: "23", floorNo: 2, bedType: "sem", availability: true },
-    { bdId: "24", floorNo: 2, bedType: "gen", availability: false },
-    { bdId: "25", floorNo: 2, bedType: "pvt", availability: true },
-    { bdId: "26", floorNo: 2, bedType: "sem", availability: false },
-    { bdId: "27", floorNo: 2, bedType: "dlx", availability: true },
-    { bdId: "28", floorNo: 2, bedType: "gen", availability: false },
-    { bdId: "29", floorNo: 2, bedType: "pvt", availability: false },
-    { bdId: "30", floorNo: 2, bedType: "sem", availability: true },
-    { bdId: "31", floorNo: 2, bedType: "dlx", availability: true },
-    { bdId: "32", floorNo: 2, bedType: "gen", availability: true },
-    { bdId: "33", floorNo: 2, bedType: "pvt", availability: false },
-    { bdId: "34", floorNo: 2, bedType: "sem", availability: true },
-    { bdId: "35", floorNo: 2, bedType: "dlx", availability: false },
-    { bdId: "36", floorNo: 2, bedType: "gen", availability: true },
-    { bdId: "37", floorNo: 2, bedType: "pvt", availability: true },
-    { bdId: "38", floorNo: 2, bedType: "sem", availability: true },
-    { bdId: "39", floorNo: 2, bedType: "dlx", availability: false },
-    { bdId: "40", floorNo: 2, bedType: "gen", availability: false },
+  //   // Floor 2
+  //   { bdId: "21", floorNo: 2, bedType: "pvt", availability: false },
+  //   { bdId: "22", floorNo: 2, bedType: "dlx", availability: true },
+  //   { bdId: "23", floorNo: 2, bedType: "sem", availability: true },
+  //   { bdId: "24", floorNo: 2, bedType: "gen", availability: false },
+  //   { bdId: "25", floorNo: 2, bedType: "pvt", availability: true },
+  //   { bdId: "26", floorNo: 2, bedType: "sem", availability: false },
+  //   { bdId: "27", floorNo: 2, bedType: "dlx", availability: true },
+  //   { bdId: "28", floorNo: 2, bedType: "gen", availability: false },
+  //   { bdId: "29", floorNo: 2, bedType: "pvt", availability: false },
+  //   { bdId: "30", floorNo: 2, bedType: "sem", availability: true },
+  //   { bdId: "31", floorNo: 2, bedType: "dlx", availability: true },
+  //   { bdId: "32", floorNo: 2, bedType: "gen", availability: true },
+  //   { bdId: "33", floorNo: 2, bedType: "pvt", availability: false },
+  //   { bdId: "34", floorNo: 2, bedType: "sem", availability: true },
+  //   { bdId: "35", floorNo: 2, bedType: "dlx", availability: false },
+  //   { bdId: "36", floorNo: 2, bedType: "gen", availability: true },
+  //   { bdId: "37", floorNo: 2, bedType: "pvt", availability: true },
+  //   { bdId: "38", floorNo: 2, bedType: "sem", availability: true },
+  //   { bdId: "39", floorNo: 2, bedType: "dlx", availability: false },
+  //   { bdId: "40", floorNo: 2, bedType: "gen", availability: false },
 
-    // Floor 3
-    { bdId: "41", floorNo: 3, bedType: "pvt", availability: false },
-    { bdId: "42", floorNo: 3, bedType: "dlx", availability: true },
-    { bdId: "43", floorNo: 3, bedType: "sem", availability: true },
-    { bdId: "44", floorNo: 3, bedType: "gen", availability: false },
-    { bdId: "45", floorNo: 3, bedType: "pvt", availability: true },
-    { bdId: "46", floorNo: 3, bedType: "sem", availability: false },
-    { bdId: "47", floorNo: 3, bedType: "dlx", availability: true },
-    { bdId: "48", floorNo: 3, bedType: "gen", availability: false },
-    { bdId: "49", floorNo: 3, bedType: "pvt", availability: false },
-    { bdId: "50", floorNo: 3, bedType: "sem", availability: true },
-    { bdId: "51", floorNo: 3, bedType: "dlx", availability: true },
-    { bdId: "52", floorNo: 3, bedType: "gen", availability: true },
-    { bdId: "53", floorNo: 3, bedType: "pvt", availability: false },
-    { bdId: "54", floorNo: 3, bedType: "sem", availability: true },
-    { bdId: "55", floorNo: 3, bedType: "dlx", availability: false },
-    { bdId: "56", floorNo: 3, bedType: "gen", availability: true },
-    { bdId: "57", floorNo: 3, bedType: "pvt", availability: true },
-    { bdId: "58", floorNo: 3, bedType: "sem", availability: true },
-    { bdId: "59", floorNo: 3, bedType: "dlx", availability: false },
-    { bdId: "60", floorNo: 3, bedType: "gen", availability: false },
+  //   // Floor 3
+  //   { bdId: "41", floorNo: 3, bedType: "pvt", availability: false },
+  //   { bdId: "42", floorNo: 3, bedType: "dlx", availability: true },
+  //   { bdId: "43", floorNo: 3, bedType: "sem", availability: true },
+  //   { bdId: "44", floorNo: 3, bedType: "gen", availability: false },
+  //   { bdId: "45", floorNo: 3, bedType: "pvt", availability: true },
+  //   { bdId: "46", floorNo: 3, bedType: "sem", availability: false },
+  //   { bdId: "47", floorNo: 3, bedType: "dlx", availability: true },
+  //   { bdId: "48", floorNo: 3, bedType: "gen", availability: false },
+  //   { bdId: "49", floorNo: 3, bedType: "pvt", availability: false },
+  //   { bdId: "50", floorNo: 3, bedType: "sem", availability: true },
+  //   { bdId: "51", floorNo: 3, bedType: "dlx", availability: true },
+  //   { bdId: "52", floorNo: 3, bedType: "gen", availability: true },
+  //   { bdId: "53", floorNo: 3, bedType: "pvt", availability: false },
+  //   { bdId: "54", floorNo: 3, bedType: "sem", availability: true },
+  //   { bdId: "55", floorNo: 3, bedType: "dlx", availability: false },
+  //   { bdId: "56", floorNo: 3, bedType: "gen", availability: true },
+  //   { bdId: "57", floorNo: 3, bedType: "pvt", availability: true },
+  //   { bdId: "58", floorNo: 3, bedType: "sem", availability: true },
+  //   { bdId: "59", floorNo: 3, bedType: "dlx", availability: false },
+  //   { bdId: "60", floorNo: 3, bedType: "gen", availability: false },
 
-    // Floor 4
-    { bdId: "61", floorNo: 4, bedType: "pvt", availability: false },
-    { bdId: "62", floorNo: 4, bedType: "dlx", availability: true },
-    { bdId: "63", floorNo: 4, bedType: "sem", availability: true },
-    { bdId: "64", floorNo: 4, bedType: "gen", availability: false },
-    { bdId: "65", floorNo: 4, bedType: "pvt", availability: true },
-    { bdId: "66", floorNo: 4, bedType: "sem", availability: false },
-    { bdId: "67", floorNo: 4, bedType: "dlx", availability: true },
-    { bdId: "68", floorNo: 4, bedType: "gen", availability: false },
-    { bdId: "69", floorNo: 4, bedType: "pvt", availability: false },
-    { bdId: "70", floorNo: 4, bedType: "sem", availability: true },
-    { bdId: "71", floorNo: 4, bedType: "dlx", availability: true },
-    { bdId: "72", floorNo: 4, bedType: "gen", availability: true },
-    { bdId: "73", floorNo: 4, bedType: "pvt", availability: false },
-    { bdId: "74", floorNo: 4, bedType: "sem", availability: true },
-    { bdId: "75", floorNo: 4, bedType: "dlx", availability: false },
-    { bdId: "76", floorNo: 4, bedType: "gen", availability: true },
-    { bdId: "77", floorNo: 4, bedType: "pvt", availability: true },
-    { bdId: "78", floorNo: 4, bedType: "sem", availability: true },
-    { bdId: "79", floorNo: 4, bedType: "dlx", availability: false },
-    { bdId: "80", floorNo: 4, bedType: "gen", availability: false },
-  ];
+  //   // Floor 4
+  //   { bdId: "61", floorNo: 4, bedType: "pvt", availability: false },
+  //   { bdId: "62", floorNo: 4, bedType: "dlx", availability: true },
+  //   { bdId: "63", floorNo: 4, bedType: "sem", availability: true },
+  //   { bdId: "64", floorNo: 4, bedType: "gen", availability: false },
+  //   { bdId: "65", floorNo: 4, bedType: "pvt", availability: true },
+  //   { bdId: "66", floorNo: 4, bedType: "sem", availability: false },
+  //   { bdId: "67", floorNo: 4, bedType: "dlx", availability: true },
+  //   { bdId: "68", floorNo: 4, bedType: "gen", availability: false },
+  //   { bdId: "69", floorNo: 4, bedType: "pvt", availability: false },
+  //   { bdId: "70", floorNo: 4, bedType: "sem", availability: true },
+  //   { bdId: "71", floorNo: 4, bedType: "dlx", availability: true },
+  //   { bdId: "72", floorNo: 4, bedType: "gen", availability: true },
+  //   { bdId: "73", floorNo: 4, bedType: "pvt", availability: false },
+  //   { bdId: "74", floorNo: 4, bedType: "sem", availability: true },
+  //   { bdId: "75", floorNo: 4, bedType: "dlx", availability: false },
+  //   { bdId: "76", floorNo: 4, bedType: "gen", availability: true },
+  //   { bdId: "77", floorNo: 4, bedType: "pvt", availability: true },
+  //   { bdId: "78", floorNo: 4, bedType: "sem", availability: true },
+  //   { bdId: "79", floorNo: 4, bedType: "dlx", availability: false },
+  //   { bdId: "80", floorNo: 4, bedType: "gen", availability: false },
+  // ];
 
   // -----------------------------------------------------------
 
@@ -371,17 +381,26 @@ export default function IPD_PatientTable() {
       ipdDoctorId: ipdDoctorId?.value,
       ipdDepositAmount: ipdDepositAmount,
       ipdPaymentMode: ipdPaymentMode,
-      ipdWardNo: ipdWardNo,
-      ipdFloorNo: ipdFloorNo,
-      ipdRoomNo: ipdRoomNo,
-      ipdBedNo: ipdBedNo,
+      // ipdWardNo: ipdWardNo,
+      ipdFloorNo: selectedBed?.bedFloor,
+      // ipdRoomNo: ipdRoomNo,
+      ipdBedNo: selectedBed?.bedId,
       ipdPatientNotes: ipdPatientNotes,
     };
+
+    const bedAvailabilityData = {
+      bedId: selectedBed.bedId,
+      data: { bedAvailableOrNot: false },
+    };
+
+    updateBedAvailability(bedAvailabilityData);
 
     // console.log(submitData);
 
     createIPDPatient(submitData);
   };
+
+  // console.log(responseUpdateBedAvailability);
 
   const modalAddIPDPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -434,7 +453,7 @@ export default function IPD_PatientTable() {
               <option>Card</option>
             </select>
           </div>
-          <div className="flex flex-col gap-[6px]">
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Ward No. *</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -446,8 +465,8 @@ export default function IPD_PatientTable() {
                 setIpdWardNo(value);
               }}
             />
-          </div>
-          <div className="flex flex-col gap-[6px]">
+          </div> */}
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Floor No. *</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -459,8 +478,8 @@ export default function IPD_PatientTable() {
                 setIpdFloorNo(value);
               }}
             />
-          </div>
-          <div className="flex flex-col gap-[6px]">
+          </div> */}
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Room No. *</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -472,8 +491,8 @@ export default function IPD_PatientTable() {
                 setIpdRoomNo(value);
               }}
             />
-          </div>
-          <div className="flex flex-col gap-[6px]">
+          </div> */}
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Bed No. *</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -485,7 +504,7 @@ export default function IPD_PatientTable() {
                 setIpdBedNo(value);
               }}
             />
-          </div>
+          </div> */}
         </div>
         {/* // Add Bed */}
         <div>
@@ -498,10 +517,10 @@ export default function IPD_PatientTable() {
               <FaBed className=" text-3xl " /> +
             </button>
           ) : (
-            <div>
-              <h2>Add a Bed</h2>
+            <div className=" flex flex-col justify-center items-start gap-5">
+              <h2>Select A Bed</h2>
               <div>
-                <BedSelector beds={bedData} handleBedSelect={handleBedSelect} />
+                <BedSelector beds={beds} handleBedSelect={handleBedSelect} />
               </div>
             </div>
           )}

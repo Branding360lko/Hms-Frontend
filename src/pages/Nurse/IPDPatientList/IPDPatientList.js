@@ -23,6 +23,8 @@ import {
 } from "../../../Store/Slices/DoctorSlice";
 import { useGetAllPatientsQuery } from "../../../Store/Services/PatientService";
 import { getAllPatients } from "../../../Store/Slices/PatientSlice";
+import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
+import { getAllBeds } from "../../../Store/Slices/BedSlice";
 
 const IPDPatientTable = lazy(() =>
   import("../../../components/Nurse/IPDPatientTableAndForm/IPD_PatientTable")
@@ -35,6 +37,14 @@ export default function IPDPatientList() {
   const responseGetAllDoctorProfessionalDetails =
     useGetAllDoctorProfessionalDetailsQuery();
   const responseGetAllPatients = useGetAllPatientsQuery();
+
+  // BEDS
+  const responseGetAllBeds = useGetAllBedsQuery();
+
+  const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
+    (state) => state.BedState
+  );
+  // --------------------------------------------------------------------
 
   const { ipdPatients, createIpdPatient, updateIpdPatient, deleteIpdPatient } =
     useSelector((state) => state.IPDPatientState);
@@ -115,6 +125,20 @@ export default function IPDPatientList() {
       dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
     //------------------
+
+    // Beds
+    const responseGetAllBedsRefetch = await responseGetAllBeds.refetch();
+    if (responseGetAllBedsRefetch.isSuccess) {
+      const reverseArrayGetAllBeds = responseGetAllBedsRefetch?.data?.map(
+        responseGetAllBedsRefetch?.data?.pop,
+        [...responseGetAllBedsRefetch?.data]
+      );
+      const filteredArrayGetAllBeds = reverseArrayGetAllBeds?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBeds(filteredArrayGetAllBeds));
+    }
+    // ------------------
   };
 
   useEffect(() => {
@@ -175,6 +199,19 @@ export default function IPDPatientList() {
 
       dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
+
+    // Beds
+    if (responseGetAllBeds.isSuccess) {
+      const reverseArrayGetAllBeds = responseGetAllBeds?.data?.map(
+        responseGetAllBeds?.data?.pop,
+        [...responseGetAllBeds?.data]
+      );
+      const filteredArrayGetAllBeds = reverseArrayGetAllBeds?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBeds(filteredArrayGetAllBeds));
+    }
+    // ---------------------
   }, [
     createIpdPatient,
     updateIpdPatient,
@@ -189,6 +226,9 @@ export default function IPDPatientList() {
     patientUpdate,
     patientDelete,
     responseGetAllPatients.isSuccess,
+    createBeds,
+    updateBeds,
+    deleteBeds,
   ]);
   return (
     <>
@@ -200,15 +240,15 @@ export default function IPDPatientList() {
           <LinearProgress />
         </Box>
       ) : (
-        <div className='superadmin-main flex flex-row w-full h-screen'>
-          <div className='superadmin-main-left w-[20%] shadow-lg'>
+        <div className="superadmin-main flex flex-row w-full h-screen">
+          <div className="superadmin-main-left w-[20%] shadow-lg">
             <SideNav
               activePage={`${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.ipdPatientList}`}
             />
           </div>
-          <div className='superadmin-main-right flex flex-col w-[80%]'>
+          <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
-            <div className='superadmin-main-right_dashboard w-full overflow-y-scroll'>
+            <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
               <IPDPatientTable />
             </div>
           </div>

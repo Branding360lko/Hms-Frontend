@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BedComponent from "../SingleBedComp/SingleBedComp";
 
 const BedSelector = ({ beds, handleBedSelect }) => {
@@ -10,13 +10,16 @@ const BedSelector = ({ beds, handleBedSelect }) => {
     handleBedSelect(bed);
   };
 
+  // console.log("beds in bed selector", beds);
+
   const bedTypes = [...new Set(beds.map((bed) => bed.bedType))];
-  const floors = [...new Set(beds.map((bed) => bed.floorNo))];
+  const floors = [...new Set(beds.map((bed) => bed.bedFloor))];
 
   const filteredBeds = selectedFloor
-    ? beds.filter((bed) => bed.floorNo === selectedFloor)
+    ? beds.filter((bed) => bed.bedFloor === selectedFloor)
     : beds;
 
+  // console.log("filteredBeds:", filteredBeds);
   return (
     <div>
       <div className="flex gap-2 mb-2">
@@ -40,26 +43,16 @@ const BedSelector = ({ beds, handleBedSelect }) => {
           key={type}
           className="flex flex-col justify-center items-start px-5 py-2 mb-5 mt-2 rounded-md border border-b-gray-700"
         >
-          <h2>
-            {type === "pvt"
-              ? "Private"
-              : type === "sem"
-              ? "Semi Private"
-              : type === "gen"
-              ? "General"
-              : type === "dlx"
-              ? "Deluxe"
-              : ""}
-          </h2>
+          <h2>{type}</h2>
           <div className="flex justify-start items-start gap-5">
             {filteredBeds
               .filter((bed) => bed.bedType === type)
               .map((bed) => (
                 <BedComponent
-                  key={bed.bdId}
+                  key={bed.bedId}
                   bed={bed}
                   onSelectBed={handleSelectBed}
-                  isSelected={selectedBed && selectedBed.bdId === bed.bdId}
+                  isSelected={selectedBed && selectedBed.bedId === bed.bedId}
                 />
               ))}
           </div>
@@ -68,8 +61,8 @@ const BedSelector = ({ beds, handleBedSelect }) => {
       {selectedBed && (
         <div className="selected-bed-details">
           <h3>You have selected the bed:</h3>
-          <p>Bed Id: {selectedBed.bdId}</p>
-          <p>Floor No: {selectedBed.floorNo}</p>
+          <p>Bed Id: {selectedBed.bedNumber}</p>
+          <p>Floor No: {selectedBed.bedFloor}</p>
           <p>Bed Type: {selectedBed.bedType}</p>
         </div>
       )}
