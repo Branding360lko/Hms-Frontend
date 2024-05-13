@@ -53,13 +53,13 @@ export default function ManageBeds({ setActivePage }) {
   ];
 
   const [bedNumber, setBedNumber] = React.useState("");
-  const [bedTypeName, setBedTypeName] = React.useState(bedTypes[0].name);
-  const [bedSubTypeName, setBedSubTypeName] = React.useState(
-    bedTypes?.find((bed) => bed.name === "GENERAL")?.subCategories[0]
-  );
+  const [bedTypeName, setBedTypeName] = React.useState("");
+  const [bedSubTypeName, setBedSubTypeName] = React.useState("");
   const [bedFloor, setBedFloor] = React.useState("");
   const [isBedAvailable, setIsBedAvailable] = React.useState(true);
   const [bedPrice, setBedPrice] = React.useState("");
+
+  const [isFormValid, setIsFormValid] = React.useState(false);
 
   const [nursingCharges, setNursingCharges] = React.useState("");
   const [emoCharges, setEmoCharges] = React.useState("");
@@ -67,6 +67,9 @@ export default function ManageBeds({ setActivePage }) {
   const [sanitizationCharges, setSanitizationCharges] = React.useState("");
 
   // console.log("bedPrice:", bedPrice);
+
+  console.log("bedTypeName:", bedTypeName);
+  console.log("bedSubTypeName:", bedSubTypeName);
 
   const style = {
     position: "absolute",
@@ -248,6 +251,8 @@ export default function ManageBeds({ setActivePage }) {
       setNursingCharges("");
       setBioWasteCharges("");
       setSanitizationCharges("");
+      setBedSubTypeName("");
+      setBedTypeName("");
 
       setIsBedAvailable(true);
       handleClose();
@@ -256,6 +261,8 @@ export default function ManageBeds({ setActivePage }) {
 
   const handleAddBed = (e) => {
     e.preventDefault();
+
+    setIsFormValid(false);
 
     const submitData = {
       bedNumber: bedNumber,
@@ -272,6 +279,33 @@ export default function ManageBeds({ setActivePage }) {
     // console.log("submitData:", submitData);
     createBed(submitData);
   };
+
+  const handleBedTypeChange = (e) => {
+    setBedTypeName(e.target.value);
+
+    // Reset bed sub-type if bed type changes
+    setBedSubTypeName("");
+  };
+
+  const handleBedSubTypeChange = (e) => {
+    const selectedBedSubTypeName = e.target.value;
+    setBedSubTypeName(selectedBedSubTypeName);
+  };
+
+  React.useEffect(() => {
+    if (bedTypeName === "GENERAL" || bedTypeName === "PRIVATE") {
+      // Check if a valid bed sub-type is selected
+      setIsFormValid(bedSubTypeName !== "");
+    } else {
+      setIsFormValid(true);
+    }
+  }, [bedTypeName, bedSubTypeName]);
+
+  React.useEffect(() => {
+    setBedTypeName("");
+    setBedSubTypeName("");
+    setIsFormValid(false);
+  }, []);
 
   return (
     <Suspense fallback={<>...</>}>
@@ -339,11 +373,10 @@ export default function ManageBeds({ setActivePage }) {
             <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
               <form onSubmit={handleAddBed}>
                 <div className="flex items-center justify-between gap-[2rem]">
-                  <h3 className="border-r w-[400px] py-[1rem]">
-                    Bed Number/Bed ID*
-                  </h3>
+                  <h3 className="border-r w-[400px] py-[1rem]">Bed Number</h3>
                   <input
                     type="number"
+                    min={0}
                     required
                     onChange={(e) => setBedNumber(e.target.value)}
                     className="border rounded-lg w-full p-[8px] outline-none"
@@ -354,9 +387,11 @@ export default function ManageBeds({ setActivePage }) {
                   <select
                     name="bedType"
                     id="bedType"
-                    onChange={(e) => setBedTypeName(e.target.value)}
+                    onChange={handleBedTypeChange}
+                    value={bedTypeName}
                     className="border rounded-lg w-full p-[8px] outline-none"
                   >
+                    <option value="">Select Bed Type</option>
                     {bedTypes.map((bed, index) => (
                       <option key={index} value={bed.name}>
                         {bed.name}
@@ -371,11 +406,14 @@ export default function ManageBeds({ setActivePage }) {
                       Bed Sub-Type*
                     </h3>
                     <select
-                      name="bedType"
-                      id="bedType"
-                      onChange={(e) => setBedSubTypeName(e.target.value)}
+                      name="bedSubType"
+                      id="bedSubType"
+                      onChange={handleBedSubTypeChange}
+                      value={bedSubTypeName}
                       className="border rounded-lg w-full p-[8px] outline-none"
+                      disabled={!bedTypeName} // Disable until bed type is selected
                     >
+                      <option value="">Select Bed Sub-Type</option>
                       {bedTypes
                         .find((bed) => bed.name === bedTypeName)
                         .subCategories?.map((bed, index) => (
@@ -393,6 +431,7 @@ export default function ManageBeds({ setActivePage }) {
                   </h3>
                   <input
                     type="number"
+                    min={0}
                     defaultValue={0}
                     required
                     onChange={(e) => setBedPrice(e.target.value)}
@@ -406,6 +445,7 @@ export default function ManageBeds({ setActivePage }) {
                   </h3>
                   <input
                     type="number"
+                    min={0}
                     defaultValue={0}
                     required
                     onChange={(e) => setNursingCharges(e.target.value)}
@@ -418,6 +458,7 @@ export default function ManageBeds({ setActivePage }) {
                   </h3>
                   <input
                     type="number"
+                    min={0}
                     defaultValue={0}
                     required
                     onChange={(e) => setEmoCharges(e.target.value)}
@@ -430,6 +471,7 @@ export default function ManageBeds({ setActivePage }) {
                   </h3>
                   <input
                     type="number"
+                    min={0}
                     defaultValue={0}
                     required
                     onChange={(e) => setBioWasteCharges(e.target.value)}
@@ -442,6 +484,7 @@ export default function ManageBeds({ setActivePage }) {
                   </h3>
                   <input
                     type="number"
+                    min={0}
                     defaultValue={0}
                     required
                     onChange={(e) => setSanitizationCharges(e.target.value)}
@@ -485,9 +528,18 @@ export default function ManageBeds({ setActivePage }) {
                 </div> */}
 
                 <div className="py-[2rem]">
-                  <button type="submit" className="buttonFilled">
+                  <button
+                    type="submit"
+                    disabled={!isFormValid}
+                    className="buttonFilled"
+                  >
                     Update
                   </button>
+                  {isFormValid === false && (
+                    <h2 className=" text-red-500">
+                      Please select Bed Type and Bed Sub-Type
+                    </h2>
+                  )}
                 </div>
               </form>
             </div>
