@@ -51,6 +51,16 @@ export const IPDPatientService = createApi({
         };
       },
     }),
+
+    addIPDPatientBalanceById: builder.mutation({
+      query: (updateData) => {
+        return {
+          url: `IPDPatient-PUT-UpdateDepositAmount/${updateData.ipdPatientMainId}`,
+          method: "PUT",
+          body: updateData.data,
+        };
+      },
+    }),
   }),
 });
 
@@ -60,4 +70,5 @@ export const {
   useCreateIPDPatientMutation,
   useUpdateIPDPatientByIdMutation,
   useDeleteIPDPatientByIdMutation,
+  useAddIPDPatientBalanceByIdMutation,
 } = IPDPatientService;

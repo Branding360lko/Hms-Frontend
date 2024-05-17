@@ -8,6 +8,7 @@ import { MdViewKanban } from "react-icons/md";
 import { RiEdit2Fill } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { LuHardDriveDownload } from "react-icons/lu";
+import { MdOutlineReceiptLong } from "react-icons/md";
 import { FaBed } from "react-icons/fa";
 
 import Box from "@mui/material/Box";
@@ -36,6 +37,7 @@ import {
   useCreateIPDPatientMutation,
   useUpdateIPDPatientByIdMutation,
   useDeleteIPDPatientByIdMutation,
+  useAddIPDPatientBalanceByIdMutation,
 } from "../../../Store/Services/IPDPatientService";
 
 import {
@@ -50,6 +52,11 @@ import BedSelector from "../AddBedSelector/AddBedSelector";
 
 import { Link } from "react-router-dom";
 import { useUpdateBedAvailabilityMutation } from "../../../Store/Services/BedService";
+
+import PatientBedChargesCal from "../../Receptionist/PatientBedChargesCal/PatientBedChargesCal";
+import AddOtherCharges from "../../Receptionist/AddOtherCharges/AddOtherCharges";
+import { useUpdateIPDPatientMedicalChargesByIdMutation } from "../../../Store/Services/IPDPatientBalanceService";
+import { updateIpdPatientMedicalChargesChange } from "../../../Store/Slices/IPDPatientBalanceSlice";
 
 export default function IPD_PatientTable() {
   const dispatch = useDispatch();
@@ -140,8 +147,12 @@ export default function IPD_PatientTable() {
 
   // Add Bed Form Open State and Logic
   const [addBedFormOpen, setAddBedFormOpen] = React.useState(false);
-
   const [selectedBed, setSelectedBed] = React.useState(null);
+
+  const [updatedBed, setUpdatedBed] = React.useState(null);
+  const [previousBed, setPreviousBed] = React.useState(null);
+
+  const [currentPatientBed, setCurrentPatientBed] = React.useState(null);
 
   const [updateBedAvailability, responseUpdateBedAvailability] =
     useUpdateBedAvailabilityMutation();
@@ -152,6 +163,24 @@ export default function IPD_PatientTable() {
 
   // console.log("beds in ipd:", beds);
 
+  // IPD ADD BALANCE
+
+  const [openAddBalanceModal, setOpenAddBalanceModal] = React.useState(false);
+
+  const [ipdAddBalanceData, setIpdAddBalanceData] = React.useState({
+    ipdPatientMainId: null,
+  });
+
+  const [addIpdPatientBalance, responeAddIpdPatientBalance] =
+    useAddIPDPatientBalanceByIdMutation();
+
+  const updateIpdBalanceState = (newState) => {
+    setIpdAddBalanceData((prevState) => ({
+      ...prevState,
+      ...newState,
+    }));
+  };
+
   function handleAddBedFormOpen(e) {
     e.preventDefault();
 
@@ -161,6 +190,33 @@ export default function IPD_PatientTable() {
   const handleBedSelect = (bed) => {
     setSelectedBed(bed);
   };
+
+  const handleUpdatedBedSelect = (bed) => {
+    setUpdatedBed(bed);
+  };
+
+  // Add Medical Charges State and Logic
+
+  const [addMedicalCharges, responseAddMedicalCharges] =
+    useUpdateIPDPatientMedicalChargesByIdMutation();
+
+  const handleAddMedicalCharges = (updateData) => {
+    console.log("updateData:", updateData);
+    addMedicalCharges(updateData);
+  };
+
+  React.useEffect(() => {
+    if (responseAddMedicalCharges.isSuccess) {
+      dispatch(updateIpdPatientMedicalChargesChange(Math.random()));
+
+      setSnackBarSuccessMessage(responseAddMedicalCharges?.data?.message);
+      handleClickSnackbarSuccess();
+      handleCloseUpdateModal();
+    } else if (responseAddMedicalCharges.isError) {
+      setSnackBarSuccessWarning(responseAddMedicalCharges?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [responseAddMedicalCharges.isSuccess, responseAddMedicalCharges.isError]);
 
   // const bedData = [
   //   // Floor 1
@@ -555,7 +611,12 @@ export default function IPD_PatientTable() {
   // Update Modal
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
   const handleOpenUpdateModal = (data) => {
-    // console.log(data);
+    // console.log("data in update modal:", data);
+    const currentBedId = data.data.ipdBedNo;
+    const currentBedData = beds.find((bed) => bed.bedId === currentBedId);
+
+    setPreviousBed(currentBedData);
+
     setMainId(data?.data?.mainId);
     setIpdPatientId({
       value: data?.data?.ipdPatientId,
@@ -606,6 +667,9 @@ export default function IPD_PatientTable() {
   React.useEffect(() => {
     if (responseUpdateIPDPatientById.isSuccess) {
       dispatch(updateIpdPatientChange(Math.random()));
+      setPreviousBed(null);
+      setUpdatedBed(null);
+
       setSnackBarSuccessMessage(responseUpdateIPDPatientById?.data?.message);
       handleClickSnackbarSuccess();
       handleCloseUpdateModal();
@@ -626,10 +690,10 @@ export default function IPD_PatientTable() {
       ipdDoctorId: ipdDoctorId?.value,
       ipdDepositAmount: ipdDepositAmount,
       ipdPaymentMode: ipdPaymentMode,
-      ipdWardNo: ipdWardNo,
-      ipdFloorNo: ipdFloorNo,
-      ipdRoomNo: ipdRoomNo,
-      ipdBedNo: ipdBedNo,
+      // ipdWardNo: ipdWardNo,
+      ipdFloorNo: updatedBed?.bedFloor,
+      // ipdRoomNo: ipdRoomNo,
+      ipdBedNo: updatedBed?.bedId,
       ipdPatientNotes: ipdPatientNotes,
     };
 
@@ -640,9 +704,38 @@ export default function IPD_PatientTable() {
 
     updateIPDPatientById(updateData);
 
+    if (updatedBed) {
+      if (updatedBed?.bedId !== previousBed.bedId) {
+        handleIpdPatientBedUpdate();
+      }
+    }
+
     // console.log(updateData);
   };
 
+  // console.log("updatedBed:", updatedBed);
+  // console.log("previousBed:", previousBed);
+  // console.log("previousBed.bedId:", previousBed?.bedId);
+
+  const handleIpdPatientBedUpdate = () => {
+    // console.log("inside handleBedUpdate");
+    // console.log("previousBed.bedId:", previousBed?.bedId);
+    const previousBedAvailData = {
+      bedId: previousBed.bedId,
+      data: { bedAvailableOrNot: true },
+    };
+
+    updateBedAvailability(previousBedAvailData);
+
+    const updatedBedAvailabilityData = {
+      bedId: updatedBed.bedId,
+      data: { bedAvailableOrNot: false },
+    };
+
+    updateBedAvailability(updatedBedAvailabilityData);
+  };
+
+  // console.log("ipdPatientData in patientTable:", ipdPatientData);
   const modalUpdateIPDPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Update Patient</h2>
@@ -669,7 +762,7 @@ export default function IPD_PatientTable() {
             />
           </div>
 
-          <div className="flex flex-col gap-[6px]">
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Deposit Amount *</label>
 
             <input
@@ -696,8 +789,9 @@ export default function IPD_PatientTable() {
               <option>Cheque</option>
               <option>Card</option>
             </select>
-          </div>
-          <div className="flex flex-col gap-[6px]">
+          </div> */}
+
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Ward No. *</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -748,8 +842,13 @@ export default function IPD_PatientTable() {
                 setIpdBedNo(value);
               }}
             />
-          </div>
+          </div> */}
         </div>
+        <BedSelector
+          beds={beds}
+          handleBedSelect={handleUpdatedBedSelect}
+          ipdPtientEdit={true}
+        />
 
         <div className="flex flex-col gap-[6px]">
           <label className="text-[14px]">Notes</label>
@@ -769,6 +868,10 @@ export default function IPD_PatientTable() {
           >{`Save >`}</button>
         </div>
       </form>
+      <AddOtherCharges
+        handleAddMedicalCharges={handleAddMedicalCharges}
+        mainId={mainId}
+      />
     </div>
   );
 
@@ -778,10 +881,25 @@ export default function IPD_PatientTable() {
   const [openViewModal, setOpenViewModal] = React.useState(false);
   const handleOpenViewModal = (data) => {
     setIpdPatientData(data);
+    // const currentPatientBed = beds.find(
+    //   (bed) => bed?.bedId === ipdPatientData?.data?.ipdBedNo
+    // );
+
+    // setCurrentPatientBed(currentPatientBed);
     setOpenViewModal(true);
   };
+  React.useEffect(() => {
+    const currentPatientBed = beds.find(
+      (bed) => bed?.bedId === ipdPatientData?.data?.ipdBedNo
+    );
+
+    setCurrentPatientBed(currentPatientBed);
+  }, [handleOpenViewModal]);
+
   // console.log(opdPatientData);
   const handleCloseViewModal = () => setOpenViewModal(false);
+
+  // console.log("currentPatientBed:", currentPatientBed);
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -855,8 +973,12 @@ export default function IPD_PatientTable() {
               <p>{ipdPatientData?.data?.ipdPatientBloodPressure}</p>
             </div> */}
             <div className="flex">
-              <p className="font-[600] w-[150px]">Bed Type: </p>
-              <p>{ipdPatientData?.data?.ipdPatientBedType}</p>
+              <p className="font-[600] w-[150px]">Bed No: </p>
+              <p>{currentPatientBed?.bedNumber}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Bed Floor: </p>
+              <p>{currentPatientBed?.bedFloor}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Height: </p>
@@ -905,6 +1027,10 @@ export default function IPD_PatientTable() {
           </div>
         </div>
       </div>
+      <PatientBedChargesCal
+        currentPatientBed={currentPatientBed}
+        ipdPatientData={ipdPatientData}
+      />
     </div>
   );
   // ---------------
@@ -935,6 +1061,64 @@ export default function IPD_PatientTable() {
     };
   });
 
+  console.log("mappedBillData:", mappedBillData);
+
+  // Add balance Modal Funtiontionality
+
+  const handleAddBalanceModalOpen = (list) => {
+    const currentIpdPatientMainId = list.data.mainId;
+    updateIpdBalanceState({ ipdPatientMainId: currentIpdPatientMainId });
+
+    setOpenAddBalanceModal(true);
+  };
+
+  const handleAddBalanceModalClose = () => {
+    setOpenAddBalanceModal(false);
+
+    setIpdDespositAmount(0);
+
+    updateIpdBalanceState({
+      ipdPatientMainId: null,
+    });
+  };
+
+  const handleAddBalanceFormSubmit = (e) => {
+    e.preventDefault();
+
+    const updateData = {
+      ipdPatientMainId: ipdAddBalanceData.ipdPatientMainId,
+      data: {
+        ipdAddedAmount: Number(ipdDepositAmount),
+        ipdPaymentMode: ipdPaymentMode,
+      },
+    };
+
+    console.log("updatedData:", updateData);
+
+    addIpdPatientBalance(updateData);
+  };
+
+  React.useEffect(() => {
+    if (responeAddIpdPatientBalance.isSuccess) {
+      dispatch(updateIpdPatientChange(Math.random()));
+      updateIpdBalanceState({
+        ipdPatientMainId: null,
+      });
+
+      setSnackBarSuccessMessage(responeAddIpdPatientBalance?.data?.message);
+      handleClickSnackbarSuccess();
+      handleAddBalanceModalClose();
+    } else if (responeAddIpdPatientBalance.isError) {
+      setSnackBarSuccessWarning(responeAddIpdPatientBalance?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responeAddIpdPatientBalance.isSuccess,
+    responeAddIpdPatientBalance.isError,
+  ]);
+
+  //////////////
+
   const config = [
     {
       label: "Reg No.",
@@ -954,17 +1138,28 @@ export default function IPD_PatientTable() {
     },
     {
       label: "Bed",
-      render: (list) => list?.data?.ipdPatientBed,
+      render: (list) =>
+        beds.find((bed) => bed.bedId === list?.data?.ipdBedNo)?.bedNumber,
     },
     {
-      label: "Bill Status",
+      label: "Current Balance",
       render: (list) => (
         <>
-          {list?.data?.ipdBillStatus === true ? (
-            <p className="bg-[#B5FFBC] font-[600] rounded-lg p-[4px]">Paid</p>
-          ) : (
-            <p className="bg-[#F76D71] font-[600] rounded-lg p-[4px]">Unpaid</p>
-          )}
+          <div className="">
+            <h2
+              className={`${
+                list.data.ipdDepositAmount > 5000 ? "" : " text-red-500"
+              }`}
+            >
+              ₹ {list?.data?.ipdDepositAmount}
+            </h2>
+          </div>
+          <button
+            onClick={() => handleAddBalanceModalOpen(list)}
+            className=" bg-blue-400 hover:bg-blue-500 text-white font-semibold px-2 py-1 rounded-md"
+          >
+            Add Balance
+          </button>
         </>
       ),
     },
@@ -1058,6 +1253,85 @@ export default function IPD_PatientTable() {
           </Typography>
         </Box>
       </Modal>
+
+      {/* Add Balance Modal */}
+      <Modal
+        open={openAddBalanceModal}
+        onClose={handleAddBalanceModalClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "90%",
+            height: "40%",
+            bgcolor: "background.paper",
+            borderRadius: "12px",
+            border: "none",
+            outline: "none",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
+              Update IPD Patient Balance
+            </h1>
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <form
+              className="flex flex-col gap-[1rem]"
+              onSubmit={(e) => handleAddBalanceFormSubmit(e)}
+            >
+              <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px]">Deposit Amount *</label>
+
+                  <input
+                    className="py-[10px] outline-none border-b"
+                    required
+                    placeholder="Enter deposit amount"
+                    defaultValue={0}
+                    value={ipdDepositAmount}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      setIpdDespositAmount(value);
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px]">Payment Mode *</label>
+                  <select
+                    required
+                    className="py-[10px] outline-none border-b bg-transparent"
+                    value={ipdPaymentMode}
+                    onChange={(e) => setIpdPaymentMode(e.target.value)}
+                  >
+                    <option>UPI</option>
+                    <option>Cash</option>
+                    <option>Cheque</option>
+                    <option>Card</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-[1rem] items-center">
+                <button
+                  type="submit"
+                  className="buttonFilled"
+                  onClick={() => setSubmitButton("add")}
+                >{`Save >`}</button>
+              </div>
+            </form>
+            {/* ///// */}
+          </Typography>
+        </Box>
+      </Modal>
+
       <Modal
         open={openViewModal}
         onClose={handleCloseViewModal}
@@ -1077,14 +1351,15 @@ export default function IPD_PatientTable() {
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
                 className="buttonFilled flex items-center gap-[10px]"
               >
-                <LuHardDriveDownload />
-                <p>Download</p>
+                <MdOutlineReceiptLong />
+                <p>Discharge</p>
               </Link>
             </div>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewPatientDetails}
           </Typography>
+          <Typography></Typography>
         </Box>
       </Modal>
       {/* Success Snackbar */}

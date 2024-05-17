@@ -24,8 +24,8 @@ export default function PaginationComponent({
     <TablePagination
       style={{ backgroundColor: "white" }}
       rowsPerPageOptions={[5, 10, 20, 50]}
-      component='div'
-      count={data.length}
+      component="div"
+      count={data?.length}
       page={page}
       onPageChange={handleChangePage}
       rowsPerPage={rowsPerPage}

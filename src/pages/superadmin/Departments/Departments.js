@@ -65,7 +65,7 @@ export default function Departments() {
   const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
     (state) => state.BedState
   );
-  console.log(beds);
+  // console.log(beds);
 
   const apiRefetch = async () => {
     // Departments
@@ -202,15 +202,15 @@ export default function Departments() {
   ]);
 
   return (
-    <div className='superadmin-main flex flex-row w-full h-screen'>
-      <div className='w-[20%] shadow-lg'>
+    <div className="superadmin-main flex flex-row w-full h-screen">
+      <div className="w-[20%] shadow-lg">
         <SideNav
           activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.department}`}
         />
       </div>
-      <div className='superadmin-main-right flex flex-col w-[80%]'>
+      <div className="superadmin-main-right flex flex-col w-[80%]">
         <UpperNav />
-        <div className='superadmin-main-right_dashboard w-full overflow-y-scroll'>
+        <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
           {activePage === "Manage Department" && (
             <ManageDepartment setActivePage={setActivePage} />
           )}

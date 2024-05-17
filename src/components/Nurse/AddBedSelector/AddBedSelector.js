@@ -26,7 +26,7 @@ const BedSelector = ({ beds, handleBedSelect }) => {
   const filteredBeds = selectedFloor
     ? beds.filter((bed) => bed.bedFloor === selectedFloor)
     : beds;
-  console.log("bedTypes:", bedTypes);
+  // console.log("bedTypes:", bedTypes);
   // console.log("filteredBeds:", filteredBeds);
   return (
     <div>
