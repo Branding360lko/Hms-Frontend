@@ -78,10 +78,6 @@ export default function SideNav({ activePage }) {
     },
     {
       icon: <FaFileLines />,
-      name: browserLinks.superadmin.internalPages.department,
-    },
-    {
-      icon: <FaFileLines />,
       name: browserLinks.superadmin.internalPages.appointments,
     },
     {

@@ -19,7 +19,6 @@ const browserLinks = {
       ipdPatients: "IPD Patients",
       testPatient: "Test Patients",
       emergencyPatient: "Emergency Patients",
-      department: "Department",
     },
   },
   hr: {

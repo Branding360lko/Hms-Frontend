@@ -98,10 +98,6 @@ const SuperAdminEmergencyPatientPage = lazy(() =>
   import("./pages/superadmin/EmergencyPatient/EmergencyPatientLIst")
 );
 
-const SuperAdminDepartmentPage = lazy(() =>
-  import("./pages/superadmin/Departments/Departments")
-);
-
 const BillDownloadPage = lazy(() =>
   import("./components/superadmin/BillingTable/BillDownload/BillDownload")
 );
@@ -522,21 +518,6 @@ function App() {
                     }
                   />
                   <Route
-                    path={browserLinks.superadmin.internalPages.department}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <SuperAdminDepartmentPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
                     path={browserLinks.superadmin.internalPages.opd}
                     element={
                       <Suspense
@@ -646,63 +627,6 @@ function App() {
                           </>
                         }>
                         <SuperAdminIPDPatientRecieptDownloadPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={`${
-                      browserLinks.superadmin.category
-                    }/${browserLinks.superadmin.internalPages.testPatient
-                      .split(" ")
-                      .join("")}/:testPatientId`}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <TestPatientReceipt />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={`${
-                      browserLinks.superadmin.category
-                    }/${browserLinks.superadmin.internalPages.emergencyPatient
-                      .split(" ")
-                      .join("")}/:emergencyPatientId`}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <EmergencyPatientReciept />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={`${
-                      browserLinks.superadmin.category
-                    }/${browserLinks.superadmin.internalPages.patients
-                      .split(" ")
-                      .join("")}/:patientId`}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <PatientViewPageToPrint />
                       </Suspense>
                     }
                   />
