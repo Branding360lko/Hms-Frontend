@@ -55,8 +55,16 @@ import { useUpdateBedAvailabilityMutation } from "../../../Store/Services/BedSer
 
 import PatientBedChargesCal from "../../Receptionist/PatientBedChargesCal/PatientBedChargesCal";
 import AddOtherCharges from "../../Receptionist/AddOtherCharges/AddOtherCharges";
-import { useUpdateIPDPatientMedicalChargesByIdMutation } from "../../../Store/Services/IPDPatientBalanceService";
-import { updateIpdPatientMedicalChargesChange } from "../../../Store/Slices/IPDPatientBalanceSlice";
+import {
+  useGetIPDPatientBalanceByIdQuery,
+  useUpdateIPDPatientLabTestChargesByIdMutation,
+  useUpdateIPDPatientMedicalChargesByIdMutation,
+} from "../../../Store/Services/IPDPatientBalanceService";
+import {
+  updateIpdPatientLabTestChargesChange,
+  updateIpdPatientMedicalChargesChange,
+} from "../../../Store/Slices/IPDPatientBalanceSlice";
+import IpdChargesShowcase from "../../Receptionist/IpdChargesShowcase/IpdChargesShowcase";
 
 export default function IPD_PatientTable() {
   const dispatch = useDispatch();
@@ -132,6 +140,10 @@ export default function IPD_PatientTable() {
     label: "",
   });
 
+  // View Modal State
+
+  const [openViewModal, setOpenViewModal] = React.useState(false);
+
   const [ipdDepositAmount, setIpdDespositAmount] = React.useState();
   const [ipdPaymentMode, setIpdPaymentMode] = React.useState("UPI");
   const [ipdWardNo, setIpdWardNo] = React.useState();
@@ -153,6 +165,9 @@ export default function IPD_PatientTable() {
   const [previousBed, setPreviousBed] = React.useState(null);
 
   const [currentPatientBed, setCurrentPatientBed] = React.useState(null);
+
+  const [currentPatientBedCharges, setCurrentPatientBedCharges] =
+    React.useState(0);
 
   const [updateBedAvailability, responseUpdateBedAvailability] =
     useUpdateBedAvailabilityMutation();
@@ -217,6 +232,118 @@ export default function IPD_PatientTable() {
       handleClickSnackbarWarning();
     }
   }, [responseAddMedicalCharges.isSuccess, responseAddMedicalCharges.isError]);
+
+  // Add Lab Charges State and Logic
+
+  const [addLabCharges, responseAddLabCharges] =
+    useUpdateIPDPatientLabTestChargesByIdMutation();
+
+  const handleAddLabCharges = (updateData) => {
+    addLabCharges(updateData);
+  };
+
+  React.useEffect(() => {
+    if (responseAddLabCharges.isSuccess) {
+      dispatch(updateIpdPatientLabTestChargesChange(Math.random()));
+
+      setSnackBarSuccessMessage(responseAddLabCharges?.data?.message);
+      handleClickSnackbarSuccess();
+      handleCloseUpdateModal();
+    } else if (responseAddLabCharges.isError) {
+      setSnackBarSuccessWarning(responseAddLabCharges?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [responseAddLabCharges.isSuccess, responseAddLabCharges.isError]);
+
+  // Ipd Patient Balance Details
+
+  const [ipdPatientCurrentBalance, setIpdPatientCurrentBalance] =
+    React.useState(null);
+
+  const [ipdPatientTotalDeposit, setIpdPatientTotalDeposit] =
+    React.useState(null);
+
+  const [ipdPatientTotalExpenditure, setIpdPatientTotalExpenditure] =
+    React.useState(null);
+
+  const [ipdPatientRemainingBalance, setIpdPatientRemainingBalance] =
+    React.useState(null);
+
+  const [ipdPatientNegativeBalanceAlert, setIpdPatientNegativeBalanceAlert] =
+    React.useState(false);
+
+  const calculateIpdPatientBalances = () => {
+    if (ipdPatientCurrentBalance) {
+      // Calculate total deposit
+      const lastDeposit =
+        ipdPatientCurrentBalance?.data?.balance[
+          ipdPatientCurrentBalance?.data?.balance?.length - 1
+        ];
+      const totalDepositAmount = Number(lastDeposit?.totalBalance || 0);
+      setIpdPatientTotalDeposit(totalDepositAmount);
+
+      console.log("totalDepositAmount:", totalDepositAmount);
+
+      // Calculate total expenditure
+      const totalExpenditure = Number(ipdPatientCurrentBalance?.total || 0);
+      setIpdPatientTotalExpenditure(totalExpenditure);
+
+      console.log("totalExpenditure:", totalExpenditure);
+
+      // Calculate remaining balance
+      const remainingBalance = ipdPatientCurrentBalance?.remainingBalance;
+      setIpdPatientRemainingBalance(remainingBalance);
+      console.log("remainingBalance:", remainingBalance);
+
+      // Set negative balance alert
+      setIpdPatientNegativeBalanceAlert(remainingBalance < 0);
+    }
+  };
+  React.useEffect(() => {
+    calculateIpdPatientBalances();
+  }, [ipdPatientCurrentBalance, currentPatientBedCharges, openViewModal]);
+
+  // Discharge Function and Logic
+
+  const [ipdPatientDischargeState, setIpdPatientDischargeState] =
+    React.useState({
+      dischargeNurseRequestSent:
+        ipdPatientData?.data?.ipdPatientNurseRequestForDischarge,
+      dischargeDoctorRequestSent:
+        ipdPatientData?.data?.ipdPatientDoctorRequestForDischarge,
+
+      nurseUpdate: ipdPatientData?.data?.ipdPatientNurseConfirmation,
+      doctorUpdate: ipdPatientData?.data?.ipdPatientDoctorConfirmation,
+
+      discharged: ipdPatientData?.data?.ipdPatientDischarged,
+    });
+
+  const updateIpdPatientDischargeState = (updatedState) => {
+    setIpdPatientDischargeState((prevState) => ({
+      ...prevState,
+      ...updatedState,
+    }));
+  };
+
+  React.useEffect(() => {
+    updateIpdPatientDischargeState({
+      dischargeNurseRequestSent:
+        ipdPatientData?.data?.ipdPatientNurseRequestForDischarge,
+      dischargeDoctorRequestSent:
+        ipdPatientData?.data?.ipdPatientDoctorRequestForDischarge,
+
+      nurseUpdate: ipdPatientData?.data?.ipdPatientNurseConfirmation,
+      doctorUpdate: ipdPatientData?.data?.ipdPatientDoctorConfirmation,
+
+      discharged: ipdPatientData?.data?.ipdPatientDischarged,
+    });
+  }, [ipdPatientData]);
+
+  const handleDischargeButtonClick = (e) => {
+    e.preventDefault();
+    console.log("ipdPatientDischargeState:", ipdPatientDischargeState);
+    // updateIpdPatientDischargeState({ dischargeRequestSent: true });
+  };
 
   // const bedData = [
   //   // Floor 1
@@ -868,17 +995,29 @@ export default function IPD_PatientTable() {
           >{`Save >`}</button>
         </div>
       </form>
-      <AddOtherCharges
-        handleAddMedicalCharges={handleAddMedicalCharges}
-        mainId={mainId}
-      />
+      <br />
+      <div className=" flex flex-col justify-center items-start gap-5">
+        <h2>Add Medical Charges </h2>
+        <AddOtherCharges
+          handleAddMedicalCharges={handleAddMedicalCharges}
+          mainId={mainId}
+        />
+        <br />
+
+        <h2>Add Lab Test Charges</h2>
+
+        <AddOtherCharges
+          handleAddMedicalCharges={handleAddLabCharges}
+          mainId={mainId}
+        />
+      </div>
     </div>
   );
 
   // ---------------------------------------------------
 
   // View Modal
-  const [openViewModal, setOpenViewModal] = React.useState(false);
+
   const handleOpenViewModal = (data) => {
     setIpdPatientData(data);
     // const currentPatientBed = beds.find(
@@ -901,12 +1040,42 @@ export default function IPD_PatientTable() {
 
   // console.log("currentPatientBed:", currentPatientBed);
 
+  console.log("ipdPatientCurrentBalance:", ipdPatientCurrentBalance);
+
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <div className="border-b flex gap-[1rem] py-[1rem] w-full">
         <h3 className="font-[500]">ID: </h3>
         <h3>{ipdPatientData?.data?.mainId}</h3>
       </div>
+      <div className=" flex justify-center items-center">
+        <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+          <h3 className="font-[500]">Total Deposit: </h3>
+          <h3>
+            Rs.
+            {ipdPatientTotalDeposit ? ipdPatientTotalDeposit : "0"}
+          </h3>
+        </div>
+        <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+          <h3 className="font-[500]">Total Expense: </h3>
+          <h3>
+            Rs.
+            {ipdPatientTotalExpenditure ? ipdPatientTotalExpenditure : "0"}
+          </h3>
+        </div>
+        <div
+          className={`border-b flex gap-[1rem] py-[1rem] w-full ${
+            ipdPatientNegativeBalanceAlert ? "text-red-500" : ""
+          }`}
+        >
+          <h3 className="font-[500]">Remaining Balance: </h3>
+          <h3>
+            Rs.
+            {ipdPatientRemainingBalance ? ipdPatientRemainingBalance : "0"}
+          </h3>
+        </div>
+      </div>
+
       <div className="flex w-full">
         <div className="w-[25%] flex flex-col items-center">
           <img
@@ -1027,9 +1196,13 @@ export default function IPD_PatientTable() {
           </div>
         </div>
       </div>
-      <PatientBedChargesCal
+
+      <IpdChargesShowcase
         currentPatientBed={currentPatientBed}
         ipdPatientData={ipdPatientData}
+        setIpdPatientCurrentBalance={setIpdPatientCurrentBalance}
+        setCurrentPatientBedCharges={setCurrentPatientBedCharges}
+        openViewModal={openViewModal}
       />
     </div>
   );
@@ -1142,14 +1315,14 @@ export default function IPD_PatientTable() {
         beds.find((bed) => bed.bedId === list?.data?.ipdBedNo)?.bedNumber,
     },
     {
-      label: "Current Balance",
+      label: "Total Deposit",
       render: (list) => (
         <>
           <div className="">
             <h2
-              className={`${
-                list.data.ipdDepositAmount > 5000 ? "" : " text-red-500"
-              }`}
+            // className={`${
+            //   list.data.ipdDepositAmount > 5000 ? "" : " text-red-500"
+            // }`}
             >
               ₹ {list?.data?.ipdDepositAmount}
             </h2>
@@ -1163,6 +1336,28 @@ export default function IPD_PatientTable() {
         </>
       ),
     },
+    // {
+    //   label: "Remaining Balance",
+    //   render: (list) => (
+    //     <>
+    //       <div className="">
+    //         <h2
+    //         // className={`${
+    //         //   list.data.ipdDepositAmount > 5000 ? "" : " text-red-500"
+    //         // }`}
+    //         >
+    //           ₹ {list?.data?.ipdDepositAmount}
+    //         </h2>
+    //       </div>
+    //       <button
+    //         onClick={() => handleAddBalanceModalOpen(list)}
+    //         className=" bg-blue-400 hover:bg-blue-500 text-white font-semibold px-2 py-1 rounded-md"
+    //       >
+    //         Add Balance
+    //       </button>
+    //     </>
+    //   ),
+    // },
     {
       label: "Action",
       render: (list) => (
@@ -1344,22 +1539,69 @@ export default function IPD_PatientTable() {
               <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 IPD Patient Details
               </h1>
-              <Link
-                // onClick={handleGeneratePdf}
-                target="_blank"
-                to={ipdPatientData?.data?.mainId}
-                // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
-                className="buttonFilled flex items-center gap-[10px]"
-              >
-                <MdOutlineReceiptLong />
-                <p>Discharge</p>
-              </Link>
+              {ipdPatientNegativeBalanceAlert ? (
+                <button
+                  onClick={(e) => e.preventDefault()}
+                  disabled={true}
+                  className=" bg-red-500 text-white px-2 py-1 rounded-md"
+                >
+                  Negative Balance
+                </button>
+              ) : ipdPatientDischargeState.discharged === true ? (
+                <div>Download Discharge Reciept</div>
+              ) : (
+                <>
+                  {(ipdPatientDischargeState.dischargeDoctorRequestSent &&
+                    !ipdPatientDischargeState.doctorUpdate) ||
+                  !ipdPatientDischargeState.nurseUpdate ? (
+                    <div>Request Pending</div>
+                  ) : (
+                    <Link
+                      onClick={(e) => handleDischargeButtonClick(e)}
+                      target="_blank"
+                      to={ipdPatientData?.data?.mainId}
+                      // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
+                      className="buttonFilled flex items-center gap-[10px]"
+                    >
+                      <MdOutlineReceiptLong />
+                      <p>Discharge</p>
+                    </Link>
+                  )}
+                </>
+              )}
+              {/* {ipdPatientNegativeBalanceAlert ? (
+                <button
+                  onClick={(e) => e.preventDefault()}
+                  disabled={true}
+                  className=" bg-red-500 text-white px-2 py-1 rounded-md"
+                >
+                  Negative Balance
+                </button>
+              ) : ipdPatientDischargeState.discharged === true ? (
+                <div>Download Discharge Reciept</div>
+              ) : (ipdPatientDischargeState.dischargeDoctorRequestSent ===
+                  true &&
+                  ipdPatientDischargeState.doctorUpdate === false) ||
+                ipdPatientDischargeState.nurseUpdate === false ? (
+                <div>Request Pending</div>
+              ) : (
+                <Link
+                  onClick={(e) => handleDischargeButtonClick(e)}
+                  target="_blank"
+                  to={ipdPatientData?.data?.mainId}
+                  // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
+                  className="buttonFilled flex items-center gap-[10px]"
+                >
+                  <MdOutlineReceiptLong />
+                  <p>Discharge</p>
+                </Link>
+              )} */}
             </div>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewPatientDetails}
           </Typography>
-          <Typography></Typography>
+          {/* <Typography></Typography> */}
         </Box>
       </Modal>
       {/* Success Snackbar */}

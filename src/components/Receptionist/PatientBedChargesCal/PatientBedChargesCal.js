@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
-function PatientBedChargesCal({ currentPatientBed, ipdPatientData }) {
+function PatientBedChargesCal({
+  currentPatientBed,
+  ipdPatientData,
+  setCurrentPatientBedCharges,
+}) {
   //   console.log("currentPatientBed in billsumm:", currentPatientBed);
   //   console.log("ipdPatientData in bill sum:", ipdPatientData);
 
@@ -34,6 +38,7 @@ function PatientBedChargesCal({ currentPatientBed, ipdPatientData }) {
       patientInDays;
 
     setTotalCharges(totalCharges);
+    setCurrentPatientBedCharges(totalCharges);
   };
 
   useEffect(() => {

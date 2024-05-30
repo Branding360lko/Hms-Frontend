@@ -60,6 +60,14 @@ export default function IPDPatientList() {
     (state) => state.PatientState
   );
 
+  const {
+    updateIpdPatientDepositAmount,
+    updateIpdPatientLabTestCharges,
+    updateIpdPatientMedicalCharges,
+  } = useSelector((state) => state.IPDPatientBalanceState);
+
+  console.log("updateIpdPatientDepositAmount:", updateIpdPatientDepositAmount);
+
   const apiRefetch = async () => {
     // IPD Patients
     const responseGetAllIPDPatientsRefetch =
@@ -229,6 +237,9 @@ export default function IPDPatientList() {
     createBeds,
     updateBeds,
     deleteBeds,
+    updateIpdPatientDepositAmount,
+    updateIpdPatientLabTestCharges,
+    updateIpdPatientMedicalCharges,
   ]);
   return (
     <>

@@ -25,7 +25,13 @@ function AddOtherCharges({ handleAddMedicalCharges, mainId }) {
 
   const handleInputChange = (index, field, value) => {
     const updatedItems = items.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item
+      i === index
+        ? {
+            ...item,
+            [field]:
+              field === "quantity" || field === "price" ? Number(value) : value,
+          }
+        : item
     );
     setItems(updatedItems);
   };
