@@ -65,7 +65,7 @@ export const IPDPatientService = createApi({
     ipdPatientDischargeRequest: builder.mutation({
       query: (id) => {
         return {
-          url: `/IPDPatientDischargeRequest-PUT/${id}`,
+          url: `IPDPatientDischargeRequest-PUT/${id}`,
           method: "PUT",
           // body: updateData.data,
         };
@@ -75,7 +75,7 @@ export const IPDPatientService = createApi({
     ipdPatientMedDocLabChargesGetById: builder.mutation({
       query: (id) => {
         return {
-          url: `/get-one-ipd-data-total/${id}`,
+          url: `get-one-ipd-data-total/${id}`,
           method: "GET",
           // body: updateData.data,
         };
@@ -85,7 +85,7 @@ export const IPDPatientService = createApi({
     ipdPatientFinalBalanceCalGetAll: builder.mutation({
       query: () => {
         return {
-          url: `/IPDPatient-Balance-GET-ALL`,
+          url: `IPDPatient-Balance-GET-ALL`,
           method: "GET",
           // body: updateData.data,
         };
@@ -94,7 +94,7 @@ export const IPDPatientService = createApi({
     ipdPatientFinalBalanceCalGetById: builder.mutation({
       query: (id) => {
         return {
-          url: `/IPDPatient-Balance-GET/${id}`,
+          url: `IPDPatient-Balance-GET/${id}`,
           method: "GET",
           // body: updateData.data,
         };
@@ -103,7 +103,7 @@ export const IPDPatientService = createApi({
     ipdPatientFinalDischargeById: builder.mutation({
       query: (id) => {
         return {
-          url: `/IPDPatient-PUT-DISCHARGE/${id}`,
+          url: `IPDPatient-PUT-DISCHARGE/${id}`,
           method: "PUT",
           // body: updateData.data,
         };
@@ -112,7 +112,7 @@ export const IPDPatientService = createApi({
     ipdPatientMedLabDocDetailById: builder.mutation({
       query: (id) => {
         return {
-          url: `/get-one-ipd-data/${id}`,
+          url: `get-one-ipd-data/${id}`,
           method: "GET",
           // body: updateData.data,
         };
@@ -121,7 +121,7 @@ export const IPDPatientService = createApi({
     ipdPatientDischargeReceiptGetById: builder.mutation({
       query: (id) => {
         return {
-          url: `/IPDPatientDischargeReciept-GET-ONE/${id}`,
+          url: `IPDPatientDischargeReciept-GET-ONE/${id}`,
           method: "GET",
           // body: updateData.data,
         };

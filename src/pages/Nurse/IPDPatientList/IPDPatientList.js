@@ -28,6 +28,8 @@ import { useGetAllPatientsQuery } from "../../../Store/Services/PatientService";
 import { getAllPatients } from "../../../Store/Slices/PatientSlice";
 import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
 import { getAllBeds } from "../../../Store/Slices/BedSlice";
+import { useGetAllNursesQuery } from "../../../Store/Services/NurseService";
+import { getAllNurses } from "../../../Store/Slices/NurseSlice";
 
 const IPDPatientTable = lazy(() =>
   import("../../../components/Nurse/IPDPatientTableAndForm/IPD_PatientTable")
@@ -40,6 +42,8 @@ export default function IPDPatientList() {
   const responseGetAllDoctorProfessionalDetails =
     useGetAllDoctorProfessionalDetailsQuery();
   const responseGetAllPatients = useGetAllPatientsQuery();
+
+  const responseGetAllNurses = useGetAllNursesQuery();
 
   // Ipd Patients Final Balance Calculation Get all
 
@@ -63,6 +67,10 @@ export default function IPDPatientList() {
     updateDoctor,
     deleteDoctor,
   } = useSelector((state) => state.DoctorState);
+
+  const { nurses, createNurse, updateNurse, deleteNurse } = useSelector(
+    (state) => state.NurseState
+  );
 
   const { patients, patientCreate, patientUpdate, patientDelete } = useSelector(
     (state) => state.PatientState
@@ -93,6 +101,18 @@ export default function IPDPatientList() {
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
     }
     // --------------------
+    // Nurses
+    const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
+    if (responseGetAllNursesRefetch.isSuccess) {
+      const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
+        responseGetAllNursesRefetch?.data?.pop,
+        [...responseGetAllNursesRefetch?.data]
+      );
+      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllNurses(filteredArrayGetAllNurses));
+    }
     // Doctors
     const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
     if (responseGetAllDoctorsRefetch.isSuccess) {
@@ -173,6 +193,19 @@ export default function IPDPatientList() {
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
     }
     // --------------------
+    // Nurses
+
+    if (responseGetAllNurses.isSuccess) {
+      const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
+        responseGetAllNurses?.data?.pop,
+        [...responseGetAllNurses?.data]
+      );
+      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllNurses(filteredArrayGetAllNurses));
+    }
+
     // Doctors
     if (responseGetAllDoctors.isSuccess) {
       const reverseArrayGetAllDoctors = responseGetAllDoctors?.data?.map(
@@ -238,6 +271,10 @@ export default function IPDPatientList() {
     deleteDoctor,
     responseGetAllDoctors.isSuccess,
     responseGetAllDoctorProfessionalDetails.isSuccess,
+    createNurse,
+    updateNurse,
+    deleteNurse,
+    responseGetAllNurses.isSuccess,
     patientCreate,
     patientUpdate,
     patientDelete,

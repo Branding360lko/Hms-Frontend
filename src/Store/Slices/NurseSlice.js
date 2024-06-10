@@ -8,7 +8,7 @@ const initialState = {
 };
 
 const nurseSlice = createSlice({
-  name: "nurse",
+  name: "nurses",
   initialState,
   reducers: {
     getAllNurses: (state, action) => {

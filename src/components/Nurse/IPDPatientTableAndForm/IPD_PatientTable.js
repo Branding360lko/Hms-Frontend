@@ -145,6 +145,11 @@ export default function IPD_PatientTable() {
     label: "",
   });
 
+  const [ipdNurseId, setIpdNurseId] = React.useState({
+    value: "",
+    label: "",
+  });
+
   // View Modal State
 
   const [openViewModal, setOpenViewModal] = React.useState(false);
@@ -577,7 +582,7 @@ export default function IPD_PatientTable() {
   const renderedNursesIDForDropdown = nurses?.map((data) => {
     return {
       value: data.nurseId,
-      label: `${data.nurseId} / ${data.nurse}`,
+      label: `${data.nurseId} / ${data.nurseName}`,
     };
   });
 
@@ -604,6 +609,7 @@ export default function IPD_PatientTable() {
         setIpdPatientId({ value: "", label: "" });
 
         setIpdDoctorId({ value: "", label: "" });
+        setIpdNurseId({ value: "", label: "" });
         setIpdDespositAmount();
         setIpdPaymentMode("UPI");
         setIpdWardNo();
@@ -646,7 +652,7 @@ export default function IPD_PatientTable() {
     const submitData = {
       ipdPatientId: ipdPatientId?.value,
       ipdDoctorId: ipdDoctorId?.value,
-      ipdNurseId: "RandomNurse",
+      ipdNurseId: ipdNurseId?.value,
       ipdDepositAmount: ipdDepositAmount,
       ipdPaymentMode: ipdPaymentMode,
       // ipdWardNo: ipdWardNo,
@@ -696,8 +702,8 @@ export default function IPD_PatientTable() {
             <label className="text-[14px]">Nurse Id *</label>
             <Select
               required
-              options={renderedDoctorIDForDropdown}
-              onChange={setIpdDoctorId}
+              options={renderedNursesIDForDropdown}
+              onChange={setIpdNurseId}
             />
           </div>
 
@@ -1322,7 +1328,7 @@ export default function IPD_PatientTable() {
   const handleIpdPatientsFinalBalanceCall = async () => {
     try {
       const response = await axios.get(
-        `${apiBaseUrl}/IPDPatient-Balance-GET-ALL`
+        `${apiBaseUrl}IPDPatient-Balance-GET-ALL`
       );
       // console.log(response);
 
