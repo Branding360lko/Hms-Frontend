@@ -36,50 +36,55 @@ function PatientBedChargesCal({
 
   console.log("ipdPatientFinalBedCal:", ipdPatientFinalBedCal);
 
-  const [patientInDays, setPatientInDays] = useState(null);
+  // const [patientInDays, setPatientInDays] = useState(null);
 
-  const [totalAmount, setTotalAmount] = useState(0);
+  // const [totalAmount, setTotalAmount] = useState(0);
 
-  const [totalCharges, setTotalCharges] = useState(0);
+  const [totalCharges, setTotalCharges] = useState(null);
 
-  const calculatePatientDays = () => {
-    const admittedDate = new Date(ipdPatientData?.data?.createdAt);
-    const currentDate = new Date();
+  // const calculatePatientDays = () => {
+  //   const admittedDate = new Date(ipdPatientData?.data?.createdAt);
+  //   const currentDate = new Date();
 
-    admittedDate.setHours(0, 0, 0, 0);
-    currentDate.setHours(0, 0, 0, 0);
+  //   admittedDate.setHours(0, 0, 0, 0);
+  //   currentDate.setHours(0, 0, 0, 0);
 
-    const timeDifference = currentDate - admittedDate;
+  //   const timeDifference = currentDate - admittedDate;
 
-    const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+  //   const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
-    setPatientInDays(Math.ceil(daysDifference) + 1);
-  };
+  //   setPatientInDays(Math.ceil(daysDifference) + 1);
+  // };
+
+  useEffect(() => {
+    calculateTotalCharges();
+  }, [ipdPatientFinalBedCal]);
 
   const calculateTotalCharges = () => {
-    const totalCharges =
-      (currentPatientBed?.bedCharges +
-        currentPatientBed?.nursingCharges +
-        currentPatientBed?.EMOCharges +
-        currentPatientBed?.bioWasteCharges +
-        currentPatientBed?.sanitizationCharges) *
-      patientInDays;
+    if (ipdPatientFinalBedCal) {
+      const totalCharges =
+        ipdPatientFinalBedCal?.bedTotalCharges +
+        ipdPatientFinalBedCal?.nursingTotalCharges +
+        ipdPatientFinalBedCal?.EMOTotalCharges +
+        ipdPatientFinalBedCal?.bioWasteTotalCharges +
+        ipdPatientFinalBedCal?.sanitizationTotalCharges;
 
-    setTotalCharges(totalCharges);
-    if (setCurrentPatientBedCharges) {
-      setCurrentPatientBedCharges(totalCharges);
+      setTotalCharges(Number(totalCharges));
+      if (setCurrentPatientBedCharges) {
+        setCurrentPatientBedCharges(totalCharges);
+      }
     }
   };
 
-  useEffect(() => {
-    calculatePatientDays();
-    calculateTotalCharges();
-  }, [currentPatientBed, ipdPatientData.patientData]);
+  // useEffect(() => {
+  //   calculatePatientDays();
+  //   calculateTotalCharges();
+  // }, [currentPatientBed, ipdPatientData.patientData]);
 
-  useEffect(() => {
-    calculatePatientDays();
-    calculateTotalCharges();
-  });
+  // useEffect(() => {
+  //   calculatePatientDays();
+  //   calculateTotalCharges();
+  // });
   return (
     <div className=" flex flex-col justify-start items-start w-full gap-10">
       <h2 className=" text-2xl font-semibold">Bill Summary</h2>
@@ -133,7 +138,7 @@ function PatientBedChargesCal({
               {ipdPatientFinalBedCal?.days}
             </td>
             <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] text-blue-500 font-bold">
-              Rs.&nbsp;"Not yet"
+              Rs.&nbsp;{totalCharges}
             </td>
           </tbody>
         </table>

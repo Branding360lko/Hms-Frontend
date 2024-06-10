@@ -82,7 +82,7 @@ export const IPDPatientService = createApi({
       },
     }),
 
-    ipdPatientFinalBalanceCalGetAll: builder.mutation({
+    ipdPatientFinalBalanceCalGetAll: builder.query({
       query: () => {
         return {
           url: `IPDPatient-Balance-GET-ALL`,
@@ -139,7 +139,7 @@ export const {
   useAddIPDPatientBalanceByIdMutation,
   useIpdPatientDischargeRequestMutation,
   useIpdPatientMedDocLabChargesGetByIdMutation,
-  useIpdPatientFinalBalanceCalGetAllMutation,
+  useIpdPatientFinalBalanceCalGetAllQuery,
   useIpdPatientFinalDischargeByIdMutation,
   useIpdPatientMedLabDocDetailByIdMutation,
   useIpdPatientFinalBalanceCalGetByIdMutation,

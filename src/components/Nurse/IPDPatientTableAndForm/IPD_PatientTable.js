@@ -1198,7 +1198,7 @@ export default function IPD_PatientTable() {
             }
             alt="patientImage"
           />
-          <button className="buttonFilled w-fit">Button</button>
+          {/* <button className="buttonFilled w-fit">Button</button> */}
         </div>
         <div className="w-[75%] flex flex-col gap-[10px] text-[14px]">
           <div className="grid grid-cols-2 gap-[10px]">
