@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import {
+  useIpdPatientFinalBalanceCalGetByIdMutation,
+  useIpdPatientFinalDischargeByIdMutation,
+} from "../../../Store/Services/IPDPatientService";
 
 function PatientBedChargesCal({
   currentPatientBed,
@@ -7,6 +11,30 @@ function PatientBedChargesCal({
 }) {
   //   console.log("currentPatientBed in billsumm:", currentPatientBed);
   //   console.log("ipdPatientData in bill sum:", ipdPatientData);
+
+  const [
+    ipdPatientFinalBalanceCalGetById,
+    responseIpdPatientFinalBalanceCalGetById,
+  ] = useIpdPatientFinalBalanceCalGetByIdMutation();
+
+  const [ipdPatientFinalBedCal, setIpdPatientFinalBedCal] = useState(null);
+
+  useEffect(() => {
+    ipdPatientFinalBalanceCalGetById(ipdPatientData?.data?.mainId);
+  }, [ipdPatientData?.data?.mainId]);
+
+  useEffect(() => {
+    console.log(
+      "responseIpdPatientFinalBalanceCalGetById",
+      responseIpdPatientFinalBalanceCalGetById
+    );
+
+    const finalBedCal =
+      responseIpdPatientFinalBalanceCalGetById?.data?.autoCharges[0];
+    setIpdPatientFinalBedCal(finalBedCal);
+  }, [responseIpdPatientFinalBalanceCalGetById.isSuccess]);
+
+  console.log("ipdPatientFinalBedCal:", ipdPatientFinalBedCal);
 
   const [patientInDays, setPatientInDays] = useState(null);
 
@@ -38,7 +66,9 @@ function PatientBedChargesCal({
       patientInDays;
 
     setTotalCharges(totalCharges);
-    setCurrentPatientBedCharges(totalCharges);
+    if (setCurrentPatientBedCharges) {
+      setCurrentPatientBedCharges(totalCharges);
+    }
   };
 
   useEffect(() => {
@@ -78,32 +108,32 @@ function PatientBedChargesCal({
               <th className="text-center px-[4px] border-b-[1px] p-[10px]">
                 No. Of Days
               </th>
-              <th className="text-center px-[4px] border-b-[1px] p-[10px]">
-                Totol Charges
+              <th className="text-center px-[4px] border-b-[1px] p-[10px] text-blue-500">
+                Total Charges
               </th>
             </tr>
           </thead>
           <tbody className=" text-gray-500 font-semibold">
             <td className="justify-center text-[12px] py-4 px-[4px] text-center border-b-[1px]">
-              {currentPatientBed?.bedCharges}
+              Rs.&nbsp;{ipdPatientFinalBedCal?.bedTotalCharges}
             </td>
             <td className="justify-center text-[12px] py-4 px-[4px] text-center border-b-[1px]">
-              {currentPatientBed?.nursingCharges}
+              Rs.&nbsp;{ipdPatientFinalBedCal?.nursingTotalCharges}
             </td>
             <td className="justify-center text-[12px] py-4 px-[4px] text-center border-b-[1px]">
-              {currentPatientBed?.EMOCharges}
+              Rs.&nbsp;{ipdPatientFinalBedCal?.EMOTotalCharges}
             </td>
             <td className="justify-center text-[12px] py-4 px-[4px] text-center border-b-[1px]">
-              {currentPatientBed?.bioWasteCharges}
+              Rs.&nbsp;{ipdPatientFinalBedCal?.bioWasteTotalCharges}
             </td>
             <td className="justify-center text-[12px] py-4 px-[4px] text-center border-b-[1px]">
-              {currentPatientBed?.sanitizationCharges}
+              Rs.&nbsp;{ipdPatientFinalBedCal?.sanitizationTotalCharges}
             </td>
             <td className="justify-center text-[12px] py-4 px-[4px] text-center border-b-[1px]">
-              {patientInDays}
+              {ipdPatientFinalBedCal?.days}
             </td>
-            <td className="justify-center text-[12px] py-4 px-[4px] text-center border-b-[1px]">
-              {totalCharges}
+            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] text-blue-500 font-bold">
+              Rs.&nbsp;"Not yet"
             </td>
           </tbody>
         </table>

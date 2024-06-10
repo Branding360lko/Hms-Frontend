@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import PatientBedChargesCal from "../PatientBedChargesCal/PatientBedChargesCal";
 import { useGetIPDPatientBalanceByIdQuery } from "../../../Store/Services/IPDPatientBalanceService";
+import IpdPatientMedDocLabChargesShowcase from "../IpdPatientMedDocLabChargesShowcase/IpdPatientMedDocLabChargesShowcase";
 
 function IpdChargesShowcase({
   currentPatientBed,
@@ -24,7 +25,7 @@ function IpdChargesShowcase({
 
   // Update the balance state when the balance data changes
   useEffect(() => {
-    if (ipdPatientBalance) {
+    if (ipdPatientBalance && setIpdPatientCurrentBalance) {
       setIpdPatientCurrentBalance(ipdPatientBalance);
     }
   }, [ipdPatientBalance, setIpdPatientCurrentBalance, openViewModal]);
@@ -60,8 +61,10 @@ function IpdChargesShowcase({
         setCurrentPatientBedCharges={setCurrentPatientBedCharges}
       />
 
+      <IpdPatientMedDocLabChargesShowcase ipdPatientData={ipdPatientData} />
+
       <div className="w-full">
-        <h3 className="text-xl font-semibold">Medical Charges</h3>
+        <h3 className="text-xl font-semibold">Extra Charges</h3>
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
           <thead>
             <tr className="border-b-[1px]">
@@ -114,11 +117,11 @@ function IpdChargesShowcase({
           </tbody>
         </table>
         <div className="mt-4 font-bold">
-          Total Medical Charges: {totalMedicalCharges}
+          Total Extra Charges: {totalMedicalCharges}
         </div>
       </div>
 
-      <div className="w-full">
+      {/* <div className="w-full">
         <h3 className="text-xl font-semibold">Lab Test Charges</h3>
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
           <thead>
@@ -156,7 +159,7 @@ function IpdChargesShowcase({
                     </td>
                   </tr>
                 ))}
-                {/* <tr key={charge._id}>
+                <tr key={charge._id}>
                   <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
                     {charge.items.map((item) => item.itemName).join(", ")}
                   </td>
@@ -166,7 +169,7 @@ function IpdChargesShowcase({
                   <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
                     {new Date(charge.createdAt).toLocaleDateString()}
                   </td>
-                </tr> */}
+                </tr>
               </>
             ))}
           </tbody>
@@ -174,13 +177,13 @@ function IpdChargesShowcase({
         <div className="mt-4 font-bold">
           Total Lab Test Charges: {totalLabTestCharges}
         </div>
-      </div>
+      </div> */}
 
-      <div>
+      {/* <div>
         <h2 className="text-2xl font-semibold">
           Medical + Lab Charges: Rs. {totalAllCharges}
         </h2>
-      </div>
+      </div> */}
     </div>
   );
 }

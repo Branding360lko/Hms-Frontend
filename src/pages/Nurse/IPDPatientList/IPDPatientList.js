@@ -11,7 +11,10 @@ import LinearProgress from "@mui/material/LinearProgress";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { useGetAllIPDPatientsQuery } from "../../../Store/Services/IPDPatientService";
+import {
+  useGetAllIPDPatientsQuery,
+  useIpdPatientFinalBalanceCalGetAllMutation,
+} from "../../../Store/Services/IPDPatientService";
 import { getAllIPDPatients } from "../../../Store/Slices/IPDPatientSlice";
 import {
   useGetAllDoctorsQuery,
@@ -37,6 +40,11 @@ export default function IPDPatientList() {
   const responseGetAllDoctorProfessionalDetails =
     useGetAllDoctorProfessionalDetailsQuery();
   const responseGetAllPatients = useGetAllPatientsQuery();
+
+  // Ipd Patients Final Balance Calculation Get all
+
+  // const responseGetAllIpdPatientBalances =
+  //   useIpdPatientFinalBalanceCalGetAllMutation();
 
   // BEDS
   const responseGetAllBeds = useGetAllBedsQuery();
