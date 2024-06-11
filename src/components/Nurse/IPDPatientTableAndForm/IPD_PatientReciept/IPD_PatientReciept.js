@@ -207,10 +207,7 @@ export default function IPD_PatientReciept() {
           {responseGetIPDPatientById.isSuccess &&
           responseGetDoctorById.isSuccess &&
           responseGetPatientById.isSuccess &&
-          responseGetIpdBedDetails.isSuccess &&
-          responseIpdPatientMedDocLabDetailCall.isSuccess &&
-          responseMedDocLabChargesGet.isSuccess &&
-          responseIpdPatientDischargeReceiptGetById.isSuccess ? (
+          responseGetIpdBedDetails.isSuccess ? (
             <div className="w-full">
               <button onClick={() => handlePrint()} className="buttonFilled">
                 Print
@@ -377,16 +374,22 @@ export default function IPD_PatientReciept() {
                     ipdPatientData={responseGetIPDPatientById}
                     currentPatientBed={responseGetIpdBedDetails.currentData}
                   />
-                  <IpdPatientReciptChargesShowcase
-                    responseIpdPatientMedDocLabDetailCall={
-                      responseIpdPatientMedDocLabDetailCall?.data
-                    }
-                    medDocLabChargesTotal={
-                      responseMedDocLabChargesGet?.data
-                        ? responseMedDocLabChargesGet?.data[0]
-                        : null
-                    }
-                  />
+                  {responseIpdPatientMedDocLabDetailCall.isSuccess &&
+                  responseMedDocLabChargesGet.isSuccess ? (
+                    <IpdPatientReciptChargesShowcase
+                      responseIpdPatientMedDocLabDetailCall={
+                        responseIpdPatientMedDocLabDetailCall?.data
+                      }
+                      medDocLabChargesTotal={
+                        responseMedDocLabChargesGet?.data
+                          ? responseMedDocLabChargesGet?.data[0]
+                          : null
+                      }
+                    />
+                  ) : (
+                    ""
+                  )}
+
                   <br />
                   <div className="w-full">
                     <h3 className="text-xl font-semibold">Extra Charges</h3>
@@ -439,12 +442,26 @@ export default function IPD_PatientReciept() {
                 </tr> */}
                           </>
                         ))}
+                        <tr>
+                          <td
+                            colSpan="3"
+                            className="text-right text-[16px] py-4 px-[4px] border-b-[1px] text-blue-500"
+                          >
+                            Sub Total
+                          </td>
+                          <td
+                            colSpan="1"
+                            className="text-center text-[16px] py-4 px-[4px] border-b-[1px] text-blue-500"
+                          >
+                            Rs. {totalMedicalCharges?.toFixed(2)}
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
-                    <div className="text-center text-[16px] py-4 px-[4px] border-b-[1px] font-bold text-blue-500">
+                    {/* <div className="text-center text-[16px] py-4 px-[4px] border-b-[1px] font-bold text-blue-500">
                       Total Extra Charges: &nbsp; &nbsp; Rs. &nbsp;{" "}
                       {totalMedicalCharges}
-                    </div>
+                    </div> */}
                   </div>
                   <hr />
                   <br />
@@ -457,7 +474,7 @@ export default function IPD_PatientReciept() {
                   >
                     <h3>Amount Summary:</h3>
                     <br />
-                    <div className=" flex flex-col justify-start items-start text-left gap-5 font-bold">
+                    <div className=" flex flex-col justify-start items-start text-left gap-5 font-bold text-blue-500">
                       <div className=" flex w-full justify-between">
                         <span className=" min-w-[400px]">Total Deposit:</span>
                         <span>
@@ -625,19 +642,9 @@ export default function IPD_PatientReciept() {
                       <div className=" grid grid-cols-1 text-[14px]">
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            ICD:
+                            BHT / Surgery:
                           </span>
-                          <p>{ipdPatientDoctorDischargeDetails?.ICD}</p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Physician In-charge:
-                          </span>
-                          <p>
-                            {
-                              ipdPatientDoctorDischargeDetails?.physicianInCharge
-                            }
-                          </p>
+                          <p></p>
                         </div>
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
@@ -675,6 +682,26 @@ export default function IPD_PatientReciept() {
                             }
                           </p>
                         </div>
+                        <div className=" flex justify-between items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                            Physician In-charge:
+                          </span>
+                          <p>
+                            {
+                              ipdPatientDoctorDischargeDetails?.physicianInCharge
+                            }
+                          </p>
+                          <div className=" flex justify-between items-center h-full">
+                            <span className=" px-2">Signature:</span>
+                            <span className=" px-24 h-full border-2"></span>
+                          </div>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                            ICD:
+                          </span>
+                          <p>{ipdPatientDoctorDischargeDetails?.ICD}</p>
+                        </div>
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
                             Result:
@@ -684,6 +711,22 @@ export default function IPD_PatientReciept() {
                       </div>
                     </div>
                   </div>
+                  <br />
+                  <div className=" w-full flex justify-between items-center">
+                    <div className=" flex flex-col w-[300px] self-end justify-center items-start h-[100px]">
+                      <span className=" px-2">Remarks (If Any):</span>
+                      <span className=" w-full h-full"></span>
+                    </div>
+                    <div className=" flex flex-col w-[300px] self-end justify-center items-start h-[100px]">
+                      <span className=" px-2">
+                        Signature of the Patient / Attendant
+                      </span>
+                      <span className=" w-full h-full border-2"></span>
+                    </div>
+                  </div>
+
+                  <br />
+                  <br />
                 </div>
               </div>
             </div>
