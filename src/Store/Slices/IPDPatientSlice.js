@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState = {
   ipdPatients: [],
@@ -7,6 +8,15 @@ const initialState = {
   deleteIpdPatient: "",
 };
 
+export const GetIpdPatientsHandle = createAsyncThunk(
+  "GetIpdPatientsHandle",
+  async () => {
+    const { data } = await axios.get(
+      `${process.env.React_App_Base_url + "IPDPatient-GET-ALL"}`
+    );
+    return data;
+  }
+);
 const IPDPatientSlice = createSlice({
   name: "IPDPatients",
   initialState,
@@ -23,6 +33,11 @@ const IPDPatientSlice = createSlice({
     deleteIpdPatientChange: (state, action) => {
       state.deleteIpdPatient = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(GetIpdPatientsHandle.fulfilled, (state, action) => {
+      state.ipdPatients = action.payload;
+    });
   },
 });
 

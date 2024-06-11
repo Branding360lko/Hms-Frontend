@@ -11,7 +11,10 @@ import LinearProgress from "@mui/material/LinearProgress";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { useGetAllIPDPatientsQuery } from "../../../Store/Services/IPDPatientService";
+import {
+  useGetAllIPDPatientsQuery,
+  useIpdPatientFinalBalanceCalGetAllMutation,
+} from "../../../Store/Services/IPDPatientService";
 import { getAllIPDPatients } from "../../../Store/Slices/IPDPatientSlice";
 import {
   useGetAllDoctorsQuery,
@@ -23,6 +26,10 @@ import {
 } from "../../../Store/Slices/DoctorSlice";
 import { useGetAllPatientsQuery } from "../../../Store/Services/PatientService";
 import { getAllPatients } from "../../../Store/Slices/PatientSlice";
+import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
+import { getAllBeds } from "../../../Store/Slices/BedSlice";
+import { useGetAllNursesQuery } from "../../../Store/Services/NurseService";
+import { getAllNurses } from "../../../Store/Slices/NurseSlice";
 
 const IPDPatientTable = lazy(() =>
   import("../../../components/Nurse/IPDPatientTableAndForm/IPD_PatientTable")
@@ -36,6 +43,21 @@ export default function IPDPatientList() {
     useGetAllDoctorProfessionalDetailsQuery();
   const responseGetAllPatients = useGetAllPatientsQuery();
 
+  const responseGetAllNurses = useGetAllNursesQuery();
+
+  // Ipd Patients Final Balance Calculation Get all
+
+  // const responseGetAllIpdPatientBalances =
+  //   useIpdPatientFinalBalanceCalGetAllMutation();
+
+  // BEDS
+  const responseGetAllBeds = useGetAllBedsQuery();
+
+  const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
+    (state) => state.BedState
+  );
+  // --------------------------------------------------------------------
+
   const { ipdPatients, createIpdPatient, updateIpdPatient, deleteIpdPatient } =
     useSelector((state) => state.IPDPatientState);
   const {
@@ -46,9 +68,21 @@ export default function IPDPatientList() {
     deleteDoctor,
   } = useSelector((state) => state.DoctorState);
 
+  const { nurses, createNurse, updateNurse, deleteNurse } = useSelector(
+    (state) => state.NurseState
+  );
+
   const { patients, patientCreate, patientUpdate, patientDelete } = useSelector(
     (state) => state.PatientState
   );
+
+  const {
+    updateIpdPatientDepositAmount,
+    updateIpdPatientLabTestCharges,
+    updateIpdPatientMedicalCharges,
+  } = useSelector((state) => state.IPDPatientBalanceState);
+
+  console.log("updateIpdPatientDepositAmount:", updateIpdPatientDepositAmount);
 
   const apiRefetch = async () => {
     // IPD Patients
@@ -67,6 +101,18 @@ export default function IPDPatientList() {
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
     }
     // --------------------
+    // Nurses
+    const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
+    if (responseGetAllNursesRefetch.isSuccess) {
+      const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
+        responseGetAllNursesRefetch?.data?.pop,
+        [...responseGetAllNursesRefetch?.data]
+      );
+      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllNurses(filteredArrayGetAllNurses));
+    }
     // Doctors
     const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
     if (responseGetAllDoctorsRefetch.isSuccess) {
@@ -115,6 +161,20 @@ export default function IPDPatientList() {
       dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
     //------------------
+
+    // Beds
+    const responseGetAllBedsRefetch = await responseGetAllBeds.refetch();
+    if (responseGetAllBedsRefetch.isSuccess) {
+      const reverseArrayGetAllBeds = responseGetAllBedsRefetch?.data?.map(
+        responseGetAllBedsRefetch?.data?.pop,
+        [...responseGetAllBedsRefetch?.data]
+      );
+      const filteredArrayGetAllBeds = reverseArrayGetAllBeds?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBeds(filteredArrayGetAllBeds));
+    }
+    // ------------------
   };
 
   useEffect(() => {
@@ -133,6 +193,19 @@ export default function IPDPatientList() {
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
     }
     // --------------------
+    // Nurses
+
+    if (responseGetAllNurses.isSuccess) {
+      const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
+        responseGetAllNurses?.data?.pop,
+        [...responseGetAllNurses?.data]
+      );
+      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllNurses(filteredArrayGetAllNurses));
+    }
+
     // Doctors
     if (responseGetAllDoctors.isSuccess) {
       const reverseArrayGetAllDoctors = responseGetAllDoctors?.data?.map(
@@ -175,6 +248,19 @@ export default function IPDPatientList() {
 
       dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
+
+    // Beds
+    if (responseGetAllBeds.isSuccess) {
+      const reverseArrayGetAllBeds = responseGetAllBeds?.data?.map(
+        responseGetAllBeds?.data?.pop,
+        [...responseGetAllBeds?.data]
+      );
+      const filteredArrayGetAllBeds = reverseArrayGetAllBeds?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBeds(filteredArrayGetAllBeds));
+    }
+    // ---------------------
   }, [
     createIpdPatient,
     updateIpdPatient,
@@ -185,10 +271,20 @@ export default function IPDPatientList() {
     deleteDoctor,
     responseGetAllDoctors.isSuccess,
     responseGetAllDoctorProfessionalDetails.isSuccess,
+    createNurse,
+    updateNurse,
+    deleteNurse,
+    responseGetAllNurses.isSuccess,
     patientCreate,
     patientUpdate,
     patientDelete,
     responseGetAllPatients.isSuccess,
+    createBeds,
+    updateBeds,
+    deleteBeds,
+    updateIpdPatientDepositAmount,
+    updateIpdPatientLabTestCharges,
+    updateIpdPatientMedicalCharges,
   ]);
   return (
     <>
@@ -200,15 +296,15 @@ export default function IPDPatientList() {
           <LinearProgress />
         </Box>
       ) : (
-        <div className='superadmin-main flex flex-row w-full h-screen'>
-          <div className='superadmin-main-left w-[20%] shadow-lg'>
+        <div className="superadmin-main flex flex-row w-full h-screen">
+          <div className="superadmin-main-left w-[20%] shadow-lg">
             <SideNav
               activePage={`${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.ipdPatientList}`}
             />
           </div>
-          <div className='superadmin-main-right flex flex-col w-[80%]'>
+          <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
-            <div className='superadmin-main-right_dashboard w-full overflow-y-scroll'>
+            <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
               <IPDPatientTable />
             </div>
           </div>

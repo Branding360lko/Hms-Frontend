@@ -32,7 +32,7 @@ function DoctorVisitChargesTable() {
           className="bg-[#3497F9] text-white p-[10px] rounded-md "
           onClick={handleOpen}
         >
-          Update Charges
+          Add Charges
         </button>
       </div>
       <div className="w-full">
@@ -179,7 +179,7 @@ function DoctorVisitChargesTable() {
                   <div className="w-full h-[0.5px] border-b-[2px] py-[0.4rem]"></div>
                 </div>
                 <button className="bg-[#3497F9] text-white p-[10px] rounded-md mt-[0.5rem]">
-                  Update Charges
+                  Add Charges
                 </button>
               </form>
             </Typography>

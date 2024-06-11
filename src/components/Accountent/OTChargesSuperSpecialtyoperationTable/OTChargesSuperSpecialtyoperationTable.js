@@ -361,11 +361,16 @@ function OTChargesSuperSpecialtyoperationTable() {
                     <span className="col-span-2 flex justify-start items-center gap-4">
                       <p>Super Specialty surgery</p>
                     </span>
-                    <span className="text-start">
+                    <span className="text-start gap-2 flex flex-col">
                       <input
                         type="text"
                         className="w-[10rem] border-[2px] outline-none pl-[5px]"
-                        placeholder="200"
+                        placeholder="20,000"
+                      />
+                      <input
+                        type="text"
+                        className="w-[10rem] border-[2px] outline-none pl-[5px]"
+                        placeholder="25,000"
                       />
                     </span>
                   </div>{" "}
@@ -373,12 +378,16 @@ function OTChargesSuperSpecialtyoperationTable() {
                     <span className="col-span-2 flex justify-start items-center gap-4">
                       <p>Specialist Major surgery</p>
                     </span>
-                    <span className="text-start">
+                    <span className="text-start gap-2 flex flex-col">
                       <input
                         type="text"
                         className="w-[10rem] border-[2px] outline-none pl-[5px]"
-                        placeholder="
-                        ₹ 20,000 To 25,000"
+                        placeholder="20,000"
+                      />
+                      <input
+                        type="text"
+                        className="w-[10rem] border-[2px] outline-none pl-[5px]"
+                        placeholder="25,000"
                       />
                     </span>
                   </div>{" "}
@@ -386,12 +395,16 @@ function OTChargesSuperSpecialtyoperationTable() {
                     <span className="col-span-2 flex justify-start items-center gap-4">
                       <p>Major Surgery</p>
                     </span>
-                    <span className="text-start">
+                    <span className="text-start gap-2 flex flex-col">
                       <input
                         type="text"
                         className="w-[10rem] border-[2px] outline-none pl-[5px]"
-                        placeholder="
-                        ₹ 20,000 To 25,000"
+                        placeholder="20,000"
+                      />
+                      <input
+                        type="text"
+                        className="w-[10rem] border-[2px] outline-none pl-[5px]"
+                        placeholder="25,000"
                       />
                     </span>
                   </div>{" "}
@@ -399,25 +412,33 @@ function OTChargesSuperSpecialtyoperationTable() {
                     <span className="col-span-2 flex justify-start items-center gap-4">
                       <p>Less Major</p>
                     </span>
-                    <span className="text-start">
+                    <span className="text-start gap-2 flex flex-col">
                       <input
                         type="text"
                         className="w-[10rem] border-[2px] outline-none pl-[5px]"
-                        placeholder="
-                        ₹ 20,000 To 25,000"
+                        placeholder="20,000"
+                      />
+                      <input
+                        type="text"
+                        className="w-[10rem] border-[2px] outline-none pl-[5px]"
+                        placeholder="25,000"
                       />
                     </span>
                   </div>{" "}
-                  <div className="grid grid-cols-3 gap-4 ">
+                  <div className="grid grid-cols-3 gap-4 border-b-[2px] pb-[1rem]">
                     <span className="col-span-2 flex justify-start items-center gap-4">
                       <p>Less Major</p>
                     </span>
-                    <span className="text-start">
+                    <span className="text-start gap-2 flex flex-col ">
                       <input
                         type="text"
                         className="w-[10rem] border-[2px] outline-none pl-[5px]"
-                        placeholder="
-                        ₹ 20,000 To 25,000"
+                        placeholder="20,000"
+                      />
+                      <input
+                        type="text"
+                        className="w-[10rem] border-[2px] outline-none pl-[5px]"
+                        placeholder="25,000"
                       />
                     </span>
                   </div>{" "}

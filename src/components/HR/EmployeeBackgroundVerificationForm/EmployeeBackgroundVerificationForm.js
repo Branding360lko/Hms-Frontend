@@ -126,96 +126,97 @@ function EmployeeBackgroundVerificationForm() {
   }, [getSingleBackgroundVerificationData]);
 
   return (
-    <div className='flex flex-col gap-[1rem] p-[1rem]'>
-      <div className='flex justify-start'>
-        <h2 className='border-b-[4px] border-[#3497F9]'>
+    <div className="flex flex-col gap-[1rem] p-[1rem]">
+      <div className="flex justify-start">
+        <h2 className="border-b-[4px] border-[#3497F9]">
           Background Verification
         </h2>
       </div>
       <form
-        className='w-full flex flex-col align-start justify-start gap-[10px]'
-        onSubmit={addBackGroundVerificationHandle}>
-        <span className='flex flex-col align-start justify-start gap-[5px]'>
-          <p className='w-fit'>Previews Organization</p>
+        className="w-full flex flex-col align-start justify-start gap-[10px]"
+        onSubmit={addBackGroundVerificationHandle}
+      >
+        <span className="flex flex-col align-start justify-start gap-[5px]">
+          <p className="w-fit">Previews Organization</p>
 
           <input
-            type='text'
-            placeholder='Enter Name Of Organization'
-            name='PreviewsOrganization'
-            className='border-[2px] border-[#C8C8C8] w-[22rem] h-[2.5rem] rounded outline-none pl-[5px]'
+            type="text"
+            placeholder="Enter Name Of Organization"
+            name="PreviewsOrganization"
+            className="border-[2px] border-[#C8C8C8] w-[22rem] h-[2.5rem] rounded outline-none pl-[5px]"
             onChange={getValueHandle}
             required
           />
         </span>
-        <div className='w-[25rem] flex justify-between'>
-          <span className='flex gap-[5px]'>
+        <div className="w-[25rem] flex justify-between">
+          <span className="flex gap-[5px]">
             <input
-              type='radio'
-              name='verificationType'
-              value='0'
+              type="radio"
+              name="verificationType"
+              value="0"
               onChange={getValueHandle}
               required
             />
-            <p className='text-[12px]'>Pre-Employment Verification</p>
+            <p className="text-[12px]">Pre-Employment Verification</p>
           </span>
-          <span className='flex gap-[5px]'>
+          <span className="flex gap-[5px]">
             <input
-              type='radio'
-              name='verificationType'
-              value='1'
+              type="radio"
+              name="verificationType"
+              value="1"
               onChange={getValueHandle}
               required
             />
-            <p className='text-[12px]'>On Boarded Employee</p>
+            <p className="text-[12px]">On Boarded Employee</p>
           </span>
         </div>
-        <span className='flex flex-col align-start justify-start gap-[5px]'>
-          <p className='w-fit'>Verifing Person</p>
+        <span className="flex flex-col align-start justify-start gap-[5px]">
+          <p className="w-fit">Verifing Person</p>
 
           <input
-            type='text'
-            placeholder='Enter Name Of Verifing Person'
-            name='VerifingPerson'
-            className='border-[2px] border-[#C8C8C8] w-[22rem] h-[2.5rem] rounded outline-none pl-[5px]'
+            type="text"
+            placeholder="Enter Name Of Verifing Person"
+            name="VerifingPerson"
+            className="border-[2px] border-[#C8C8C8] w-[22rem] h-[2.5rem] rounded outline-none pl-[5px]"
             onChange={getValueHandle}
             required
           />
         </span>
-        <div className='grid grid-cols-2 gap-4'>
-          <span className='flex flex-col align-start justify-start gap-[5px]'>
-            <p className='w-fit'>Employee Id</p>
+        <div className="grid grid-cols-2 gap-4">
+          <span className="flex flex-col align-start justify-start gap-[5px]">
+            <p className="w-fit">Employee Id</p>
 
             <input
-              className='border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]'
-              type='text'
-              name='employeeId'
-              placeholder='Employee Id'
+              className="border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]"
+              type="text"
+              name="employeeId"
+              placeholder="Employee Id"
               value={getSingleBackgroundVerificationData?.employeeId}
               onChange={getValueHandle}
               required
             />
           </span>
-          <span className='flex flex-col align-start justify-start gap-[5px]'>
-            <p className='w-fit'>Valid Date </p>
+          <span className="flex flex-col align-start justify-start gap-[5px]">
+            <p className="w-fit">Valid Date </p>
 
             <input
-              className='border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]'
-              type='date'
-              name='ValidDate'
-              placeholder='Valid Date'
+              className="border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]"
+              type="date"
+              name="ValidDate"
+              placeholder="Valid Date"
               value={getSingleBackgroundVerificationData?.ValidDate}
               onChange={getValueHandle}
               required
             />
           </span>
-          <span className='flex flex-col align-start justify-start gap-[5px]'>
-            <p className='w-fit'>Comments</p>
+          <span className="flex flex-col align-start justify-start gap-[5px]">
+            <p className="w-fit">Comments</p>
 
             <textarea
-              className='border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]'
-              type='text'
-              name='comment'
-              placeholder='Enter  Comments'
+              className="border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]"
+              type="text"
+              name="comment"
+              placeholder="Enter  Comments"
               value={getSingleBackgroundVerificationData?.comment}
               onChange={getValueHandle}
               required
@@ -223,42 +224,43 @@ function EmployeeBackgroundVerificationForm() {
           </span>
         </div>
 
-        <button className='bg-[#3497F9] text-white p-[10px] rounded-md w-[150px]'>
+        <button className="bg-[#3497F9] text-white p-[10px] rounded-md w-[150px]">
           Submit
         </button>
       </form>
-      <div className='w-[23rem] flex items-center justify-center gap-1'>
+      <div className="w-[23rem] flex items-center justify-center gap-1">
         <input
-          type='text'
-          placeholder='Search By Appoiment Id'
+          type="text"
+          placeholder="Search By Appoiment Id"
           value={searchValue}
-          className='w-11/12 border-[2px] h-[2rem] pl-[5px] outline-none rounded bg-[#F4F6F6]'
+          className="w-11/12 border-[2px] h-[2rem] pl-[5px] outline-none rounded bg-[#F4F6F6]"
           onChange={(e) => setSearchValue(e.target.value)}
         />
         <button
-          className='bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md '
+          className="bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md "
           onClick={() => [setSearchResult([]), setSearchValue("")]}
-          disabled={searchValue != "" ? false : true}>
+          disabled={searchValue != "" ? false : true}
+        >
           Reset
         </button>
       </div>
       <div>
-        <table className='w-full table-auto border-spacing-2 text-[#595959] font-[300]'>
+        <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
           <thead>
             <tr>
-              <th className='border-b-[1px]'>
+              <th className="border-b-[1px]">
                 <p>S N</p>
               </th>
-              <th className='border-b-[1px]'>
+              <th className="border-b-[1px]">
                 <p>Employee Id</p>
               </th>
-              <th className='border-b-[1px]'>
+              <th className="border-b-[1px]">
                 <p>Employee Verified</p>
               </th>
-              <th className='border-b-[1px]'>
+              <th className="border-b-[1px]">
                 <p>Comment</p>
               </th>
-              <th className='border-b-[1px]'>
+              <th className="border-b-[1px]">
                 <p>Action</p>
               </th>
             </tr>
@@ -269,24 +271,24 @@ function EmployeeBackgroundVerificationForm() {
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   ?.map((item, index) => (
                     <tr key={index}>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {index + 1}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.EmployeeId}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         <p>
                           {" "}
                           {item.isVarified === true ? "Completed" : "InProcess"}
                         </p>
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.comments}
                       </td>
 
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] flex-row'>
-                        <div className='flex gap-[10px] justify-center'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] flex-row">
+                        <div className="flex gap-[10px] justify-center">
                           <div
                             onClick={() => [
                               handleOpen(),
@@ -294,8 +296,9 @@ function EmployeeBackgroundVerificationForm() {
                                 item?.EmployeeId
                               ),
                             ]}
-                            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-                            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+                            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                          >
+                            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
                           </div>
                         </div>
                       </td>
@@ -305,24 +308,24 @@ function EmployeeBackgroundVerificationForm() {
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   ?.map((item, index) => (
                     <tr key={index}>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {index + 1}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.EmployeeId}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         <p>
                           {" "}
                           {item.isVarified === true ? "Completed" : "InProcess"}
                         </p>
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.comments}
                       </td>
 
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] flex-row'>
-                        <div className='flex gap-[10px] justify-center'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] flex-row">
+                        <div className="flex gap-[10px] justify-center">
                           <div
                             onClick={() => [
                               handleOpen(),
@@ -330,8 +333,9 @@ function EmployeeBackgroundVerificationForm() {
                                 item?.EmployeeId
                               ),
                             ]}
-                            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-                            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+                            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                          >
+                            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
                           </div>
                         </div>
                       </td>
@@ -344,12 +348,12 @@ function EmployeeBackgroundVerificationForm() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={allBackgroundVerification ? allBackgroundVerification : ""}
+          data={allBackgroundVerification}
         />
       </div>
       <Modal
-        aria-labelledby='transition-modal-title'
-        aria-describedby='transition-modal-description'
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
         open={open}
         onClose={handleClose}
         closeAfterTransition
@@ -358,73 +362,77 @@ function EmployeeBackgroundVerificationForm() {
           backdrop: {
             timeout: 500,
           },
-        }}>
+        }}
+      >
         <Fade in={open}>
           <Box sx={style}>
             <Typography
-              id='transition-modal-title'
-              variant='h6'
-              component='h2'
-              className='border-b-[4px] border-[#3497F9] w-fit'>
+              id="transition-modal-title"
+              variant="h6"
+              component="h2"
+              className="border-b-[4px] border-[#3497F9] w-fit"
+            >
               Employee Background Verification
             </Typography>
-            <Typography id='transition-modal-description' sx={{ mt: 2 }}>
+            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
               <form
-                className='w-full flex flex-col align-start justify-start gap-[10px]'
-                onSubmit={addBackGroundVerificationHandle}>
-                <div className='grid grid-cols-2 gap-4'>
-                  <span className='flex flex-col align-start justify-start gap-[5px]'>
-                    <p className='w-fit'>Employee Id</p>
+                className="w-full flex flex-col align-start justify-start gap-[10px]"
+                onSubmit={addBackGroundVerificationHandle}
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <span className="flex flex-col align-start justify-start gap-[5px]">
+                    <p className="w-fit">Employee Id</p>
 
                     <input
-                      className='border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]'
-                      type='text'
-                      name='employeeId'
-                      placeholder='Employee Id'
+                      className="border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]"
+                      type="text"
+                      name="employeeId"
+                      placeholder="Employee Id"
                       value={getSingleBackgroundVerificationData?.employeeId}
                       onChange={getValueHandle}
                       required
                     />
                   </span>
-                  <span className='flex flex-col align-start justify-start gap-[5px]'>
-                    <p className='w-fit'>Valid Date </p>
+                  <span className="flex flex-col align-start justify-start gap-[5px]">
+                    <p className="w-fit">Valid Date </p>
 
                     <input
-                      className='border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]'
-                      type='date'
-                      name='ValidDate'
-                      placeholder='Valid Date'
+                      className="border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]"
+                      type="date"
+                      name="ValidDate"
+                      placeholder="Valid Date"
                       value={getSingleBackgroundVerificationData?.ValidDate}
                       onChange={getValueHandle}
                       required
                     />
                   </span>
-                  <span className='flex flex-col align-start justify-start gap-[5px]'>
-                    <p className='w-fit'>Comments</p>
+                  <span className="flex flex-col align-start justify-start gap-[5px]">
+                    <p className="w-fit">Comments</p>
 
                     <textarea
-                      className='border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]'
-                      type='text'
-                      name='comment'
-                      placeholder='Enter  Comments'
+                      className="border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]"
+                      type="text"
+                      name="comment"
+                      placeholder="Enter  Comments"
                       value={getSingleBackgroundVerificationData?.comment}
                       onChange={getValueHandle}
                       required
                     />
                   </span>
-                  <span className='flex flex-col align-start justify-start gap-[5px]'>
-                    <p className='w-fit'>Status</p>
+                  <span className="flex flex-col align-start justify-start gap-[5px]">
+                    <p className="w-fit">Status</p>
                     <select
                       value={getSingleBackgroundVerificationData?.isVerified}
-                      className='border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]'>
-                      <option value=''>Select Status</option>
+                      className="border-[2px] border-[#C8C8C8]  h-[2.5rem] rounded outline-none pl-[5px]"
+                    >
+                      <option value="">Select Status</option>
                       <option value={true}>Active</option>
                       <option value={false}>InActive</option>
                     </select>
                   </span>
                 </div>
 
-                <button className='bg-[#3497F9] text-white p-[10px] rounded-md w-[150px]'>
+                <button className="bg-[#3497F9] text-white p-[10px] rounded-md w-[150px]">
                   Update
                 </button>
               </form>

@@ -57,10 +57,10 @@ export default function Billing() {
         responseGetAllBillingRefetch?.data?.pop,
         [...responseGetAllBillingRefetch?.data]
       );
-      // const filteredArrayGetAllBilling = reverseGetAllBillings?.filter(
-      //   (data) => data.isDeleted === false && data
-      // );
-      dispatch(getAllBillings(reverseGetAllBillings));
+      const filteredArrayGetAllBilling = reverseGetAllBillings?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBillings(filteredArrayGetAllBilling));
     }
     // ---------------------
     // Doctors
@@ -70,10 +70,10 @@ export default function Billing() {
         responseGetAllDoctorsRefetch?.data?.pop,
         [...responseGetAllDoctorsRefetch?.data]
       );
-      // const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-      //   (data) => data.isDeleted === false && data
-      // );
-      dispatch(getAllDoctors(reverseArrayGetAllDoctors));
+      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
     }
     // ------------------
     // Doctors Professional Details
@@ -85,13 +85,13 @@ export default function Billing() {
           responseGetAllDoctorsProfessionalDetailsRefetch?.data?.pop,
           [...responseGetAllDoctorsProfessionalDetailsRefetch?.data]
         );
-      // const filteredArrayGetAllDoctorsProfessionalDetails =
-      //   reverseArrayGetAllDoctorsProfessionalDetails?.filter(
-      //     (data) => data.isDeleted === false && data
-      //   );
+      const filteredArrayGetAllDoctorsProfessionalDetails =
+        reverseArrayGetAllDoctorsProfessionalDetails?.filter(
+          (data) => data.isDeleted === false && data
+        );
       dispatch(
         getAllDoctorsProfessionalDetails(
-          reverseArrayGetAllDoctorsProfessionalDetails
+          filteredArrayGetAllDoctorsProfessionalDetails
         )
       );
     }
@@ -105,10 +105,10 @@ export default function Billing() {
           responseGetAllPatientsRefetch?.data?.pop,
           [...responseGetAllPatientsRefetch?.data]
         );
-      // const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-      //   (data) => data.isDeleted === false && data
-      // );
-      dispatch(getAllPatients(reverseArrayGetAllPatients));
+      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
     //------------------
   };
@@ -121,10 +121,10 @@ export default function Billing() {
         responseGetAllBillings?.data?.pop,
         [...responseGetAllBillings?.data]
       );
-      // const filteredArrayGetAllBilling = reverseArrayGetAllBilling?.filter(
-      //   (data) => data.isDeleted === false && data
-      // );
-      dispatch(getAllBillings(reverseArrayGetAllBilling));
+      const filteredArrayGetAllBilling = reverseArrayGetAllBilling?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBillings(filteredArrayGetAllBilling));
     }
     // ---------------------
     // Doctors
@@ -133,10 +133,10 @@ export default function Billing() {
         responseGetAllDoctors?.data?.pop,
         [...responseGetAllDoctors?.data]
       );
-      // const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-      //   (data) => data.isDeleted === false && data
-      // );
-      dispatch(getAllDoctors(reverseArrayGetAllDoctors));
+      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
     }
     // --------------------
     // Doctors Professional Details
@@ -146,13 +146,13 @@ export default function Billing() {
           responseGetAllDoctorProfessionalDetails?.data?.pop,
           [...responseGetAllDoctorProfessionalDetails?.data]
         );
-      // const filteredArrayGetAllDoctorsProfessionalDetails =
-      //   reverseArrayGetAllDoctorsProfessionalDetails?.filter(
-      //     (data) => data.isDeleted === false && data
-      //   );
+      const filteredArrayGetAllDoctorsProfessionalDetails =
+        reverseArrayGetAllDoctorsProfessionalDetails?.filter(
+          (data) => data.isDeleted === false && data
+        );
       dispatch(
         getAllDoctorsProfessionalDetails(
-          reverseArrayGetAllDoctorsProfessionalDetails
+          filteredArrayGetAllDoctorsProfessionalDetails
         )
       );
     }
@@ -163,11 +163,11 @@ export default function Billing() {
         responseGetAllPatients?.data?.pop,
         [...responseGetAllPatients?.data]
       );
-      // const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-      //   (data) => data.isDeleted === false && data
-      // );
+      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+        (data) => data.isDeleted === false && data
+      );
 
-      dispatch(getAllPatients(reverseArrayGetAllPatients));
+      dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
   }, [
     createBilling,

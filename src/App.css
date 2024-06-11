@@ -36,3 +36,31 @@
     transform: rotate(360deg);
   }
 }
+.selectStlye {
+  background-color: #c2c2c2;
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: auto 50%;
+  border-radius: 2px;
+  border: none;
+  color: #ffffff;
+  padding-left: 5px;
+  outline: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  &::-ms-expand {
+    display: none;
+  }
+}
+@media print {
+  .print-show {
+    display: block;
+  }
+  .breakPage {
+    page-break-after: always;
+  }
+}
+.print-hide {
+  display: none;
+}

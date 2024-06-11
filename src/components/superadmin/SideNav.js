@@ -53,6 +53,10 @@ export default function SideNav({ activePage }) {
       name: browserLinks.superadmin.internalPages.doctors,
     },
     {
+      icon: <FaUserDoctor />,
+      name: browserLinks.superadmin.internalPages.nurses,
+    },
+    {
       icon: <FaFileAlt />,
       name: browserLinks.superadmin.internalPages.opdPatients,
     },
@@ -75,6 +79,10 @@ export default function SideNav({ activePage }) {
     {
       icon: <FaFileAlt />,
       name: browserLinks.superadmin.internalPages.ipd,
+    },
+    {
+      icon: <FaFileLines />,
+      name: browserLinks.superadmin.internalPages.department,
     },
     {
       icon: <FaFileLines />,
@@ -111,13 +119,15 @@ export default function SideNav({ activePage }) {
           active === `${browserLinks?.superadmin?.category}/${data?.name}`
             ? "flex flex-row items-center justify-start gap-[1rem] py-[10px] px-[1rem] border-l-[6px] border-l-solid border-[#3497F9] bg-[#E7F3FE] w-full cursor-pointer"
             : "flex flex-row items-center justify-start border-l-[6px] border-l-solid border-transparent gap-[1rem] py-[10px] px-[1rem] w-full cursor-pointer"
-        }>
+        }
+      >
         <div
           className={
             active === `${browserLinks?.superadmin?.category}/${data?.name}`
               ? "text-[30px] text-[#3497F9]"
               : "text-[30px] text-[#7F8F98]"
-          }>
+          }
+        >
           {data?.icon}
         </div>
         <p
@@ -125,7 +135,8 @@ export default function SideNav({ activePage }) {
             active === `${browserLinks?.superadmin?.category}/${data?.name}`
               ? "text-[#3497F9] font-[400]"
               : "text-[#7F8F98] font-[400]"
-          }>
+          }
+        >
           {data?.name}
         </p>
       </div>
@@ -135,14 +146,14 @@ export default function SideNav({ activePage }) {
   return (
     <>
       <Suspense fallback={<>...</>}>
-        <div className='SideNav flex flex-col items-center'>
+        <div className="SideNav flex flex-col items-center">
           <img
             src={logoImage}
-            alt='logoImage'
-            className='w-[200px] h-auto py-[2rem]'
+            alt="logoImage"
+            className="w-[200px] h-auto py-[2rem]"
           />
 
-          <div className='sideNavLinks flex flex-col gap-[1rem] w-full items-start overflow-y-scroll'>
+          <div className="sideNavLinks flex flex-col gap-[1rem] w-full items-start overflow-y-scroll">
             {renderedSideNavLinks}
           </div>
         </div>

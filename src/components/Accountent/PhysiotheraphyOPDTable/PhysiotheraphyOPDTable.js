@@ -1,7 +1,7 @@
 import { Backdrop, Box, Fade, Modal, Typography } from "@mui/material";
 import React from "react";
 import { CiViewList } from "react-icons/ci";
-import { RiDeleteBin5Line } from "react-icons/ri";
+import { RiEdit2Fill } from "react-icons/ri";
 
 function PhysiotheraphyOPDTable() {
   const style = {
@@ -61,7 +61,7 @@ function PhysiotheraphyOPDTable() {
               <p>Per Region</p>
             </th>
             <th className="border-b-[1px]">
-              <p> Per 02 region</p>
+              <p> Per 02 Region</p>
             </th>
             <th className="border-b-[1px]">
               <p> User Action</p>
@@ -82,18 +82,16 @@ function PhysiotheraphyOPDTable() {
               <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                 ₹ 100.00
               </td>
-              <td className="justify-center flex items-center  text-[16px] py-4 px-[4px] text-center border-b-[1px] ">
-                <CiViewList
-                  style={{ fontSize: "2rem", cursor: "pointer" }}
+              <td className="justify-center flex items-center gap-2 text-[16px] py-4 px-[4px] text-center border-b-[1px] ">
+                <div
+                  className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
                   onClick={handleOpen1}
-                />
-                <RiDeleteBin5Line
-                  style={{
-                    fontSize: "2rem",
-                    cursor: "pointer",
-                    color: "#EB5757",
-                  }}
-                />
+                >
+                  <CiViewList className="text-[25px] text-[#96999C]" />
+                </div>
+                <div className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer">
+                  <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
+                </div>
               </td>
             </tr>
           </tbody>

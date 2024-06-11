@@ -8,6 +8,7 @@ import { MdViewKanban } from "react-icons/md";
 import { RiEdit2Fill } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { LuHardDriveDownload } from "react-icons/lu";
+import { FaBed } from "react-icons/fa";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -33,11 +34,73 @@ import DialogBoxToDelete from "../../DialogBoxToDelete";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
+import { useUpdateBedAvailabilityMutation } from "../../../Store/Services/BedService";
+
+import {
+  useCreateEmergencyPatientMutation,
+  useDeleteEmergencyPatientByIdMutation,
+  useUpdateEmergencyPatientByIdMutation,
+} from "../../../Store/Services/EmergencyPatientService";
+
+import {
+  createEmergencyPatientChange,
+  updateEmergencyPatientChange,
+  deleteEmergencyPatientChange,
+} from "../../../Store/Slices/EmergencyPatientSlice";
+
+import BedSelector from "../AddBedSelector/AddBedSelector";
+
 export default function EmergencyPatientTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
+  const { emergencyPatients } = useSelector(
+    (state) => state.EmergencyPatientState
+  );
+
+  // Add Bed Form Open State and Logic
+  const [addBedFormOpen, setAddBedFormOpen] = React.useState(false);
+
+  const [selectedBed, setSelectedBed] = React.useState(null);
+
+  const [updateBedAvailability, responseUpdateBedAvailability] =
+    useUpdateBedAvailabilityMutation();
+  const [createEmergencyPatient, responseCreateEmergencyPatient] =
+    useCreateEmergencyPatientMutation();
+  const [updateEmergencyPatientById, responseUpdateEmergencyPatientById] =
+    useUpdateEmergencyPatientByIdMutation();
+
+  // Snackbar--------------------
+  // ----Succcess
+  const [openSnackbarSuccess, setOpenSnackBarSuccess] = React.useState(false);
+  const [snackBarMessageSuccess, setSnackBarSuccessMessage] =
+    React.useState("");
+
+  const handleClickSnackbarSuccess = () => {
+    setOpenSnackBarSuccess(true);
+  };
+  // ----Warning
+  const [openSnackbarWarning, setOpenSnackBarWarning] = React.useState(false);
+  const [snackBarMessageWarning, setSnackBarSuccessWarning] =
+    React.useState("");
+
+  const handleClickSnackbarWarning = () => {
+    setOpenSnackBarWarning(true);
+  };
+  // ----------------------------
+
+  function handleAddBedFormOpen(e) {
+    e.preventDefault();
+
+    setAddBedFormOpen(true);
+  }
+
+  const handleBedSelect = (bed) => {
+    setSelectedBed(bed);
+  };
+
+  const { beds } = useSelector((state) => state.BedState);
 
   const data = [
     {
@@ -58,7 +121,7 @@ export default function EmergencyPatientTable() {
   });
   const [emergencyAdmittingTime, setEmergencyAdmittingTime] =
     React.useState("");
-  const [emergencyBedNo, setEmergencyBedNo] = React.useState("");
+  // const [emergencyBedNo, setEmergencyBedNo] = React.useState("");
   const [emergencyNotes, setEmergencyNotes] = React.useState("");
 
   const style = {
@@ -102,13 +165,44 @@ export default function EmergencyPatientTable() {
       label: "",
     });
     setEmergencyAdmittingTime("");
-    setEmergencyBedNo("");
+
     setEmergencyNotes("");
   };
-  const handleCloseAddModal = () => setOpenAddModal(false);
+  const handleCloseAddModal = () => {
+    setOpenAddModal(false);
+  };
 
+  React.useEffect(() => {
+    if (responseCreateEmergencyPatient.isSuccess) {
+      dispatch(createEmergencyPatientChange(Math.random()));
+      setSnackBarSuccessMessage(responseCreateEmergencyPatient?.data?.message);
+      handleClickSnackbarSuccess();
+      updateBedAvailability({
+        bedId: responseCreateEmergencyPatient?.data?.data?.bedId,
+        data: { bedAvailableOrNot: false },
+      });
+      handleCloseAddModal();
+    } else if (responseCreateEmergencyPatient.isError) {
+      setSnackBarSuccessWarning(responseCreateEmergencyPatient?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responseCreateEmergencyPatient.isSuccess,
+    responseCreateEmergencyPatient.isError,
+  ]);
+
+  // console.log(selectedBed);
   const handleAddOPDPatient = (e) => {
     e.preventDefault();
+
+    const submitData = {
+      patientId: emergencyPatientUHID?.value,
+      doctorId: emergencydoctorId?.value,
+      admittingDateTime: emergencyAdmittingTime,
+      bedId: selectedBed?.bedId,
+      notes: emergencyNotes,
+    };
+    createEmergencyPatient(submitData);
   };
 
   const modalAddEmergencyPatient = (
@@ -145,30 +239,34 @@ export default function EmergencyPatientTable() {
               onChange={(e) => setOpdPatientBloodPressure(e.target.value)}
             />
           </div> */}
-
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bed No.</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              // type='number'
-              required
-              placeholder='Enter standard charges'
-              //   value={emergencyBedNo}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                // setEmergencyBedNo(value);
-              }}
-            />
-          </div>
-
           <div className='flex flex-col gap-[6px]'>
             <label className='text-[14px]'>Admitting Date / Time</label>
             <input
               className='py-[10px] outline-none border-b'
               type='datetime-local'
               required
-              //   onChange={(e) => setOpdDoctorVisitDate(e.target.value)}
+              onChange={(e) => setEmergencyAdmittingTime(e.target.value)}
             />
+          </div>
+          <div>
+            {addBedFormOpen === false ? (
+              <button
+                onClick={(e) => handleAddBedFormOpen(e)}
+                className=' flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
+             hover:text-black rounded-md '>
+                <FaBed className=' text-3xl ' /> +
+              </button>
+            ) : (
+              <div className=' flex flex-col justify-center items-start gap-5'>
+                <h2>Select A Bed</h2>
+                <div>
+                  <BedSelector
+                    beds={beds?.filter((data) => data.bedType === "Emergency")}
+                    handleBedSelect={handleBedSelect}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -178,8 +276,8 @@ export default function EmergencyPatientTable() {
             className='border-b py-[10px] outline-none'
             placeholder='Enter notes'
             rows={3}
-            // value={opdPatientNotes}
-            // onChange={(e) => setOpdPatientNotes(e.target.value)}
+            value={emergencyNotes}
+            onChange={(e) => setEmergencyNotes(e.target.value)}
           />
         </div>
         <div className='flex gap-[1rem] items-center'>
@@ -197,19 +295,87 @@ export default function EmergencyPatientTable() {
     </div>
   );
 
+  const [previousSelectedBed, setPreviousSelectedBed] = React.useState("");
+  const [emergencyPatientId, setEmergencyPatientId] = React.useState("");
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
-  const handleOpenUpdateModal = () => setOpenUpdateModal(true);
-  const handleCloseUpdateModal = () => setOpenUpdateModal(false);
+  const handleOpenUpdateModal = (list) => {
+    setEmergencyPatientId(list?.data?.mainId);
+    setemergencyPatientUHID({
+      value: list.patientData.patientId,
+      label: `${list.patientData.patientId} / ${list.patientData.patientName}`,
+    });
+    setEmergencyDoctorId({
+      value: list.doctorData.doctorId,
+      label: `${list.doctorData.doctorId} / ${list.doctorData.doctorName}`,
+    });
+    setPreviousSelectedBed(list.bedData.bedId);
+    setSelectedBed(list.bedData);
+    setEmergencyAdmittingTime(list.data.admittingDateTime);
+    setEmergencyNotes(list.data.notes);
+    setOpenUpdateModal(true);
+  };
+  const handleCloseUpdateModal = () => {
+    setOpenUpdateModal(false);
+  };
+
+  React.useEffect(() => {
+    if (responseUpdateEmergencyPatientById.isSuccess) {
+      dispatch(updateEmergencyPatientChange(Math.random()));
+      setSnackBarSuccessMessage(
+        responseUpdateEmergencyPatientById?.data?.message
+      );
+      handleClickSnackbarSuccess();
+      if (previousSelectedBed !== selectedBed.bedId) {
+        updateBedAvailability({
+          bedId: selectedBed.bedId,
+          data: { bedAvailableOrNot: false },
+        });
+        updateBedAvailability({
+          bedId: previousSelectedBed,
+          data: { bedAvailableOrNot: true },
+        });
+      }
+
+      handleCloseUpdateModal();
+    } else if (responseUpdateEmergencyPatientById.isError) {
+      setSnackBarSuccessWarning(
+        responseUpdateEmergencyPatientById?.error?.data
+      );
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responseUpdateEmergencyPatientById.isSuccess,
+    responseUpdateEmergencyPatientById.isError,
+  ]);
+
+  const handleUpdateOPDPatient = (e) => {
+    e.preventDefault();
+    const submitData = {
+      patientId: emergencyPatientUHID.value,
+      doctorId: emergencydoctorId.value,
+      bedId: selectedBed.bedId,
+      admittingDateTime: emergencyAdmittingTime,
+      notes: emergencyNotes,
+    };
+
+    updateEmergencyPatientById({
+      id: emergencyPatientId,
+      data: submitData,
+    });
+  };
 
   const modalUpdateEmergencyPatient = (
     <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
       <h2 className='border-b py-[1rem]'>Update Patient</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleAddOPDPatient}>
+      <form
+        className='flex flex-col gap-[1rem]'
+        onSubmit={handleUpdateOPDPatient}>
         <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
           <div className='flex flex-col gap-[6px] relative w-full'>
             <label className='text-[14px]'>UHID</label>
             <Select
               required
+              value={emergencyPatientUHID}
               options={renderedPatientIDForDropdown}
               onChange={setemergencyPatientUHID}
             />
@@ -219,6 +385,7 @@ export default function EmergencyPatientTable() {
             <label className='text-[14px]'>Doctor Id</label>
             <Select
               required
+              value={emergencydoctorId}
               options={renderedDoctorIDForDropdown}
               onChange={setEmergencyDoctorId}
             />
@@ -237,28 +404,34 @@ export default function EmergencyPatientTable() {
       </div> */}
 
           <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bed No.</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              // type='number'
-              required
-              placeholder='Enter standard charges'
-              //   value={emergencyBedNo}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                // setEmergencyBedNo(value);
-              }}
-            />
-          </div>
-
-          <div className='flex flex-col gap-[6px]'>
             <label className='text-[14px]'>Admitting Date / Time</label>
             <input
               className='py-[10px] outline-none border-b'
               type='datetime-local'
               required
-              //   onChange={(e) => setOpdDoctorVisitDate(e.target.value)}
+              value={emergencyAdmittingTime}
+              onChange={(e) => setEmergencyAdmittingTime(e.target.value)}
             />
+          </div>
+          <div>
+            {addBedFormOpen === false ? (
+              <button
+                onClick={(e) => handleAddBedFormOpen(e)}
+                className=' flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
+             hover:text-black rounded-md '>
+                <FaBed className=' text-3xl ' /> +
+              </button>
+            ) : (
+              <div className=' flex flex-col justify-center items-start gap-5'>
+                <h2>Select A Bed</h2>
+                <div>
+                  <BedSelector
+                    beds={beds?.filter((data) => data.bedType === "Emergency")}
+                    handleBedSelect={handleBedSelect}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -268,8 +441,8 @@ export default function EmergencyPatientTable() {
             className='border-b py-[10px] outline-none'
             placeholder='Enter notes'
             rows={3}
-            // value={opdPatientNotes}
-            // onChange={(e) => setOpdPatientNotes(e.target.value)}
+            value={emergencyNotes}
+            onChange={(e) => setEmergencyNotes(e.target.value)}
           />
         </div>
         <div className='flex gap-[1rem] items-center'>
@@ -278,10 +451,6 @@ export default function EmergencyPatientTable() {
             className='buttonFilled'
             // onClick={() => setSubmitButton("add")}
           >{`Save >`}</button>
-          <button
-            className='buttonOutlined'
-            // onClick={() => setSubmitButton("addPrint")}
-          >{`Save & Print >`}</button>
         </div>
       </form>
     </div>
@@ -295,10 +464,10 @@ export default function EmergencyPatientTable() {
 
   const [search, setSearch] = React.useState("");
 
-  const filteredArray = data?.filter((data) => {
+  const filteredArray = emergencyPatients?.filter((data) => {
     if (search !== "") {
       const userSearch = search.toLowerCase();
-      const searchInData = data?.emergencyRegId?.toLowerCase();
+      const searchInData = data?.mainId?.toLowerCase();
 
       return searchInData?.startsWith(userSearch);
     }
@@ -306,17 +475,19 @@ export default function EmergencyPatientTable() {
   });
 
   const mappedEmergencyRegTableData = filteredArray?.map((data, index) => {
-    //   const filteredPatientData = patients?.find(
-    //     (patient) => data?.opdPatientId === patient?.patientId
-    //   );
-    //   const filteredDoctorData = doctors?.find(
-    //     (doctor) => doctor?.doctorId === data?.opdDoctorId
-    //   );
+    const filteredPatientData = patients?.find(
+      (patient) => data?.patientId === patient?.patientId
+    );
+    const filteredDoctorData = doctors?.find(
+      (doctor) => doctor?.doctorId === data?.doctorId
+    );
+    const filteredBedData = beds?.find((bed) => bed?.bedId === data?.bedId);
     return {
       id: index + 1,
       data,
-      // patientData: filteredPatientData,
-      // doctorData: filteredDoctorData,
+      patientData: filteredPatientData,
+      doctorData: filteredDoctorData,
+      bedData: filteredBedData,
     };
   });
 
@@ -340,20 +511,20 @@ export default function EmergencyPatientTable() {
       render: (list) => list?.id,
     },
     {
-      label: " Emergency Reg Id",
-      render: (list) => list?.data?.emergencyRegId,
+      label: "Emergency Reg Id",
+      render: (list) => list?.data?.mainId,
     },
     {
       label: "Doctor Name",
-      render: (list) => list?.data?.doctorName,
+      render: (list) => list?.doctorData?.doctorName,
     },
     {
       label: "Patient Name",
-      render: (list) => list?.data?.patientName,
+      render: (list) => list?.patientData?.patientName,
     },
     {
       label: "Bed No",
-      render: (list) => list?.data?.bedNo,
+      render: (list) => list?.bedData?.bedNumber,
     },
     {
       label: "User Action",
@@ -474,6 +645,19 @@ export default function EmergencyPatientTable() {
           </Typography>
         </Box>
       </Modal>
+      <Snackbars
+        open={openSnackbarSuccess}
+        setOpen={setOpenSnackBarSuccess}
+        severity='success'
+        message={snackBarMessageSuccess}
+      />
+      {/* Warning Snackbar */}
+      <Snackbars
+        open={openSnackbarWarning}
+        setOpen={setOpenSnackBarWarning}
+        severity='warning'
+        message={snackBarMessageWarning}
+      />
     </Suspense>
   );
 }

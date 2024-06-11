@@ -15,6 +15,8 @@ import jsPdf from "jspdf";
 import ReactDOMServer from "react-dom/server";
 import { useReactToPrint } from "react-to-print";
 import "./PatientsTable.css";
+import { getAllIpdPatientsData, getAllPharmacyData } from "../PharamyApi";
+import PaginationComponent from "../../Pagination";
 function PatientsTable() {
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
@@ -25,7 +27,7 @@ function PatientsTable() {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 1100,
+    width: 1200,
     bgcolor: "background.paper",
     border: "2px solid transparent",
     boxShadow: 24,
@@ -33,34 +35,8 @@ function PatientsTable() {
     outline: "transparent",
     height: "600px",
     overflowY: "scroll",
+    borderRadius: "5px",
   };
-  const doc = new jsPdf();
-  const foo = (
-    <div className="w-full">
-      <div className="w-full justify-between ">
-        <img
-          src={
-            "http://localhost:3000/static/media/logo.e6018157ad383ab41871.png"
-          }
-          alt="logo"
-        />
-      </div>
-    </div>
-  );
-  const save = () => {
-    doc.html(ReactDOMServer.renderToStaticMarkup(foo), {
-      callback: () => {
-        const pdfData = doc.output("datauristring");
-        const pdfWindow = window.open();
-        pdfWindow.document.write(
-          '<iframe width="100%" height="100%" src="' +
-            pdfData +
-            '" frameborder="0"></iframe>'
-        );
-      },
-    });
-  };
-
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -70,7 +46,17 @@ function PatientsTable() {
   const [consumables, setConsumables] = useState([]);
   const [medicines, setMedicines] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+  const [ipdPatientsList, setIpdPatientsList] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const addConsumableHandle = (e) => {
     e.preventDefault();
     setConsumables([
@@ -152,23 +138,38 @@ function PatientsTable() {
   const getSearchValueHandle = () => {
     console.log(searchValue);
   };
+
+  // Api Call
+  const getAllPharmacyDataHandle = async () => {
+    const respone = await getAllPharmacyData();
+    console.log(respone);
+  };
+
+  const getAllIpdPatientsDataHandle = async () => {
+    const respone = await getAllIpdPatientsData();
+    setIpdPatientsList(respone && respone?.data?.reverse());
+    console.log(respone);
+  };
   useEffect(() => {
     getSearchValueHandle();
   }, [searchValue]);
   useEffect(() => {
-    // console.log(consumables);
     getConsumableTotalAmountHandle();
-  }, [consumables]);
+    getAllPharmacyDataHandle();
+  }, []);
 
   useEffect(() => {
-    // console.log(consumables);
     getMedicineTotalAmountHandle();
-  }, [medicines]);
-
+  }, []);
+  useEffect(() => {
+    getAllIpdPatientsDataHandle();
+  }, []);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-start flex-col gap-2">
-        <h2 className="border-b-[4px] border-[#3497F9] w-fit">Patients List</h2>
+        <h2 className="border-b-[4px] border-[#3497F9] w-fit">
+          IPD Patients List
+        </h2>
         <span className="w-[20rem] border-[2px] rounded flex bg-[#F4F6F6] flex items-center justify-center">
           <input
             type="text"
@@ -187,13 +188,14 @@ function PatientsTable() {
                 <p>S N</p>
               </th>
               <th className="border-b-[1px]">
-                <p>Name</p>
+                <p>Patients Uhid</p>
               </th>
+
               <th className="border-b-[1px]">
                 <p>Date</p>
               </th>
               <th className="border-b-[1px]">
-                <p>Mobile number</p>
+                <p>Ipd Patients Notes</p>
               </th>
               <th className="border-b-[1px]">
                 <p> Add Medicine </p>
@@ -204,40 +206,52 @@ function PatientsTable() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                1
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                Arman Ali
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                27/02/2024
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                8808907050
-              </td>
-              <td className="justify-center align-center flex text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                <div
-                  onClick={handleOpen}
-                  className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
-                >
-                  <IoMdAdd className="text-[25px] text-[#3497F9]" />
-                </div>
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] flex-row">
-                <div className="flex gap-[10px] justify-center">
-                  <div
-                    className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                    onClick={handleOpen1}
-                  >
-                    <CiViewList className="text-[25px] text-[#96999C]" />
-                  </div>
-                </div>
-              </td>
-            </tr>
+            {ipdPatientsList
+              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              ?.map((item, index) => (
+                <tr key={index}>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
+                    {index + 1}
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
+                    {"Uhid" + item?.ipdPatientId}
+                  </td>
+
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
+                    {item?.updatedAt?.split("T", 1)}
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
+                    {item?.ipdPatientNotes}
+                  </td>
+                  <td className="justify-center align-center flex text-[16px] py-4 px-[4px] text-center border-b-[1px]">
+                    <div
+                      onClick={handleOpen}
+                      className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                    >
+                      <IoMdAdd className="text-[25px] text-[#3497F9]" />
+                    </div>
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px] flex-row">
+                    <div className="flex gap-[10px] justify-center">
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                        onClick={handleOpen1}
+                      >
+                        <CiViewList className="text-[25px] text-[#96999C]" />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
+        <PaginationComponent
+          page={page}
+          rowsPerPage={rowsPerPage}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          data={ipdPatientsList}
+        />
       </div>
       <Modal
         aria-labelledby="transition-modal-title"

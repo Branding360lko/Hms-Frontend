@@ -50,6 +50,9 @@ import OTCharges from "./pages/Accountent/OT charges/OTCharges";
 import PhysiotheraphyOPD from "./pages/Accountent/PhysiotheraphyOPD/PhysiotheraphyOPD";
 import BedsidePhysiotherapy from "./pages/Accountent/BedsidePhysiotherapy(IPD)/BedsidePhysiotherapy(IPD)";
 import Tariffsofminorprocedures from "./pages/Accountent/Tariffsofminorprocedures/Tariffsofminorprocedures ";
+import IpdPatientsDoctorTable from "./pages/Doctors/IpdPatientsDoctorTable/IpdPatientsDoctorTable";
+import OpdPatientsDoctorTable from "./pages/Doctors/OpdPatientsDoctorTable/OpdPatientsDoctorTable";
+import EmergencyPatientsDoctorTable from "./pages/Doctors/EmergencyPatientsDoctorTable/EmergencyPatientsDoctorTable";
 
 const LoginPage = lazy(() => import("./Login"));
 
@@ -86,16 +89,13 @@ const SuperAdminAppointmentPage = lazy(() =>
 const SuperAdminAuthenticatedUserPage = lazy(() =>
   import("./pages/superadmin/AuthenticatedUsers/AuthenticatedUsers")
 );
-
+const SuperAdminNursePage = lazy(() =>
+  import("./pages/superadmin/Nurses/Nurses")
+);
 const SuperAdminIPDPage = lazy(() => import("./pages/superadmin/IPD/IPD"));
 const SuperAdminOPDPage = lazy(() => import("./pages/superadmin/OPD/OPD"));
-
-const SuperAdminTestPatientPage = lazy(() =>
-  import("./pages/superadmin/TestPatient/TestPatient")
-);
-
-const SuperAdminEmergencyPatientPage = lazy(() =>
-  import("./pages/superadmin/EmergencyPatient/EmergencyPatientLIst")
+const SuperAdminDepartmentPage = lazy(() =>
+  import("./pages/superadmin/Departments/Departments")
 );
 
 const BillDownloadPage = lazy(() =>
@@ -106,12 +106,6 @@ const OPDPatientRecieptDownloadPage = lazy(() =>
     "./components/superadmin/OPD_PatientTable/OPD_PatientReciept/OPD_PatientReciept"
   )
 );
-const SuperAdminIPDPatientRecieptDownloadPage = lazy(() =>
-  import(
-    "./components/superadmin/IPD_PatientTable/IPD_PatientReciept/IPD_PatientReciept"
-  )
-);
-
 // HR Panel
 const HRPanelDashboard = lazy(() => import("./pages/HR/Dashboard"));
 const HRPanelEmployeeManagement = lazy(() =>
@@ -152,12 +146,6 @@ const NursePanelIPDPatientList = lazy(() =>
 const NursePanelOPDPatientList = lazy(() =>
   import("./pages/Nurse/OPDPatientList/OPDPatientList")
 );
-const NursePanelEmergencyPatientList = lazy(() =>
-  import("./pages/Nurse/EmergencyPatientList/EmergencyPatientLIst")
-);
-const NursePanelTestPatient = lazy(() =>
-  import("./pages/Nurse/TestPatient/TestPatient")
-);
 
 const PatientViewPageToPrint = lazy(() =>
   import(
@@ -180,14 +168,12 @@ const TestPatientReceipt = lazy(() =>
     "./components/Nurse/TestPatientTable/TestPatientReceipt/TestPatientReceipt"
   )
 );
-
-// Doctor
-const DoctorPanelDashboard = lazy(() => import("./pages/Doctors/Dashboard"));
-
-const DoctorPanelPatientPrescription = lazy(() =>
-  import("./pages/Doctors/PatientPrescription/PatientPrescription")
+const NursePanelEmergencyPatientList = lazy(() =>
+  import("./pages/Nurse/EmergencyPatientList/EmergencyPatientLIst")
 );
-
+const NursePanelTestPatient = lazy(() =>
+  import("./pages/Nurse/TestPatient/TestPatient")
+);
 // Nurse Panel
 const ReceptionistPanelDashboard = lazy(() =>
   import("./pages/Receptionist/Dashboard")
@@ -204,6 +190,21 @@ const ReceptionistPanelIPDDoctorVisitList = lazy(() =>
 const ReceptionistPanelIPDPatientViewPage = lazy(() =>
   import(
     "./components/Receptionist/IPDPatientListTable/IPDPatientViewPage/IPDPatientViewPage"
+  )
+);
+
+const ReferPatientsNurse = lazy(() =>
+  import("./pages/Receptionist/ReferPatients/ReferPatients")
+);
+const DischargePatientsNurse = lazy(() =>
+  import("./pages/Receptionist/DischargePatients/DischargePatients")
+);
+const EmergencyPatientsNurse = lazy(() =>
+  import("./pages/Receptionist/EmergencyPatients/EmergencyPatients")
+);
+const ReferPatientsDailyVisitNurse = lazy(() =>
+  import(
+    "./pages/Receptionist/ReferPatientsDoctorVisit/ReferPatientsDoctorVisit"
   )
 );
 
@@ -239,6 +240,16 @@ const EmergencyPanelEmergencyPrescription = lazy(() =>
   import(
     "./pages/Emergency/EmergencyPatientPrescription/EmergencyPatientPrescription"
   )
+);
+
+// Doctors
+
+const Doctors = lazy(() => import("./pages/Doctors/DoctorDashboard/Doctors"));
+const DoctorsDischarge = lazy(() =>
+  import("./pages/Doctors/DoctorDischargePatients/DoctorDischargePatients")
+);
+const DoctorsRefer = lazy(() =>
+  import("./pages/Doctors/DoctorReferPatients/DoctorReferPatients")
 );
 
 function App() {
@@ -345,7 +356,6 @@ function App() {
   const medicineWiseDetails =
     browserLinks?.Pharmacist?.internalPages?.Patientlist.split("").join("");
   // ------
-
   // Nurse Panel Link
   const nursePanelAddPatientLink =
     browserLinks?.nurse?.internalPages?.addPatient?.split(" ").join("");
@@ -370,7 +380,7 @@ function App() {
           <LinearProgress />
         </Box>
       ) : (
-        <div className='App flex flex-col justify-center items-center'>
+        <div className="App flex flex-col justify-center items-center">
           <BrowserRouter>
             <Routes>
               {/* Login Page */}
@@ -385,12 +395,14 @@ function App() {
                           <LinearProgress />
                         </Box>
                       </>
-                    }>
+                    }
+                  >
                     <LoginPage />
                   </Suspense>
                 }
               />
 
+              {/* Super Admin Routes */}
               {adminRole === "Super Admin" ? (
                 <Route path={browserLinks.superadmin.category}>
                   <Route
@@ -403,7 +415,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminDashboardPage />
                       </Suspense>
                     }
@@ -418,7 +431,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminAuthenticatedUserPage />
                       </Suspense>
                     }
@@ -433,7 +447,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminBillingPage />
                       </Suspense>
                     }
@@ -448,27 +463,9 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <BillDownloadPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={`${
-                      browserLinks.superadmin.category
-                    }/${browserLinks.superadmin.internalPages.opdPatients
-                      .split(" ")
-                      .join("")}/:opdPatientId`}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <OPDPatientRecieptDownloadPage />
                       </Suspense>
                     }
                   />
@@ -482,7 +479,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminPatientPage />
                       </Suspense>
                     }
@@ -497,8 +495,27 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminDoctorPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.nurses
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminNursePage />
                       </Suspense>
                     }
                   />
@@ -512,8 +529,25 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminAppointmentPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.department}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminDepartmentPage />
                       </Suspense>
                     }
                   />
@@ -527,7 +561,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminOPDPage />
                       </Suspense>
                     }
@@ -542,7 +577,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminIPDPage />
                       </Suspense>
                     }
@@ -557,7 +593,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminOPDPatient />
                       </Suspense>
                     }
@@ -572,68 +609,16 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <SuperAdminIPDPatient />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={browserLinks.superadmin.internalPages.testPatient
-                      .split(" ")
-                      .join("")}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <SuperAdminTestPatientPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={browserLinks.superadmin.internalPages.emergencyPatient
-                      .split(" ")
-                      .join("")}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <SuperAdminEmergencyPatientPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={`${
-                      browserLinks.superadmin.category
-                    }/${browserLinks.superadmin.internalPages.ipdPatients
-                      .split(" ")
-                      .join("")}/:ipdPatientId`}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }>
-                        <SuperAdminIPDPatientRecieptDownloadPage />
                       </Suspense>
                     }
                   />
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -642,7 +627,8 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }
@@ -662,7 +648,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelDashboard />
                       </Suspense>
                     }
@@ -677,7 +664,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelEmployeeManagement />
                       </Suspense>
                     }
@@ -692,7 +680,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelEmployeePreOnBoarding />
                       </Suspense>
                     }
@@ -707,7 +696,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelEmployeeCreation />
                       </Suspense>
                     }
@@ -722,7 +712,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelEmployeeBulkUpload />
                       </Suspense>
                     }
@@ -737,7 +728,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelEmployeeBackGroundVerification />
                       </Suspense>
                     }
@@ -752,7 +744,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelEmployeeCompensation />
                       </Suspense>
                     }
@@ -767,7 +760,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <HRPanelEmployeeAppoiment />
                       </Suspense>
                     }
@@ -775,7 +769,7 @@ function App() {
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -784,13 +778,13 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }
                 />
               )}
-
               {adminRole === "Receptionist" ? (
                 <Route path={browserLinks.nurse.category}>
                   <Route
@@ -803,7 +797,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <NursePanelDashboard />
                       </Suspense>
                     }
@@ -822,7 +817,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <NursePanelAddPatient />
                       </Suspense>
                     }
@@ -841,7 +837,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <NursePanelEditPatient />
                       </Suspense>
                     }
@@ -860,7 +857,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <PatientViewPageToPrint />
                       </Suspense>
                     }
@@ -879,7 +877,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <NursePanelEmergencyPatientList />
                       </Suspense>
                     }
@@ -898,7 +897,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <EmergencyPatientReciept />
                       </Suspense>
                     }
@@ -917,7 +917,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <NursePanelIPDPatientList />
                       </Suspense>
                     }
@@ -936,7 +937,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <IPDPatientReciept />
                       </Suspense>
                     }
@@ -955,7 +957,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <NursePanelOPDPatientList />
                       </Suspense>
                     }
@@ -974,7 +977,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <OPDPatientRecieptDownloadPage />
                       </Suspense>
                     }
@@ -993,7 +997,28 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
+                        <NursePanelTestPatient />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.nurse.category
+                    }/${browserLinks?.nurse?.internalPages?.testPatient
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
                         <NursePanelTestPatient />
                       </Suspense>
                     }
@@ -1012,7 +1037,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <TestPatientReceipt />
                       </Suspense>
                     }
@@ -1020,7 +1046,7 @@ function App() {
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -1029,13 +1055,123 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }
                 />
               )}
-
+              {/* Nurse Panel */}
+              {adminRole === "Receptionist" ? (
+                <Route path={browserLinks.nurse.category}>
+                  <Route
+                    path={browserLinks.nurse.internalPages.dashboard}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <NursePanelDashboard />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${browserLinks.nurse.category}/${nursePanelAddPatientLink}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <NursePanelAddPatient />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${browserLinks.nurse.category}/${nursePanelEditPatientLink}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <NursePanelEditPatient />
+                      </Suspense>
+                    }
+                  />
+                  {/* <Route
+                    path={`${
+                      browserLinks.nurse.category
+                    }/${browserLinks?.nurse?.internalPages?.addEmergencyPatient
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <NursePanelAddEmergencyPatient />
+                      </Suspense>
+                    }
+                  /> */}
+                  <Route
+                    path={`${
+                      browserLinks.nurse.category
+                    }/${browserLinks?.nurse?.internalPages?.editEmergencyPatient
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <NursePanelEmergencyPatientList />
+                      </Suspense>
+                    }
+                  />
+                </Route>
+              ) : (
+                <Route
+                  path="*"
+                  element={
+                    <Suspense
+                      fallback={
+                        <>
+                          <Box sx={{ width: "100%" }}>
+                            <LinearProgress />
+                          </Box>
+                        </>
+                      }
+                    >
+                      <UnauthorizedPage />
+                    </Suspense>
+                  }
+                />
+              )}
               {/* Pharmacist Panel */}
               {adminRole === "Pharmacist" ? (
                 <Route path={browserLinks.Pharmacist.category}>
@@ -1053,7 +1189,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <PatientsList />
                       </Suspense>
                     }
@@ -1061,7 +1198,7 @@ function App() {
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -1070,13 +1207,13 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }
                 />
               )}
-
               {/* Accountent Panel */}
               {adminRole === "Accountant" ? (
                 <Route path={browserLinks.Accountant.category}>
@@ -1094,7 +1231,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccountantAdmissionAndCharges />
                       </Suspense>
                     }
@@ -1113,7 +1251,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <OPDConsultationCharges />
                       </Suspense>
                     }
@@ -1132,7 +1271,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccommodationCharges />
                       </Suspense>
                     }
@@ -1151,7 +1291,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <DoctorVisitCharges />
                       </Suspense>
                     }
@@ -1170,7 +1311,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <OTChargesSuperSpecialtyoperation />
                       </Suspense>
                     }
@@ -1189,7 +1331,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <OTCharges />
                       </Suspense>
                     }
@@ -1209,7 +1352,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <PhysiotheraphyOPD />
                       </Suspense>
                     }
@@ -1228,7 +1372,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <BedsidePhysiotherapy />
                       </Suspense>
                     }
@@ -1247,7 +1392,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <Tariffsofminorprocedures />
                       </Suspense>
                     }
@@ -1266,7 +1412,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccountantDayCareProcedure />
                       </Suspense>
                     }
@@ -1285,7 +1432,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccountantPackage />
                       </Suspense>
                     }
@@ -1304,7 +1452,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccountantOtherPackage />
                       </Suspense>
                     }
@@ -1323,7 +1472,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccountantTraumaCases />
                       </Suspense>
                     }
@@ -1342,7 +1492,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccountantDepartment />
                       </Suspense>
                     }
@@ -1361,7 +1512,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <AccountantBilling />
                       </Suspense>
                     }
@@ -1369,7 +1521,7 @@ function App() {
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -1378,17 +1530,22 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }
                 />
               )}
-
+              {/* Doctor Panel */}
               {adminRole === "Doctor" ? (
-                <Route path={browserLinks.doctor.category}>
+                <Route path={browserLinks.Doctor.category}>
                   <Route
-                    path={browserLinks.doctor.internalPages.dashboard}
+                    path={`${
+                      browserLinks.Doctor.category
+                    }/${browserLinks?.Doctor?.internalPages?.DashBoard?.split(
+                      " "
+                    ).join("")}`}
                     element={
                       <Suspense
                         fallback={
@@ -1397,17 +1554,18 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
-                        <DoctorPanelDashboard />
+                        }
+                      >
+                        <Doctors />
                       </Suspense>
                     }
                   />
                   <Route
                     path={`${
-                      browserLinks.doctor.category
-                    }/${browserLinks?.doctor?.internalPages?.patientPrescription
-                      ?.split(" ")
-                      .join("")}`}
+                      browserLinks.Doctor.category
+                    }/${browserLinks?.Doctor?.internalPages?.IpdPatients?.split(
+                      " "
+                    ).join("")}`}
                     element={
                       <Suspense
                         fallback={
@@ -1416,15 +1574,96 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
-                        <DoctorPanelPatientPrescription />
+                        }
+                      >
+                        <IpdPatientsDoctorTable />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.Doctor.category
+                    }/${browserLinks?.Doctor?.internalPages?.OpdPatients?.split(
+                      " "
+                    ).join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <OpdPatientsDoctorTable />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.Doctor.category
+                    }/${browserLinks?.Doctor?.internalPages?.EmergencyPatients?.split(
+                      " "
+                    ).join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <EmergencyPatientsDoctorTable />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.Doctor.category
+                    }/${browserLinks?.Doctor?.internalPages?.ReferralPatients?.split(
+                      " "
+                    ).join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <DoctorsRefer />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.Doctor.category
+                    }/${browserLinks?.Doctor?.internalPages?.DischargePatients?.split(
+                      " "
+                    ).join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <DoctorsDischarge />
                       </Suspense>
                     }
                   />
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -1433,13 +1672,13 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }
                 />
               )}
-
               {adminRole === "Emergency" ? (
                 <Route path={browserLinks.emergency.category}>
                   <Route
@@ -1452,7 +1691,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <EmergencyPanelDashboard />
                       </Suspense>
                     }
@@ -1469,7 +1709,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <EmergencyPanelEmergencyPrescription />
                       </Suspense>
                     }
@@ -1477,7 +1718,7 @@ function App() {
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -1486,13 +1727,13 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }
                 />
               )}
-
               {adminRole === "Nurse" ? (
                 <Route path={browserLinks.receptionist.category}>
                   <Route
@@ -1505,7 +1746,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <ReceptionistPanelDashboard />
                       </Suspense>
                     }
@@ -1524,7 +1766,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <ReceptionistPanelIPDPatientList />
                       </Suspense>
                     }
@@ -1543,7 +1786,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <ReceptionistPanelIPDPatientViewPage />
                       </Suspense>
                     }
@@ -1562,7 +1806,8 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <ReceptionistPanelIPDPrescriptionAdd />
                       </Suspense>
                     }
@@ -1581,15 +1826,96 @@ function App() {
                               <LinearProgress />
                             </Box>
                           </>
-                        }>
+                        }
+                      >
                         <ReceptionistPanelIPDDoctorVisitList />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.receptionist.category
+                    }/${browserLinks?.receptionist?.internalPages?.referPatients
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <ReferPatientsNurse />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.receptionist.category
+                    }/${browserLinks?.receptionist?.internalPages?.dischargePatients
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <DischargePatientsNurse />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.receptionist.category
+                    }/${browserLinks?.receptionist?.internalPages?.emergency
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <EmergencyPatientsNurse />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.receptionist.category
+                    }/${browserLinks?.receptionist?.internalPages?.referPatientsDoctorVisit
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <ReferPatientsDailyVisitNurse />
                       </Suspense>
                     }
                   />
                 </Route>
               ) : (
                 <Route
-                  path='*'
+                  path="*"
                   element={
                     <Suspense
                       fallback={
@@ -1598,7 +1924,8 @@ function App() {
                             <LinearProgress />
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <UnauthorizedPage />
                     </Suspense>
                   }

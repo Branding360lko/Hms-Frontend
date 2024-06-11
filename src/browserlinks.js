@@ -9,6 +9,7 @@ const browserLinks = {
       patients: "Patients",
       appointments: "Appointments",
       doctors: "Doctors",
+      nurses: "Nurses",
       messages: "Messages",
       educationContent: "Education Content",
       medicineInventory: "Medicine Inventory",
@@ -19,6 +20,7 @@ const browserLinks = {
       ipdPatients: "IPD Patients",
       testPatient: "Test Patients",
       emergencyPatient: "Emergency Patients",
+      department: "Department",
     },
   },
   hr: {
@@ -54,13 +56,6 @@ const browserLinks = {
       testPatient: "Patient Tests",
     },
   },
-  doctor: {
-    category: "/Doctors",
-    internalPages: {
-      dashboard: "Dashboard",
-      patientPrescription: "Patient Prescription",
-    },
-  },
   receptionist: {
     category: "/Nurse",
     pageCategories: {
@@ -75,19 +70,22 @@ const browserLinks = {
       ipdPatientList: "Patient List IPD",
       ipdPatientViewPage: "View Patient IPD",
       doctorVisitListIPD: "Doctor Visit List IPD",
+      referPatients: "Refer Patients",
+      dischargePatients: "Discharge Patients",
+      emergency: "Emergency Patients",
+      referPatientsDoctorVisit: "Refer Patients Doctor Visit",
     },
   },
-  emergency: {
-    category: "/Emergency",
+  Doctor: {
+    category: "/Doctor",
     internalPages: {
-      dashboard: "Dashboard",
-      addEmergencyPatientPrescription: "Emergency Prescription",
-    },
-  },
-  Pharmacist: {
-    category: "/Pharmacist",
-    internalPages: {
-      Patientlist: "Patient List",
+      Doctors: "Doctor",
+      DashBoard: "DashBoard",
+      IpdPatients: "IpdPatients",
+      OpdPatients: "OpdPatients",
+      EmergencyPatients: "Emergenc Patients",
+      DischargePatients: "Discharge Patients",
+      ReferralPatients: "Referral Patients",
     },
   },
   Accountant: {
@@ -116,7 +114,6 @@ const browserLinks = {
 // 1 = "Super Admin"
 // 2 = "Doctor"
 // 3 = "HR"
-// 4 = "Emergency"
 // 4 = "Receptionist"
 // 5 = "Pharmacist"
 // 6 = "Accountant"

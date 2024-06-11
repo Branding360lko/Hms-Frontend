@@ -1,7 +1,6 @@
 import { Backdrop, Fade, Modal, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
-import { CiViewList } from "react-icons/ci";
 
 function OTChargesTable() {
   const style = {
@@ -9,7 +8,7 @@ function OTChargesTable() {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 900,
+    width: 1100,
     height: 600,
     bgcolor: "#fff",
     border: "2px solid transaparent",
@@ -174,8 +173,13 @@ function OTChargesTable() {
       >
         <Fade in={open}>
           <Box sx={style}>
-            <Typography id="transition-modal-title" variant="h6" component="h2">
-              Text in a modal
+            <Typography
+              id="transition-modal-title"
+              variant="h6"
+              component="h2"
+              className="border-b-[4px] border-[#3497F9] w-fit"
+            >
+              OTCharges Table
             </Typography>
             <Typography id="transition-modal-description" sx={{ mt: 2 }}>
               <form>
@@ -207,19 +211,64 @@ function OTChargesTable() {
                           Surgeon charges
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          20.000 - 25.000
+                          <input
+                            type="text"
+                            placeholder="20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder="25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          15.000 - 20.000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          12.000 - 15.000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          6000 - 10.000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          4000- 6000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                       </tr>
                       <tr>
@@ -227,19 +276,64 @@ function OTChargesTable() {
                           Assistant surgeon
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          20000 - 25000
+                          <input
+                            type="text"
+                            placeholder="20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder="25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          15000 - 20000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          12000 - 15000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          6000 - 10000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          4000- 6000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                       </tr>
                       <tr>
@@ -247,19 +341,64 @@ function OTChargesTable() {
                           Anaesthetist
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          20000 - 25000
+                          <input
+                            type="text"
+                            placeholder="20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder="25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          15000 - 20000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          12000 - 15000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          6000 - 10000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          4000- 6000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                       </tr>
                       <tr>
@@ -267,19 +406,64 @@ function OTChargesTable() {
                           First Assistant
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          20000 - 25000
+                          <input
+                            type="text"
+                            placeholder="20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder="25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          15000 - 20000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          12000 - 15000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          6000 - 10000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          4000- 6000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                       </tr>
                       <tr>
@@ -287,24 +471,72 @@ function OTChargesTable() {
                           2nd Assistant
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          20000 - 25000
+                          <input
+                            type="text"
+                            placeholder="20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder="25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          15000 - 20000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          12000 - 15000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          6000 - 10000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                         <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
-                          4000- 6000
+                          <input
+                            type="text"
+                            placeholder=" 20.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />{" "}
+                          <input
+                            type="text"
+                            placeholder=" 25.000"
+                            className="w-[10rem] border-[2px] outline-none pl-1"
+                          />
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+                <button className="bg-[#3497F9] text-white p-[10px] rounded-md ">
+                  Update
+                </button>
               </form>
             </Typography>
           </Box>

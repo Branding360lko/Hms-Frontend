@@ -25,8 +25,9 @@ export default function Snackbars({ open, setOpen, severity, message }) {
         <Alert
           onClose={handleClose}
           severity={severity}
-          variant='filled'
-          sx={{ width: "100%" }}>
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
           {message}
         </Alert>
       </Snackbar>

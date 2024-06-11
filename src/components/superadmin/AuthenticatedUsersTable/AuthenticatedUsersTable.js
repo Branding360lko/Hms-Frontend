@@ -28,9 +28,13 @@ import {
 
 import Snackbars from "../../SnackBar";
 
+import Select from "react-select";
+
 export default function AuthenticatedUsersTable() {
   const dispatch = useDispatch();
   const { Admins } = useSelector((state) => state.AdminState);
+  const { doctors } = useSelector((state) => state.DoctorState);
+  const { nurses } = useSelector((state) => state.NurseState);
 
   const [adminRegister, responseAdminRegister] = useAdminRegisterMutation();
   const [adminUpdateById, responseAdminUpdateById] =
@@ -43,6 +47,18 @@ export default function AuthenticatedUsersTable() {
   const [adminEmail, setAdminEmail] = React.useState("");
   const [adminRole, setAdminRole] = React.useState("Doctor");
   const [adminPassword, setAdminPassword] = React.useState("");
+
+  // const [doctorId, setDoctorId] = React.useState({
+  //   value: "",
+  //   label: "",
+  // });
+
+  // const [nurseId, setNurseId] = React.useState({ value: "", label: "" });
+
+  const [adminUniqueId, setAdminUniqueId] = React.useState({
+    value: "",
+    label: "",
+  });
 
   // Snackbar--------------------
   // ----Succcess
@@ -62,6 +78,22 @@ export default function AuthenticatedUsersTable() {
     setOpenSnackBarWarning(true);
   };
   // ----------------------------
+
+  // Dropdown Data
+
+  const renderedDoctorIDForDropdown = doctors?.map((data) => {
+    return {
+      value: data.doctorId,
+      label: `${data.doctorId} / ${data.doctorName}`,
+    };
+  });
+
+  const renderedNurseIDForDropdown = nurses?.map((data) => {
+    return {
+      value: data.nurseId,
+      label: `${data.nurseId} / ${data.nurseName}`,
+    };
+  });
 
   const date = (dateTime) => {
     const newdate = new Date(dateTime);
@@ -120,49 +152,63 @@ export default function AuthenticatedUsersTable() {
   const handleAddUser = (e) => {
     e.preventDefault();
 
-    const submitData = {
-      adminName: adminName,
-      adminEmail: adminEmail,
-      adminPassword: adminPassword,
-      adminRole: adminRole,
-    };
-    adminRegister(submitData);
+    if (adminRole === "Doctor" || adminRole === "Nurse") {
+      const submitData = {
+        adminName: adminName,
+        adminEmail: adminEmail,
+        adminPassword: adminPassword,
+        adminRole: adminRole,
+        adminUniqueId: adminUniqueId?.value,
+      };
+      adminRegister(submitData);
+      // console.log(submitData);
+    } else {
+      const submitData = {
+        adminName: adminName,
+        adminEmail: adminEmail,
+        adminPassword: adminPassword,
+        adminRole: adminRole,
+      };
+      adminRegister(submitData);
+      // console.log(submitData);
+    }
   };
-  const billingModalAddForm = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>User Information</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleAddUser}>
-        <div className='grid grid-cols-2 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Name *</label>
+  const userModalAddForm = (
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">User Information</h2>
+      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddUser}>
+        <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Name *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter name'
+              placeholder="Enter name"
               value={adminName}
               onChange={(e) => setAdminName(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Email Id *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Email Id *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='email'
+              className="py-[10px] outline-none border-b"
+              type="email"
               required
-              placeholder='Enter email id'
-              autocomplete='off'
+              placeholder="Enter email id"
+              autocomplete="off"
               value={adminEmail}
               onChange={(e) => setAdminEmail(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Role *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Role *</label>
             <select
               required
               value={adminRole}
               onChange={(e) => setAdminRole(e.target.value)}
-              className='py-[11.5px] outline-none border-b bg-transparent'>
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>Super Admin</option>
               <option>Doctor</option>
               <option>HR</option>
@@ -175,23 +221,43 @@ export default function AuthenticatedUsersTable() {
               <option>Laboratory Assistant</option>
             </select>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Password *</label>
+          {adminRole === "Doctor" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Select Doctor *</label>
+              <Select
+                options={renderedDoctorIDForDropdown}
+                onChange={setAdminUniqueId}
+                required
+                // defaultValue={ipdDoctorId}
+              />
+            </div>
+          )}
+          {adminRole === "Nurse" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Select Nurse *</label>
+              <Select
+                options={renderedNurseIDForDropdown}
+                onChange={setAdminUniqueId}
+                required
+                // defaultValue={ipdDoctorId}
+              />
+            </div>
+          )}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Password *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='password'
+              className="py-[10px] outline-none border-b"
+              type="password"
               required
               minLength={6}
-              autoComplete='new-password'
-              placeholder='Enter password'
+              autoComplete="new-password"
+              placeholder="Enter password"
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
             />
           </div>
-          <button
-            type='submit'
-            className='buttonFilled w-fit'>{`Save >`}</button>
         </div>
+        <button type="submit" className="buttonFilled w-fit">{`Save >`}</button>
       </form>
     </div>
   );
@@ -238,40 +304,41 @@ export default function AuthenticatedUsersTable() {
   };
 
   const billingModalUpdateForm = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>User Information</h2>
-      <form className='flex flex-col gap-[1rem] ' onSubmit={handleUpdateUser}>
-        <div className='grid grid-cols-2 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Name *</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">User Information</h2>
+      <form className="flex flex-col gap-[1rem] " onSubmit={handleUpdateUser}>
+        <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Name *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter name'
+              placeholder="Enter name"
               value={adminName}
               onChange={(e) => setAdminName(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Email Id *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Email Id *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='email'
+              className="py-[10px] outline-none border-b"
+              type="email"
               // required
               disabled
-              placeholder='Enter email id'
+              placeholder="Enter email id"
               value={adminEmail}
               onChange={(e) => setAdminEmail(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Role *</label>
+          {/* <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Role *</label>
             <select
               required
               value={adminRole}
               onChange={(e) => setAdminRole(e.target.value)}
-              className='py-[11.5px] outline-none border-b bg-transparent'>
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>Super Admin</option>
               <option>Doctor</option>
               <option>HR</option>
@@ -283,21 +350,22 @@ export default function AuthenticatedUsersTable() {
               <option>Radiologist</option>
               <option>Laboratory Assistant</option>
             </select>
-          </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Password *</label>
+          </div> */}
+
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Password *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='password'
-              placeholder='Enter password'
-              autoComplete='new-password'
+              className="py-[10px] outline-none border-b"
+              type="password"
+              placeholder="Enter password"
+              autoComplete="new-password"
               minLength={6}
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
             />
           </div>
         </div>
-        <button type='submit' className='buttonFilled w-fit'>{`Save >`}</button>
+        <button type="submit" className="buttonFilled w-fit">{`Save >`}</button>
       </form>
     </div>
   );
@@ -387,7 +455,7 @@ export default function AuthenticatedUsersTable() {
     {
       label: "Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           {/* <div
             // onClick={() => handleOpenViewModal(list)}
             className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
@@ -395,8 +463,9 @@ export default function AuthenticatedUsersTable() {
           </div> */}
           <div
             onClick={() => handleOpenUpdateModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
             // onClick={() => handleClickOpenDialogBox(list)}
@@ -414,23 +483,24 @@ export default function AuthenticatedUsersTable() {
 
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">
             Authenticated Users
           </h2>
           <button
             onClick={handleOpen}
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          >
             + Add User
           </button>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
+        <div className="flex justify-between">
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
             <input
-              className='bg-transparent outline-none'
-              placeholder='Search by email id'
+              className="bg-transparent outline-none"
+              placeholder="Search by email id"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -443,29 +513,31 @@ export default function AuthenticatedUsersTable() {
       <Modal
         open={open}
         onClose={handleClose}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>Add User</h1>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">Add User</h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
-            {billingModalAddForm}
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            {userModalAddForm}
           </Typography>
         </Box>
       </Modal>
       <Modal
         open={openUpdateModal}
         onClose={handleCloseUpdateModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Edit User
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {billingModalUpdateForm}
           </Typography>
         </Box>
@@ -474,14 +546,14 @@ export default function AuthenticatedUsersTable() {
       <Snackbars
         open={openSnackbarSuccess}
         setOpen={setOpenSnackBarSuccess}
-        severity='success'
+        severity="success"
         message={snackBarMessageSuccess}
       />
       {/* Warning Snackbar */}
       <Snackbars
         open={openSnackbarWarning}
         setOpen={setOpenSnackBarWarning}
-        severity='warning'
+        severity="warning"
         message={snackBarMessageWarning}
       />
     </Suspense>

@@ -145,15 +145,16 @@ function EmployeeCompensationTable() {
   const addCompensation = (
     <div>
       <form
-        className='grid grid-cols-2 gap-4'
-        onSubmit={addEmployeeCompensationHandle}>
-        <span className='w-full'>
+        className="grid grid-cols-2 gap-4"
+        onSubmit={addEmployeeCompensationHandle}
+      >
+        <span className="w-full">
           <p> EmpolyeeID</p>
           <input
-            type='text'
-            placeholder=' EmpolyeeID'
-            name='employeeId'
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
+            type="text"
+            placeholder=" EmpolyeeID"
+            name="employeeId"
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
             onChange={handleGetValue}
             required
           />
@@ -161,10 +162,10 @@ function EmployeeCompensationTable() {
         <span>
           <p>Compensation Payout</p>
           <input
-            type='text'
-            placeholder='Compensationpayout'
-            name='compensationPayout'
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
+            type="text"
+            placeholder="Compensationpayout"
+            name="compensationPayout"
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
             onChange={handleGetValue}
             required
           />
@@ -172,10 +173,10 @@ function EmployeeCompensationTable() {
         <span>
           <p>Effective Date</p>
           <input
-            type='date'
-            placeholder='EffectiveDate'
-            name='effectiveData'
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
+            type="date"
+            placeholder="EffectiveDate"
+            name="effectiveData"
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
             onChange={handleGetValue}
             required
           />
@@ -183,23 +184,25 @@ function EmployeeCompensationTable() {
         <span>
           <p>Status</p>
           <select
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
-            name='status'
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
+            name="status"
             onChange={handleGetValue}
-            required>
-            <option value=''>Select One status</option>
-            <option value='1'>Active</option>
-            <option value='0'>InActive</option>
+            required
+          >
+            <option value="">Select One status</option>
+            <option value="1">Active</option>
+            <option value="0">InActive</option>
           </select>
         </span>
         {!isLoading ? (
-          <button className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+          <button className="bg-[#3497F9] text-white p-[10px] rounded-md">
             Add Compensation
           </button>
         ) : (
           <button
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'
-            disabled>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+            disabled
+          >
             Adding...
           </button>
         )}
@@ -209,15 +212,16 @@ function EmployeeCompensationTable() {
   const updateCompensation = (
     <div>
       <form
-        className='grid grid-cols-2 gap-4'
-        onSubmit={updateCompensationDataHandle}>
-        <span className='w-full'>
+        className="grid grid-cols-2 gap-4"
+        onSubmit={updateCompensationDataHandle}
+      >
+        <span className="w-full">
           <p> EmpolyeeID</p>
           <input
-            type='text'
-            placeholder=' EmpolyeeID'
-            name='employeeId'
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
+            type="text"
+            placeholder=" EmpolyeeID"
+            name="employeeId"
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
             value={compensationData?.employeeId}
             onChange={handleGetValue}
             required
@@ -226,10 +230,10 @@ function EmployeeCompensationTable() {
         <span>
           <p>Compensation Payout</p>
           <input
-            type='text'
-            placeholder='Compensationpayout'
-            name='compensationPayout'
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
+            type="text"
+            placeholder="Compensationpayout"
+            name="compensationPayout"
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
             value={compensationData?.compensationPayout}
             onChange={handleGetValue}
             required
@@ -238,10 +242,10 @@ function EmployeeCompensationTable() {
         <span>
           <p>Effective Date</p>
           <input
-            type='date'
-            placeholder='EffectiveDate'
-            name='effectiveData'
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
+            type="date"
+            placeholder="EffectiveDate"
+            name="effectiveData"
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
             value={compensationData?.effectiveData}
             onChange={handleGetValue}
             required
@@ -250,24 +254,26 @@ function EmployeeCompensationTable() {
         <span>
           <p>Status</p>
           <select
-            className='border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]'
-            name='status'
+            className="border-[2px] border-[#C8C8C8] rounded w-full h-[40px] outline-none pl-[5px]"
+            name="status"
             onChange={handleGetValue}
             value={compensationData?.status}
-            required>
-            <option value=''>Select One status</option>
-            <option value='1'>Active</option>
-            <option value='0'>InActive</option>
+            required
+          >
+            <option value="">Select One status</option>
+            <option value="1">Active</option>
+            <option value="0">InActive</option>
           </select>
         </span>
         {!isLoading ? (
-          <button className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+          <button className="bg-[#3497F9] text-white p-[10px] rounded-md">
             Update Compensation
           </button>
         ) : (
           <button
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'
-            disabled>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+            disabled
+          >
             Adding...
           </button>
         )}
@@ -335,51 +341,53 @@ function EmployeeCompensationTable() {
   }, [compensationData]);
 
   return (
-    <div className='flex flex-col gap-[1rem] p-[1rem]'>
-      <div className='flex justify-between'>
-        <h2 className='border-b-[4px] border-[#3497F9]'>Compensation</h2>
+    <div className="flex flex-col gap-[1rem] p-[1rem]">
+      <div className="flex justify-between">
+        <h2 className="border-b-[4px] border-[#3497F9]">Compensation</h2>
         <button
-          className='bg-[#3497F9] text-white p-[10px] rounded-md'
-          onClick={handleOpen}>
+          className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          onClick={handleOpen}
+        >
           Add Compensation
         </button>
       </div>
-      <form className='flex flex-col align-start justify-start gap-[10px]'>
-        <p className='w-fit'>Upload File *</p>
-        <span className='w-fit flex gap-[10px]'>
-          <input type='file' required />
-          <button className='bg-[#3497F9] text-white p-[10px] rounded-md w-[150px]'>
+      <form className="flex flex-col align-start justify-start gap-[10px]">
+        <p className="w-fit">Upload File *</p>
+        <span className="w-fit flex gap-[10px]">
+          <input type="file" required />
+          <button className="bg-[#3497F9] text-white p-[10px] rounded-md w-[150px]">
             Submit
           </button>
         </span>
       </form>
-      <div className='flex flex-col justify-start gap-2'>
-        <h2 className='border-b-[4px] border-[#3497F9] w-fit'>
+      <div className="flex flex-col justify-start gap-2">
+        <h2 className="border-b-[4px] border-[#3497F9] w-fit">
           Compensation Details
         </h2>
-        <span className='w-[20rem] border-[2px] rounded flex bg-[#F4F6F6] flex items-center justify-center'>
+        <span className="w-[20rem] border-[2px] rounded flex bg-[#F4F6F6] flex items-center justify-center">
           <input
-            type='text'
-            placeholder='Search Employee By Id'
-            className='w-11/12 border-none outline-none pl-[5px] h-[2rem] bg-[#F4F6F6]'
+            type="text"
+            placeholder="Search Employee By Id"
+            className="w-11/12 border-none outline-none pl-[5px] h-[2rem] bg-[#F4F6F6]"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
           />
 
           <button
-            className='bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md '
+            className="bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md "
             onClick={() => [setSearchResult([]), setSearchValue("")]}
-            disabled={searchValue != "" ? false : true}>
+            disabled={searchValue != "" ? false : true}
+          >
             Reset
           </button>
         </span>
       </div>
       {/* <Table config={config} /> */}
       <div>
-        <table className='w-full table-auto border-spacing-2 text-[#595959] font-[300]'>
+        <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
           <thead>
             {config?.map((item) => (
-              <th className='border-b-[1px]'>
+              <th className="border-b-[1px]">
                 <p>{item?.label}</p>
               </th>
             ))}
@@ -390,30 +398,31 @@ function EmployeeCompensationTable() {
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   ?.map((item, index) => (
                     <tr key={index}>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {index + 1}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.fullname}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.mainId}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.bloodgroup}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.PAN}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.EffectiveDate}
                       </td>
                       <td>
-                        <div className='flex gap-[10px] justify-center'>
+                        <div className="flex gap-[10px] justify-center">
                           <div
                             // onClick={() => handleOpenUpdateModal(list)}
-                            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-                            <CiViewList className='text-[25px] text-[#96999C]' />
+                            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                          >
+                            <CiViewList className="text-[25px] text-[#96999C]" />
                           </div>
 
                           <div
@@ -421,8 +430,9 @@ function EmployeeCompensationTable() {
                               handleOpen1(),
                               getOneCompensationDataHandle(item?._id),
                             ]}
-                            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-                            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+                            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                          >
+                            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
                           </div>
                         </div>
                       </td>
@@ -432,30 +442,31 @@ function EmployeeCompensationTable() {
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   ?.map((item, index) => (
                     <tr key={index}>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {index + 1}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.fullname}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.mainId}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.bloodgroup}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.employee?.[0]?.PAN}
                       </td>
-                      <td className='justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]'>
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-b-[1px]">
                         {item?.EffectiveDate}
                       </td>
                       <td>
-                        <div className='flex gap-[10px] justify-center'>
+                        <div className="flex gap-[10px] justify-center">
                           <div
                             // onClick={() => handleOpenUpdateModal(list)}
-                            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-                            <CiViewList className='text-[25px] text-[#96999C]' />
+                            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                          >
+                            <CiViewList className="text-[25px] text-[#96999C]" />
                           </div>
 
                           <div
@@ -463,8 +474,9 @@ function EmployeeCompensationTable() {
                               handleOpen1(),
                               getOneCompensationDataHandle(item?._id),
                             ]}
-                            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-                            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+                            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                          >
+                            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
                           </div>
                         </div>
                       </td>
@@ -477,12 +489,12 @@ function EmployeeCompensationTable() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={allCompensationData?.data ? allCompensationData?.data : ""}
+          data={allCompensationData?.data}
         />
       </div>
       <Modal
-        aria-labelledby='transition-modal-title'
-        aria-describedby='transition-modal-description'
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
         open={open}
         onClose={handleClose}
         closeAfterTransition
@@ -491,21 +503,22 @@ function EmployeeCompensationTable() {
           backdrop: {
             timeout: 500,
           },
-        }}>
+        }}
+      >
         <Fade in={open}>
           <Box sx={style}>
-            <Typography id='transition-modal-title' variant='h6' component='h2'>
+            <Typography id="transition-modal-title" variant="h6" component="h2">
               Add Compensation
             </Typography>
-            <Typography id='transition-modal-description' sx={{ mt: 2 }}>
+            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
               {addCompensation}
             </Typography>
           </Box>
         </Fade>
       </Modal>
       <Modal
-        aria-labelledby='transition-modal-title'
-        aria-describedby='transition-modal-description'
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
         open={open1}
         onClose={handleClose1}
         closeAfterTransition
@@ -514,13 +527,14 @@ function EmployeeCompensationTable() {
           backdrop: {
             timeout: 500,
           },
-        }}>
+        }}
+      >
         <Fade in={open1}>
           <Box sx={style}>
-            <Typography id='transition-modal-title' variant='h6' component='h2'>
+            <Typography id="transition-modal-title" variant="h6" component="h2">
               Add Compensation
             </Typography>
-            <Typography id='transition-modal-description' sx={{ mt: 2 }}>
+            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
               {updateCompensation}
             </Typography>
           </Box>

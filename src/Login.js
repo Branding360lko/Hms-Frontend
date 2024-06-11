@@ -19,6 +19,7 @@ import {
   getAdminLoggedIn,
   getAdminLoggedInData,
   getAdminRole,
+  getAllAdminUniqueId,
 } from "./Store/Slices/AdminSlice";
 
 import Cookies from "js-cookie";
@@ -108,10 +109,10 @@ export default function Login() {
       }
       if (
         localStorage.getItem("AdminToken") &&
-        adminLoggedInData?.adminRole === "Doctor"
+        adminLoggedInData?.adminRole === "Receptionist"
       ) {
         navigate(
-          `${browserLinks.doctor.category}/${browserLinks.doctor.internalPages.dashboard}`
+          `${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.dashboard}`
         );
       }
       if (
@@ -121,25 +122,6 @@ export default function Login() {
         navigate(
           `${browserLinks.receptionist.category}/${browserLinks.receptionist.internalPages.dashboard}`
         );
-      }
-      if (
-        localStorage.getItem("AdminToken") &&
-        adminLoggedInData?.adminRole === "Receptionist"
-      ) {
-        navigate(
-          `${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.dashboard}`
-        );
-      }
-      if (
-        localStorage.getItem("AdminToken") &&
-        adminLoggedInData?.adminRole === "Emergency"
-      ) {
-        navigate(
-          `${browserLinks.emergency.category}/${browserLinks.emergency.internalPages.dashboard}`
-        );
-      }
-      if (localStorage.getItem("AdminToken")) {
-        navigate(1);
       }
       if (
         localStorage.getItem("AdminToken") &&
@@ -165,6 +147,19 @@ export default function Login() {
           ).join("")}`
         );
       }
+      if (
+        localStorage.getItem("AdminToken") &&
+        adminLoggedInData?.adminRole === "Doctor"
+      ) {
+        navigate(
+          `${
+            browserLinks.Doctor.category
+          }/${browserLinks.Doctor.internalPages.DashBoard?.split(" ").join("")}`
+        );
+      }
+      if (localStorage.getItem("AdminToken")) {
+        navigate(1);
+      }
     }, [1000]);
   }, [localStorage.getItem("AdminToken"), adminLoggedInData?.adminRole]);
 
@@ -177,10 +172,14 @@ export default function Login() {
         //   secure: true,
         // });
         // dispatch(getAdminLoggedIn(responseAdminLogin?.data?.token));
+        console.log(responseAdminLogin, "responseAdminLogin");
         localStorage.setItem("AdminToken", responseAdminLogin?.data?.token);
         dispatch(getAdminLoggedIn(responseAdminLogin?.data?.token));
         dispatch(getAdminLoggedInData(responseAdminLogin?.data?.data));
         dispatch(getAdminRole(responseAdminLogin?.data?.adminRole));
+        dispatch(
+          getAllAdminUniqueId(responseAdminLogin?.data?.data?.adminUniqueId)
+        );
 
         setSnackBarSuccessMessage(responseAdminLogin?.data?.message);
         handleClickSnackbarSuccess();
@@ -219,64 +218,66 @@ export default function Login() {
   };
   return (
     <>
-      <div className='mainLoginPage w-[90%] flex flex-row items-center justify-center h-screen'>
-        <div className='mainLoginPage-left w-[40%] flex flex-col gap-[2rem] p-[4rem] shadow-md items-center'>
-          <img src={logoImage} alt='logoImage' className='w-[220px]' />
-          <p className='font-[700]'>Login into your account</p>
+      <div className="mainLoginPage w-[90%] flex flex-row items-center justify-center h-screen">
+        <div className="mainLoginPage-left w-[40%] flex flex-col gap-[2rem] p-[4rem] shadow-md items-center">
+          <img src={logoImage} alt="logoImage" className="w-[220px]" />
+          <p className="font-[700]">Login into your account</p>
           <form
-            className='flex flex-col items-start justify-start w-full gap-[1rem]'
-            onSubmit={handleLogin}>
-            <label className='text-[#555]'>Email Address</label>
-            <div className='flex w-full'>
+            className="flex flex-col items-start justify-start w-full gap-[1rem]"
+            onSubmit={handleLogin}
+          >
+            <label className="text-[#555]">Email Address</label>
+            <div className="flex w-full">
               <input
-                className='bg-[#F1F3F6] w-full rounded-[8px] px-[10px] outline-none'
-                placeholder='Enter Your Email'
-                type='email'
+                className="bg-[#F1F3F6] w-full rounded-[8px] px-[10px] outline-none"
+                placeholder="Enter Your Email"
+                type="email"
                 required
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
               />
-              <div className='bg-[#0085FF] w-fit p-[10px] rounded-[8px]'>
-                <IoMailOutline className='text-white bg-[#0085FF] text-[25px]' />
+              <div className="bg-[#0085FF] w-fit p-[10px] rounded-[8px]">
+                <IoMailOutline className="text-white bg-[#0085FF] text-[25px]" />
               </div>
             </div>
-            <label className='text-[#555]'>Password</label>
-            <div className='flex w-full'>
+            <label className="text-[#555]">Password</label>
+            <div className="flex w-full">
               <input
-                className='bg-[#F1F3F6] w-full rounded-[8px] px-[10px] outline-none'
-                placeholder='Enter Your Password'
-                type='password'
+                className="bg-[#F1F3F6] w-full rounded-[8px] px-[10px] outline-none"
+                placeholder="Enter Your Password"
+                type="password"
                 required
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
               />
-              <div className='bg-[#0085FF] w-fit p-[10px] rounded-[8px]'>
-                <MdOutlineLock className='text-white bg-[#0085FF] text-[25px]' />
+              <div className="bg-[#0085FF] w-fit p-[10px] rounded-[8px]">
+                <MdOutlineLock className="text-white bg-[#0085FF] text-[25px]" />
               </div>
             </div>
             {isLoading ? (
-              <div className='flex flex-row justify-center w-full'>
+              <div className="flex flex-row justify-center w-full">
                 <Box sx={{ display: "flex" }}>
-                  <CircularProgress color='inherit' />
+                  <CircularProgress color="inherit" />
                 </Box>
               </div>
             ) : (
               <button
-                type='submit'
-                className='bg-[#0085FF] text-white w-full p-[10px] rounded-[8px] shadow-lg'>
+                type="submit"
+                className="bg-[#0085FF] text-white w-full p-[10px] rounded-[8px] shadow-lg"
+              >
                 Login Now
               </button>
             )}
           </form>
-          <p className='text-[#C2C2C2] text-end w-full cursor-pointer hover:underline'>
+          <p className="text-[#C2C2C2] text-end w-full cursor-pointer hover:underline">
             Forgot Password?
           </p>
         </div>
-        <div className='mainLoginPage-right w-[60%] flex items-center justify-center'>
+        <div className="mainLoginPage-right w-[60%] flex items-center justify-center">
           <img
             src={loginPageImage}
-            alt='loginPageImage'
-            className='w-[500px]'
+            alt="loginPageImage"
+            className="w-[500px]"
           />
         </div>
       </div>
@@ -284,14 +285,14 @@ export default function Login() {
       <Snackbars
         open={openSnackbarSuccess}
         setOpen={setOpenSnackBarSuccess}
-        severity='success'
+        severity="success"
         message={snackBarMessageSuccess}
       />
       {/* Warning Snackbar */}
       <Snackbars
         open={openSnackbarWarning}
         setOpen={setOpenSnackBarWarning}
-        severity='warning'
+        severity="warning"
         message={snackBarMessageWarning}
       />
     </>

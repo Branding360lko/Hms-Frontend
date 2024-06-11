@@ -3,44 +3,48 @@
 @tailwind utilities;
 
 h1 {
-    @apply text-2xl;
+  @apply text-2xl;
 }
 h2 {
-    @apply text-xl;
+  @apply text-xl;
 }
 h3 {
-    @apply text-lg;
+  @apply text-lg;
 }
 a {
-     @apply text-blue-600 underline;
+  @apply text-blue-600 underline;
 }
 
 html {
-    font-family: "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .headingBottomUnderline {
-    border-bottom: 4px solid #3497F9;
+  border-bottom: 4px solid #3497f9;
 }
 .headingTopUnderline {
-    border-top: 4px solid #3497F9;
+  border-top: 4px solid #3497f9;
 }
 
 .buttonFilled {
-    background-color: #2196F3;
-    color: white;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    border-radius: 4px;
+  background-color: #2196f3;
+  color: white;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 4px;
 }
 .buttonOutlined {
-    border: 1px solid #2196F3;
-    color: #2196F3;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    border-radius: 4px;
+  border: 1px solid #2196f3;
+  color: #2196f3;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 4px;
+}
+.errors {
+  font-size: 10px;
+  color: red;
 }

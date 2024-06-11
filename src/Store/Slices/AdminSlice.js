@@ -4,6 +4,7 @@ const initialState = {
   adminLoggedIn: null,
   adminLoggedInData: null,
   adminRole: null,
+  adminUniqueId: null,
   Admins: [],
   createAdmin: "",
   updateAdmin: "",
@@ -30,6 +31,9 @@ const AdminSlice = createSlice({
     getAllAdmins: (state, action) => {
       state.Admins = action.payload;
     },
+    getAllAdminUniqueId: (state, action) => {
+      state.adminUniqueId = action.payload;
+    },
     createAdminChange: (state, action) => {
       state.createAdmin = action.payload;
     },
@@ -50,6 +54,7 @@ export const {
   updateAdminChange,
   deleteAdminChange,
   getAdminLoggedInData,
+  getAllAdminUniqueId,
 } = AdminSlice.actions;
 
 export default AdminSlice.reducer;

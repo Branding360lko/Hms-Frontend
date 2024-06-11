@@ -109,13 +109,15 @@ export default function SideNav({ activePage }) {
             active === `${browserLinks?.nurse?.category}/${data?.name}`
               ? "flex flex-row items-center justify-start gap-[1rem] py-[10px] px-[1rem] border-l-[6px] border-l-solid border-[#3497F9] bg-[#E7F3FE] w-full cursor-pointer"
               : "flex flex-row items-center justify-start border-l-[6px] border-l-solid border-transparent gap-[1rem] py-[10px] px-[1rem] w-full cursor-pointer"
-          }>
+          }
+        >
           <div
             className={
               active === `${browserLinks?.nurse?.category}/${data?.name}`
                 ? "text-[25px] text-[#3497F9]"
                 : "text-[25px] text-[#7F8F98]"
-            }>
+            }
+          >
             {data?.icon}
           </div>
           <p
@@ -123,17 +125,18 @@ export default function SideNav({ activePage }) {
               active === `${browserLinks?.nurse?.category}/${data?.name}`
                 ? "text-[#3497F9] font-[400] text-[14px]"
                 : "text-[#7F8F98] font-[400] text-[14px]"
-            }>
+            }
+          >
             {data?.name}
           </p>
         </div>
       );
     });
     return (
-      <div key={`${category?.category}-${index}`} className='w-full'>
+      <div key={`${category?.category}-${index}`} className="w-full">
         {category?.category !== "Dashboard" && (
-          <div className='flex justify-between px-[1rem] items-center'>
-            <h3 className=''>{category?.category}</h3>
+          <div className="flex justify-between px-[1rem] items-center">
+            <h3 className="">{category?.category}</h3>
             <IoIosArrowDown />
           </div>
         )}
@@ -182,14 +185,14 @@ export default function SideNav({ activePage }) {
   return (
     <>
       <Suspense fallback={<>...</>}>
-        <div className='SideNav flex flex-col items-center'>
+        <div className="SideNav flex flex-col items-center">
           <img
             src={logoImage}
-            alt='logoImage'
-            className='w-[200px] h-auto py-[2rem]'
+            alt="logoImage"
+            className="w-[200px] h-auto py-[2rem]"
           />
 
-          <div className='sideNavLinks flex flex-col gap-[1rem] w-full items-start overflow-y-scroll'>
+          <div className="sideNavLinks flex flex-col gap-[1rem] w-full items-start overflow-y-scroll">
             {renderedPagesCategories}
           </div>
         </div>

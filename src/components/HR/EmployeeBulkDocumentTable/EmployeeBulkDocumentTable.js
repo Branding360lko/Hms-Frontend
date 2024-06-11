@@ -54,11 +54,11 @@ function EmployeeBulkDocumentTable() {
     },
   ];
   return (
-    <div className='flex  flex-col gap-[1rem] p-[1rem]'>
-      <h2 className='border-b-[4px] border-[#3497F9] w-fit'>
+    <div className="flex  flex-col gap-[1rem] p-[1rem]">
+      <h2 className="border-b-[4px] border-[#3497F9] w-fit">
         Document Import Details
       </h2>
-      {/* <Table config={config} /> */}
+      <Table config={config} />
     </div>
   );
 }

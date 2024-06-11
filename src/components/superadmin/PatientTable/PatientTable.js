@@ -41,6 +41,7 @@ import {
 
 // import DatePicker from "react-datepicker";
 // import "react-datepicker/dist/react-datepicker.css";
+import { Link } from "react-router-dom";
 
 export default function PatientTable() {
   const dispatch = useDispatch();
@@ -1158,10 +1159,7 @@ export default function PatientTable() {
           </div>
         </div>
         <div className='flex gap-[1rem] items-center'>
-          <button
-            type='submit'
-            className='buttonFilled'>{`Save & Print >`}</button>
-          <button className='buttonOutlined'>{`Save >`}</button>
+          <button type='submit' className='buttonFilled'>{`Save >`}</button>
         </div>
       </form>
     </div>
@@ -1302,10 +1300,16 @@ export default function PatientTable() {
               <h1 className='headingBottomUnderline w-fit pb-[10px]'>
                 Patient Details
               </h1>
-              <button className='buttonFilled flex items-center gap-[10px]'>
+              <Link
+                // onClick={handleGeneratePdf}
+                target='_blank'
+                to={patientData?.patientId}
+                // to={opdPatientData?.data?.mainId}
+                // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
+                className='buttonFilled flex items-center gap-[10px]'>
                 <LuHardDriveDownload />
                 <p>Download</p>
-              </button>
+              </Link>
             </div>
           </Typography>
           <Typography id='modal-modal-description' sx={{ mt: 2 }}>
