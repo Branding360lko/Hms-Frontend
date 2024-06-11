@@ -258,12 +258,12 @@ export default function OPD_PatientTable() {
   // console.log(opdPatientId);
 
   const modalAddOPDPatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Add Patient</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleAddOPDPatient}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>UHID *</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Add Patient</h2>
+      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddOPDPatient}>
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">UHID *</label>
             <Select
               required
               options={renderedPatientIDForDropdown}
@@ -289,8 +289,8 @@ export default function OPD_PatientTable() {
             />
           </div> */}
 
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>Doctor Id *</label>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Doctor Id *</label>
             <Select
               required
               options={renderedDoctorIDForDropdown}
@@ -310,13 +310,13 @@ export default function OPD_PatientTable() {
             />
           </div> */}
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Standard Charges *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Standard Charges *</label>
             <input
-              className='py-[10px] outline-none border-b'
+              className="py-[10px] outline-none border-b"
               // type='number'
               required
-              placeholder='Enter standard charges'
+              placeholder="Enter standard charges"
               // value={opdPatientStandardCharges}
               // onChange={(e) => setOpdPatientStandardCharges(e.target.value)}
               value={opdPatientStandardCharges}
@@ -326,13 +326,14 @@ export default function OPD_PatientTable() {
               }}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Payment Mode *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Payment Mode *</label>
             <select
               required
-              className='py-[10px] outline-none border-b bg-transparent'
+              className="py-[10px] outline-none border-b bg-transparent"
               value={opdPatientPaymentMode}
-              onChange={(e) => setOpdPatientPaymentMode(e.target.value)}>
+              onChange={(e) => setOpdPatientPaymentMode(e.target.value)}
+            >
               <option>UPI</option>
               <option>Cash</option>
               <option>Cheque</option>
@@ -347,7 +348,7 @@ export default function OPD_PatientTable() {
               onChange={(e) => setOpdPatientPaymentMode(e.target.value)}
             /> */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
+          {/* <div className='flex flex-col gap-[6px]'>
             <label className='text-[14px]'>Visit Date</label>
             <input
               className='py-[10px] outline-none border-b'
@@ -355,29 +356,29 @@ export default function OPD_PatientTable() {
               required
               onChange={(e) => setOpdDoctorVisitDate(e.target.value)}
             />
-          </div>
+          </div> */}
         </div>
 
-        <div className='flex flex-col gap-[6px]'>
-          <label className='text-[14px]'>Notes</label>
+        <div className="flex flex-col gap-[6px]">
+          <label className="text-[14px]">Notes</label>
           <textarea
-            className='border-b py-[10px] outline-none'
-            placeholder='Enter notes'
+            className="border-b py-[10px] outline-none"
+            placeholder="Enter notes"
             rows={3}
             value={opdPatientNotes}
             onChange={(e) => setOpdPatientNotes(e.target.value)}
           />
         </div>
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
-            className='buttonFilled'
-            onClick={() => setSubmitButton("add")}>{`Save >`}</button>
+            type="submit"
+            className="buttonFilled"
+            onClick={() => setSubmitButton("add")}
+          >{`Save >`}</button>
           <button
-            className='buttonOutlined'
-            onClick={() =>
-              setSubmitButton("addPrint")
-            }>{`Save & Print >`}</button>
+            className="buttonOutlined"
+            onClick={() => setSubmitButton("addPrint")}
+          >{`Save & Print >`}</button>
         </div>
       </form>
     </div>
@@ -478,12 +479,12 @@ export default function OPD_PatientTable() {
   };
 
   const modalUpdatePatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Update Patient</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleUpdateDoctor}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>Patient Registration Id *</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Update Patient</h2>
+      <form className="flex flex-col gap-[1rem]" onSubmit={handleUpdateDoctor}>
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Patient Registration Id *</label>
             <Select
               options={renderedPatientIDForDropdown}
               onChange={setOpdPatientId}
@@ -509,8 +510,8 @@ export default function OPD_PatientTable() {
             />
           </div> */}
 
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>OPD Id *</label>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">OPD Id *</label>
             <Select
               options={renderedDoctorIDForDropdown}
               onChange={setOpdDoctorId}
@@ -530,13 +531,13 @@ export default function OPD_PatientTable() {
             />
           </div> */}
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Standard Charges *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Standard Charges *</label>
             <input
-              className='py-[10px] outline-none border-b'
+              className="py-[10px] outline-none border-b"
               // type='number'
               required
-              placeholder='Enter standard charges'
+              placeholder="Enter standard charges"
               // value={opdPatientStandardCharges}
               // onChange={(e) => setOpdPatientStandardCharges(e.target.value)}
               value={opdPatientStandardCharges}
@@ -546,13 +547,14 @@ export default function OPD_PatientTable() {
               }}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Payment Mode *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Payment Mode *</label>
             <select
               required
-              className='py-[10px] outline-none border-b bg-transparent'
+              className="py-[10px] outline-none border-b bg-transparent"
               value={opdPatientPaymentMode}
-              onChange={(e) => setOpdPatientPaymentMode(e.target.value)}>
+              onChange={(e) => setOpdPatientPaymentMode(e.target.value)}
+            >
               <option>UPI</option>
               <option>Cash</option>
               <option>Cheque</option>
@@ -567,32 +569,33 @@ export default function OPD_PatientTable() {
               onChange={(e) => setOpdPatientPaymentMode(e.target.value)}
             /> */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Visit Date</label>
+          {/* <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Visit Date</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={opdDoctorVisitDate}
               onChange={(e) => setOpdDoctorVisitDate(e.target.value)}
             />
-          </div>
+          </div> */}
         </div>
-        <div className='flex flex-col gap-[6px]'>
-          <label className='text-[14px]'>Notes</label>
+        <div className="flex flex-col gap-[6px]">
+          <label className="text-[14px]">Notes</label>
           <textarea
-            className='border-b py-[10px] outline-none'
-            placeholder='Enter notes'
+            className="border-b py-[10px] outline-none"
+            placeholder="Enter notes"
             rows={3}
             value={opdPatientNotes}
             onChange={(e) => setOpdPatientNotes(e.target.value)}
           />
         </div>
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
+            type="submit"
             onClick={() => setSubmitButton("update")}
-            className='buttonFilled'>{`Save >`}</button>
+            className="buttonFilled"
+          >{`Save >`}</button>
           {/* <button
             className='buttonOutlined'
             onClick={() =>
@@ -615,54 +618,54 @@ export default function OPD_PatientTable() {
   const handleCloseViewModal = () => setOpenViewModal(false);
 
   const modalViewPatientDetails = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <div className='border-b flex gap-[1rem] py-[1rem] w-full'>
-        <h3 className='font-[500]'>ID: </h3>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+        <h3 className="font-[500]">ID: </h3>
         <h3>{opdPatientData?.data?.mainId}</h3>
       </div>
-      <div className='flex w-full'>
-        <div className='w-[25%] flex flex-col items-center'>
+      <div className="flex w-full">
+        <div className="w-[25%] flex flex-col items-center">
           <img
-            className='w-[200px] h-[200px] object-contain'
+            className="w-[200px] h-[200px] object-contain"
             src={
               opdPatientData?.patientData?.patientImage
                 ? process.env.React_App_Base_Image_Url +
                   opdPatientData?.patientData?.patientImage
                 : placeholder
             }
-            alt='patientImage'
+            alt="patientImage"
           />
           {/* <button className='buttonFilled w-fit'>Button</button> */}
         </div>
-        <div className='w-[75%] flex flex-col gap-[10px] text-[14px]'>
-          <div className='grid grid-cols-2 gap-[10px]'>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Patient Id: </p>
+        <div className="w-[75%] flex flex-col gap-[10px] text-[14px]">
+          <div className="grid grid-cols-2 gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Id: </p>
               <p>{opdPatientData?.data?.opdPatientId}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Doctor Id: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Id: </p>
               <p>{opdPatientData?.data?.opdDoctorId}</p>
             </div>
 
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Patient Name: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Name: </p>
               <p>{opdPatientData?.patientData?.patientName}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Doctor Name: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Name: </p>
               <p>{opdPatientData?.doctorData?.doctorName}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Patient Blood Group: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Blood Group: </p>
               <p>{opdPatientData?.patientData?.patientBloodGroup}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Doctor Phone: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Phone: </p>
               <p>{opdPatientData?.doctorData?.doctorPhone}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Patient Gender: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Gender: </p>
               <p>{opdPatientData?.patientData?.patientGender}</p>
             </div>
             {/* <div className='flex'>
@@ -677,55 +680,55 @@ export default function OPD_PatientTable() {
               <p className='font-[600] w-[150px]'>OPD No: </p>
               <p>{opdPatientData?.data?.opdId}</p>
             </div> */}
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Patient Phone: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Phone: </p>
               <p>{opdPatientData?.patientData?.patientPhone}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Blood Pressure: </p>
               <p>{opdPatientData?.data?.opdPatientBloodPressure}</p>
             </div> */}
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Patient Height: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Height: </p>
               <p>{opdPatientData?.patientData?.patientHeight}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Standard Charge: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Standard Charge: </p>
               <p>{opdPatientData?.data?.opdPatientStandardCharges}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Patient Weight: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Weight: </p>
               <p>{opdPatientData?.patientData?.patientWeight}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Payment Mode: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Payment Mode: </p>
               <p>{opdPatientData?.data?.opdPatientPaymentMode}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Visit Date: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Visit Date: </p>
               <p>{`${date(opdPatientData?.data?.opdDoctorVisitDate)} / ${time(
                 opdPatientData?.data?.opdDoctorVisitDate
               )}`}</p>
             </div>
           </div>
-          <div className='flex flex-col gap-[10px]'>
-            <div className='flex flex-col'>
-              <p className='font-[600] w-[150px]'>Notes: </p>
-              <p className='text-[14px]'>
+          <div className="flex flex-col gap-[10px]">
+            <div className="flex flex-col">
+              <p className="font-[600] w-[150px]">Notes: </p>
+              <p className="text-[14px]">
                 {opdPatientData?.data?.opdPatientNotes}
               </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Created On: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Created On: </p>
+              <p className="break-word text-[14px]">
                 {`${date(opdPatientData?.data?.createdAt)} ${time(
                   opdPatientData?.data?.createdAt
                 )}`}
               </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Updated On: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Updated On: </p>
+              <p className="break-word text-[14px]">
                 {`${date(opdPatientData?.data?.updatedAt)} ${time(
                   opdPatientData?.data?.updatedAt
                 )}`}
@@ -788,7 +791,7 @@ export default function OPD_PatientTable() {
     {
       label: "Payment Mode",
       render: (list) => (
-        <p className='bg-[#B5FFBC] font-[600] rounded-lg p-[4px]'>
+        <p className="bg-[#B5FFBC] font-[600] rounded-lg p-[4px]">
           {list?.data?.opdPatientPaymentMode}
         </p>
       ),
@@ -796,16 +799,18 @@ export default function OPD_PatientTable() {
     {
       label: "Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           <div
             onClick={() => handleOpenViewModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-            <MdViewKanban className='text-[25px] text-[#96999C]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+          >
+            <MdViewKanban className="text-[25px] text-[#96999C]" />
           </div>
           <div
             onClick={() => handleOpenUpdateModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
             onClick={() => handleClickOpenDialogBox(list)}
@@ -822,21 +827,22 @@ export default function OPD_PatientTable() {
   };
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>OPD Patients</h2>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">OPD Patients</h2>
           <button
             onClick={handleOpen}
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          >
             + Add OPD Patients
           </button>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
+        <div className="flex justify-between">
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
             <input
-              className='bg-transparent outline-none'
-              placeholder='Search by uhid'
+              className="bg-transparent outline-none"
+              placeholder="Search by uhid"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -849,15 +855,16 @@ export default function OPD_PatientTable() {
       <Modal
         open={open}
         onClose={handleClose}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Add OPD Patient
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalAddOPDPatient}
           </Typography>
         </Box>
@@ -865,15 +872,16 @@ export default function OPD_PatientTable() {
       <Modal
         open={openUpdateModal}
         onClose={handleCloseUpdateModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Update OPD Patient
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalUpdatePatient}
           </Typography>
         </Box>
@@ -881,26 +889,28 @@ export default function OPD_PatientTable() {
       <Modal
         open={openViewModal}
         onClose={handleCloseViewModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <div className='flex justify-between items-center'>
-              <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center">
+              <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 OPD Patient Details
               </h1>
               <Link
                 // onClick={handleGeneratePdf}
-                target='_blank'
+                target="_blank"
                 to={opdPatientData?.data?.mainId}
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
-                className='buttonFilled flex items-center gap-[10px]'>
+                className="buttonFilled flex items-center gap-[10px]"
+              >
                 <LuHardDriveDownload />
                 <p>Download</p>
               </Link>
             </div>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewPatientDetails}
           </Typography>
         </Box>
@@ -908,14 +918,14 @@ export default function OPD_PatientTable() {
       <Snackbars
         open={openSnackbarSuccess}
         setOpen={setOpenSnackBarSuccess}
-        severity='success'
+        severity="success"
         message={snackBarMessageSuccess}
       />
       {/* Warning Snackbar */}
       <Snackbars
         open={openSnackbarWarning}
         setOpen={setOpenSnackBarWarning}
-        severity='warning'
+        severity="warning"
         message={snackBarMessageWarning}
       />
       <DialogBoxToDelete
