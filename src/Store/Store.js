@@ -14,6 +14,7 @@ import FloorDepartmentSlice from "./Slices/FloorDepartmentSlice";
 import EmergencyPatientSlice from "./Slices/EmergencyPatientSlice";
 import IPDPatientBalanceSlice from "./Slices/IPDPatientBalanceSlice";
 import NurseSlice from "./Slices/NurseSlice";
+import TestPatientSlice from "./Slices/TestPatientSlice";
 
 // Services
 import { patientService } from "./Services/PatientService";
@@ -29,6 +30,7 @@ import { floorDepartmentServices } from "./Services/FloorDepartmentService";
 import { emergencyPatientService } from "./Services/EmergencyPatientService";
 import { IPDPatientBalanceService } from "./Services/IPDPatientBalanceService";
 import { NurseService } from "./Services/NurseService";
+import { testOfPatientService } from "./Services/TestPatient";
 
 export const store = configureStore({
   reducer: {
@@ -58,6 +60,8 @@ export const store = configureStore({
     [IPDPatientBalanceService.reducerPath]: IPDPatientBalanceService.reducer,
     NurseState: NurseSlice,
     [NurseService.reducerPath]: NurseService.reducer,
+    TestPatientState: TestPatientSlice,
+    [testOfPatientService.reducerPath]: testOfPatientService.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -74,5 +78,6 @@ export const store = configureStore({
       emergencyPatientService.middleware,
       IPDPatientBalanceService.middleware,
       NurseService.middleware,
+      testOfPatientService.middleware,
     ]),
 });

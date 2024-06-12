@@ -13,12 +13,17 @@ import { useGetAllDoctorsQuery } from "../../../Store/Services/DoctorService";
 
 import { getAllDoctors } from "../../../Store/Slices/DoctorSlice";
 
-const SideNav = lazy(() => import("../../../components/superadmin/SideNav"));
+import { useGetAllEmergencyPatientQuery } from "../../../Store/Services/EmergencyPatientService";
+import { getAllEmergencyPatient } from "../../../Store/Slices/EmergencyPatientSlice";
+import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
+import { getAllBeds } from "../../../Store/Slices/BedSlice";
+
+const SideNav = lazy(() => import("../../../components/Nurse/SideNav"));
 const UpperNav = lazy(() =>
-  import("../../../components/superadmin/UpperNav/UpperNav")
+  import("../../../components/Nurse/UpperNav/UpperNav")
 );
 
-const EmergencyPatientTableAndForm = lazy(() =>
+const NurseEmergencyTable = lazy(() =>
   import(
     "../../../components/Nurse/EmergencyPatientTable/EmergencyPatientTable"
   )
@@ -33,10 +38,24 @@ export default function EmergencyPatientLIst() {
   const dispatch = useDispatch();
   const responseGetAllPatients = useGetAllPatientsQuery();
   const responseGetAllDoctors = useGetAllDoctorsQuery();
+  const responseGetAllEmergencyPatient = useGetAllEmergencyPatientQuery();
+  const responseGetAllBeds = useGetAllBedsQuery();
+
+  const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
+    (state) => state.BedState
+  );
 
   const { patients, patientCreate, patientUpdate, patientDelete } = useSelector(
     (state) => state.PatientState
   );
+  const {
+    emergencyPatients,
+    createEmergencyPatient,
+    updateEmergencyPatient,
+    deleteEmergencyPatient,
+  } = useSelector((state) => state.EmergencyPatientState);
+
+  // console.log(emergencyPatients);
 
   const {
     doctors,
@@ -75,6 +94,35 @@ export default function EmergencyPatientLIst() {
       dispatch(getAllDoctors(filteredArrayGetAllDoctors));
     }
     // ------------------
+    // Emergency Patient
+    const responseGetAllEmergencyRefetch =
+      await responseGetAllEmergencyPatient.refetch();
+    if (responseGetAllEmergencyPatient.isSuccess) {
+      const reverseArrayGetAllEmergencyPatient =
+        responseGetAllEmergencyRefetch?.data?.map(
+          responseGetAllEmergencyRefetch?.data?.pop,
+          [...responseGetAllEmergencyRefetch?.data]
+        );
+      const filteredArrayGetAllEmergencyPatient =
+        reverseArrayGetAllEmergencyPatient?.filter(
+          (data) => data.isDeleted === false && data
+        );
+      dispatch(getAllEmergencyPatient(filteredArrayGetAllEmergencyPatient));
+    }
+    // ------------------
+    // Beds
+    const responseGetAllBedsRefetch = await responseGetAllBeds.refetch();
+    if (responseGetAllBedsRefetch.isSuccess) {
+      const reverseArrayGetAllBeds = responseGetAllBedsRefetch?.data?.map(
+        responseGetAllBedsRefetch?.data?.pop,
+        [...responseGetAllBedsRefetch?.data]
+      );
+      const filteredArrayGetAllBeds = reverseArrayGetAllBeds?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBeds(filteredArrayGetAllBeds));
+    }
+    // ------------------
   };
   useEffect(() => {
     apiRefetch();
@@ -103,6 +151,32 @@ export default function EmergencyPatientLIst() {
       dispatch(getAllDoctors(filteredArrayGetAllDoctors));
     }
     // -----------------
+    // EmergencyPatient
+    if (responseGetAllEmergencyPatient.isSuccess) {
+      const reverseArrayGetAllEmergencyPatient =
+        responseGetAllEmergencyPatient?.data?.map(
+          responseGetAllEmergencyPatient?.data?.pop,
+          [...responseGetAllEmergencyPatient?.data]
+        );
+      const filteredArrayGetAllEmergencyPatient =
+        reverseArrayGetAllEmergencyPatient?.filter(
+          (data) => data.isDeleted === false && data
+        );
+      dispatch(getAllEmergencyPatient(filteredArrayGetAllEmergencyPatient));
+    }
+    // ---------------
+    // Beds
+    if (responseGetAllBeds.isSuccess) {
+      const reverseArrayGetAllBeds = responseGetAllBeds?.data?.map(
+        responseGetAllBeds?.data?.pop,
+        [...responseGetAllBeds?.data]
+      );
+      const filteredArrayGetAllBeds = reverseArrayGetAllBeds?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllBeds(filteredArrayGetAllBeds));
+    }
+    // ---------------------
   }, [
     patientCreate,
     patientUpdate,
@@ -112,24 +186,35 @@ export default function EmergencyPatientLIst() {
     updateDoctor,
     deleteDoctor,
     responseGetAllDoctors.isSuccess,
+    createEmergencyPatient,
+    updateEmergencyPatient,
+    deleteEmergencyPatient,
+    responseGetAllEmergencyPatient.isSuccess,
+    responseGetAllBeds.isSuccess,
+    createBeds,
+    updateBeds,
+    deleteBeds,
   ]);
   return (
     <>
-      {responseGetAllPatients.isLoading && responseGetAllDoctors.isLoading ? (
+      {responseGetAllPatients.isLoading &&
+      responseGetAllDoctors.isLoading &&
+      responseGetAllEmergencyPatient.isLoading &&
+      responseGetAllBeds.isLoading ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>
       ) : (
-        <div className='superadmin-main flex flex-row w-full h-screen'>
-          <div className='superadmin-main-left w-[20%] shadow-lg'>
+        <div className="superadmin-main flex flex-row w-full h-screen">
+          <div className="superadmin-main-left w-[20%] shadow-lg">
             <SideNav
-              activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.emergencyPatient}`}
+              activePage={`${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.emergencyPatientList}`}
             />
           </div>
-          <div className='superadmin-main-right flex flex-col w-[80%]'>
+          <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
-            <div className='superadmin-main-right_dashboard w-full overflow-y-scroll'>
-              <EmergencyPatientTableAndForm />
+            <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
+              <NurseEmergencyTable />
             </div>
           </div>
         </div>

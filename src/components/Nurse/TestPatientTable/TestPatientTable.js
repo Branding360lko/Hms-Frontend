@@ -48,18 +48,18 @@ export default function TestPatientTable() {
     },
   ];
 
-  const [emergencyPatientUHID, setemergencyPatientUHID] = React.useState({
+  const [testPatientUHID, setTestPatientUHID] = React.useState({
     value: "",
     label: "",
   });
-  const [emergencydoctorId, setEmergencyDoctorId] = React.useState({
+  const [prescribedByDoctorTest, setPrescribedByDoctorTest] = React.useState({
     value: "",
     label: "",
   });
-  const [emergencyAdmittingTime, setEmergencyAdmittingTime] =
-    React.useState("");
-  const [emergencyBedNo, setEmergencyBedNo] = React.useState("");
-  const [emergencyNotes, setEmergencyNotes] = React.useState("");
+
+  const [tests, setTests] = React.useState("");
+  const [patientType, setPatientType] = React.useState("OPD");
+  const [notes, setNotes] = React.useState("");
 
   const style = {
     position: "absolute",
@@ -93,44 +93,53 @@ export default function TestPatientTable() {
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const handleOpenAddModal = () => {
     setOpenAddModal(true);
-    setemergencyPatientUHID({
+    setTestPatientUHID({
       value: "",
       label: "",
     });
-    setEmergencyDoctorId({
+    setPrescribedByDoctorTest({
       value: "",
       label: "",
     });
-    setEmergencyAdmittingTime("");
-    setEmergencyBedNo("");
-    setEmergencyNotes("");
+    setTests("");
+    setPatientType("");
+    setNotes("");
   };
   const handleCloseAddModal = () => setOpenAddModal(false);
 
   const handleAddOPDPatient = (e) => {
     e.preventDefault();
+
+    const submitData = {
+      testPatientId: testPatientUHID.value,
+      prescribedByDoctor: prescribedByDoctorTest.value,
+      test: tests,
+      patientType: patientType,
+    };
+
+    console.log(submitData);
   };
 
   const modalAddEmergencyPatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Add Test</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleAddOPDPatient}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>UHID</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Add Test</h2>
+      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddOPDPatient}>
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">UHID</label>
             <Select
               required
               options={renderedPatientIDForDropdown}
-              onChange={setemergencyPatientUHID}
+              onChange={setTestPatientUHID}
             />
           </div>
 
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>Prescribed By Doctor</label>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Prescribed By Doctor</label>
             <Select
               required
               options={renderedDoctorIDForDropdown}
-              onChange={setEmergencyDoctorId}
+              onChange={setPrescribedByDoctorTest}
             />
           </div>
 
@@ -146,13 +155,14 @@ export default function TestPatientTable() {
               />
             </div> */}
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Tests</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Tests</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter tests'
+              placeholder="Enter tests"
+              onChange={(e) => setTests(e.target.value)}
               //   value={emergencyBedNo}
               //   onChange={(e) => {
               //     const value = e.target.value.replace(/\D/g, "");
@@ -161,9 +171,12 @@ export default function TestPatientTable() {
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Type</label>
-            <select className='py-[11.5px] outline-none border-b bg-transparent'>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Type</label>
+            <select
+              onChange={(e) => setPatientType(e.target.value)}
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>OPD</option>
               <option>IPD</option>
               <option>Emergency</option>
@@ -171,24 +184,24 @@ export default function TestPatientTable() {
           </div>
         </div>
 
-        <div className='flex flex-col gap-[6px]'>
-          <label className='text-[14px]'>Notes</label>
+        <div className="flex flex-col gap-[6px]">
+          <label className="text-[14px]">Notes</label>
           <textarea
-            className='border-b py-[10px] outline-none'
-            placeholder='Enter notes'
+            className="border-b py-[10px] outline-none"
+            placeholder="Enter notes"
             rows={3}
             // value={opdPatientNotes}
-            // onChange={(e) => setOpdPatientNotes(e.target.value)}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
-            className='buttonFilled'
+            type="submit"
+            className="buttonFilled"
             // onClick={() => setSubmitButton("add")}
           >{`Save >`}</button>
           <button
-            className='buttonOutlined'
+            className="buttonOutlined"
             // onClick={() => setSubmitButton("addPrint")}
           >{`Save & Print >`}</button>
         </div>
@@ -200,26 +213,31 @@ export default function TestPatientTable() {
   const handleOpenUpdateModal = () => setOpenUpdateModal(true);
   const handleCloseUpdateModal = () => setOpenUpdateModal(false);
 
+  const handleUpdateOPDPatient = () => {};
+
   const modalUpdateEmergencyPatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Update Test</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleAddOPDPatient}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>UHID</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Update Test</h2>
+      <form
+        className="flex flex-col gap-[1rem]"
+        onSubmit={handleUpdateOPDPatient}
+      >
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">UHID</label>
             <Select
               required
               options={renderedPatientIDForDropdown}
-              onChange={setemergencyPatientUHID}
+              onChange={setTestPatientUHID}
             />
           </div>
 
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>Prescribed By Doctor</label>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Prescribed By Doctor</label>
             <Select
               required
               options={renderedDoctorIDForDropdown}
-              onChange={setEmergencyDoctorId}
+              onChange={setPrescribedByDoctorTest}
             />
           </div>
 
@@ -235,13 +253,15 @@ export default function TestPatientTable() {
               />
             </div> */}
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Tests</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Tests</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter tests'
+              placeholder="Enter tests"
+              value={tests}
+              onChange={(e) => setTests(e.target.value)}
               //   value={emergencyBedNo}
               //   onChange={(e) => {
               //     const value = e.target.value.replace(/\D/g, "");
@@ -250,9 +270,12 @@ export default function TestPatientTable() {
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Type</label>
-            <select className='py-[11.5px] outline-none border-b bg-transparent'>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Type</label>
+            <select
+              onChange={(e) => setPatientType(e.target.value)}
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>OPD</option>
               <option>IPD</option>
               <option>Emergency</option>
@@ -260,20 +283,20 @@ export default function TestPatientTable() {
           </div>
         </div>
 
-        <div className='flex flex-col gap-[6px]'>
-          <label className='text-[14px]'>Notes</label>
+        <div className="flex flex-col gap-[6px]">
+          <label className="text-[14px]">Notes</label>
           <textarea
-            className='border-b py-[10px] outline-none'
-            placeholder='Enter notes'
+            className="border-b py-[10px] outline-none"
+            placeholder="Enter notes"
             rows={3}
             // value={opdPatientNotes}
             // onChange={(e) => setOpdPatientNotes(e.target.value)}
           />
         </div>
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
-            className='buttonFilled'
+            type="submit"
+            className="buttonFilled"
             // onClick={() => setSubmitButton("add")}
           >{`Save >`}</button>
         </div>
@@ -352,16 +375,18 @@ export default function TestPatientTable() {
     {
       label: "User Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           <div
             onClick={() => handleOpenViewModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-            <MdViewKanban className='text-[25px] text-[#96999C]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+          >
+            <MdViewKanban className="text-[25px] text-[#96999C]" />
           </div>
           <div
             onClick={() => handleOpenUpdateModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
               onClick={() => handleClickOpenDialogBox(list)}
@@ -378,21 +403,22 @@ export default function TestPatientTable() {
   };
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>Patient Tests</h2>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">Patient Tests</h2>
           <button
             onClick={handleOpenAddModal}
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          >
             + Add Tests
           </button>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
+        <div className="flex justify-between">
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
             <input
-              className='bg-transparent outline-none'
-              placeholder='Search by uhid'
+              className="bg-transparent outline-none"
+              placeholder="Search by uhid"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -409,15 +435,16 @@ export default function TestPatientTable() {
       <Modal
         open={openAddModal}
         onClose={handleCloseAddModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Add Patient Test
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalAddEmergencyPatient}
           </Typography>
         </Box>
@@ -425,15 +452,16 @@ export default function TestPatientTable() {
       <Modal
         open={openUpdateModal}
         onClose={handleCloseUpdateModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Update Patient Test
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalUpdateEmergencyPatient}
           </Typography>
         </Box>
@@ -441,27 +469,29 @@ export default function TestPatientTable() {
       <Modal
         open={openViewModal}
         onClose={handleCloseViewModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <div className='flex justify-between items-center'>
-              <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center">
+              <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Test Patient
               </h1>
               <Link
                 // onClick={handleGeneratePdf}
-                target='_blank'
+                target="_blank"
                 to={"01"}
                 // to={opdPatientData?.data?.mainId}
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
-                className='buttonFilled flex items-center gap-[10px]'>
+                className="buttonFilled flex items-center gap-[10px]"
+              >
                 <LuHardDriveDownload />
                 <p>Download</p>
               </Link>
             </div>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewEmergencyPatient}
           </Typography>
         </Box>
