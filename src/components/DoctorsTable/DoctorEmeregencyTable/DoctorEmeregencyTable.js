@@ -1,11 +1,18 @@
 import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CiViewList } from "react-icons/ci";
 import { RiEdit2Fill } from "react-icons/ri";
 import style from "../../../styling/styling";
 import Select from "react-select";
 import img1 from "../../../assets/logo.png";
 import { useReactToPrint } from "react-to-print";
+import { date, time } from "../../../utils/DateAndTimeConvertor";
+import img from "../../../assets/20180125_001_1_.jpg";
+import {
+  getAllEmergencyPatientsData,
+  getAllEmergencyPatientsListData,
+  getOneEmergencyPatientsDoctorVisitData,
+} from "../../Receptionist/NurseApi";
 
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
@@ -37,6 +44,9 @@ function DoctorEmeregencyTable() {
   const [open1, setOpen1] = React.useState(false);
   const handleOpen1 = () => setOpen1(true);
   const handleClose1 = () => setOpen1(false);
+  const [open2, setOpen2] = React.useState(false);
+  const handleOpen2 = () => setOpen2(true);
+  const handleClose2 = () => setOpen2(false);
   const IndicatorSeparator = ({ innerProps }) => {
     return <span style={indicatorSeparatorStyle} {...innerProps} />;
   };
@@ -203,7 +213,27 @@ function DoctorEmeregencyTable() {
       </div>
     </div>
   );
-
+  const [viewPatientsData, setViewPatientsData] = useState([]);
+  const [allEmergencyPatients, setAllEmergencyPatients] = useState([]);
+  const [allEmergencyPatientsListData, setAllEmergencyPatientsListData] =
+    useState([]);
+  const getAllEmergencyPatientsDataHandle = async () => {
+    const result = await getAllEmergencyPatientsData();
+    setAllEmergencyPatients(result && result?.data?.data?.reverse());
+  };
+  const getAllEmergencyPatientsListDataHandle = async () => {
+    const result = await getAllEmergencyPatientsListData();
+    setAllEmergencyPatientsListData(result && result?.data?.data);
+  };
+  const getOneEmergencyPatientsDoctorVisitDataHandle = async (Id) => {
+    const result = await getOneEmergencyPatientsDoctorVisitData(Id);
+    setViewPatientsData(result && result?.data?.data);
+  };
+  useEffect(() => {
+    getAllEmergencyPatientsDataHandle();
+    getAllEmergencyPatientsListDataHandle();
+  }, []);
+  console.log(allEmergencyPatients, "allEmergencyPatientsListData");
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -218,133 +248,70 @@ function DoctorEmeregencyTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>UHID</p>
+              <p>Patient Uhid</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Patient Name</p>
+              <p>Doctor Name</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Patient Checked</p>
+              <p> Admiited Date/TIme </p>
             </th>
 
             <th className="border-[1px] p-1 font-semibold">
               <p>Action</p>
             </th>
           </thead>
-          <tbody>
-            <tr key={1}>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                1
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                uhid014110200
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                Arman
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                <Switch {...label} defaultChecked />
-              </td>
 
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px] flex-row">
-                <div className="flex gap-[10px] justify-center">
-                  <div
-                    className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                    onClick={handleOpen1}
-                  >
-                    <CiViewList className="text-[20px] text-[#96999C]" />
-                  </div>{" "}
-                  <div
-                    className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
-                    onClick={handleOpen}
-                  >
-                    <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+          <tbody>
+            {allEmergencyPatients?.map((item, index) => (
+              <tr key={index} className="border-b-[1px]">
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {index + 1}
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {"Uhid" + item?.patientsId}
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {item?.doctorName}
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {date(item?.EmergencyPatientCreatedTime)}-
+                  {time(item?.EmergencyPatientCreatedTime)}
+                </td>{" "}
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                  <div className="flex gap-[10px] justify-center">
+                    {allEmergencyPatientsListData?.find(
+                      (val) =>
+                        val?.EmergencyPatientData === item?.Emergencypatient_id
+                    ) ? (
+                      <div
+                        onClick={() => [
+                          getOneEmergencyPatientsDoctorVisitDataHandle(
+                            item?.Emergencypatient_id
+                          ),
+                          handleOpen1(),
+                        ]}
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                      >
+                        <CiViewList className="text-[20px] text-[#96999C]" />
+                      </div>
+                    ) : (
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                        onClick={handleOpen2}
+                      >
+                        <CiViewList className="text-[20px] text-[#96999C]" />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
       {printView}
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={open}>
-          <Box sx={style}>
-            <Typography
-              id="transition-modal-title"
-              variant="h6"
-              component="h2"
-              className="border-b-[4px] border-[#3497F9] w-fit"
-            >
-              Emergency Patient Table Data
-            </Typography>
-            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              <form className="w-full flex flex-col justify-start gap-2">
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Patient Uhid</p>
-                  <input
-                    type="text"
-                    placeholder="Patient Uhid"
-                    className=" outline-none w-full h-[2.2rem]  pl-[5px] cursor-not-allowed border-[2px] w-full rounded"
-                    disabled
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Medicine</p>
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={{ IndicatorSeparator }}
-                    isMulti
-                    options={colourOptions}
-                    onChange={(e) => console.log(e)}
-                    className="border-[2px] w-full rounded"
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Test</p>
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={{ IndicatorSeparator }}
-                    isMulti
-                    options={colourOptions}
-                    onChange={(e) => console.log(e)}
-                    className="border-[2px] w-full rounded"
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Add Symptoms</p>
-                  <input
-                    type="text"
-                    placeholder="Add Symptoms"
-                    className="outline-none w-full h-[2.2rem]  pl-[5px] border-[2px] w-full rounded"
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Note's</p>
-                  <textarea
-                    rows={5}
-                    placeholder="Note"
-                    className=" outline-none w-full   pl-[5px] pt-[5px] border-[2px] w-full rounded"
-                  />
-                </span>
-                <button className="buttonFilled">Update</button>
-              </form>
-            </Typography>
-          </Box>
-        </Fade>
-      </Modal>
+
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -366,73 +333,226 @@ function DoctorEmeregencyTable() {
               component="h2"
               className="border-b-[4px] border-[#3497F9] w-fit"
             >
-              Emergency Patient Table Data
+              Doctor Visit
             </Typography>
-            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              <div className="w-full flex flex-col justify-start gap-2">
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Patient Uhid</p>
-                  <input
-                    type="text"
-                    placeholder="Patient Uhid"
-                    className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] cursor-not-allowed"
-                    disabled
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Medicine</p>
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={{ IndicatorSeparator }}
-                    isMulti
-                    defaultValue={{
-                      value: "Hydrocodone",
-                      label: "Hydrocodone",
-                    }}
-                    options={colourOptions}
-                    onChange={(e) => console.log(e)}
-                    isDisabled
-                    className="border-[2px] w-full rounded"
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Test</p>
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={{ IndicatorSeparator }}
-                    isMulti
-                    defaultValue={{
-                      value: "Hydrocodone",
-                      label: "Hydrocodone",
-                    }}
-                    options={colourOptions}
-                    onChange={(e) => console.log(e)}
-                    isDisabled
-                    className="border-[2px] w-full rounded"
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Symptoms</p>
-                  <input
-                    type="text"
-                    placeholder="Symptoms"
-                    className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] "
-                    disabled
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Note's</p>
-                  <textarea
-                    rows={5}
-                    placeholder="Note"
-                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                    disabled
-                  />
-                </span>
-                <button className="buttonFilled" onClick={handlePrint}>
-                  Print
-                </button>
+            <div className="flex pt-[10px] pb-[10px] gap-[10%]">
+              <span>
+                <img src={img} alt="patients " className="w-[15rem] " />
+              </span>
+              <div class="grid grid-cols-2 gap-1">
+                <div className="flex gap-[10px]">
+                  <span>Patients Uhid</span>:
+                  <p>
+                    {"Uhid" +
+                      viewPatientsData?.[0]?.patientsData?.[0]?.patientId}
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Admission Date / Time</span>:
+                  <p>
+                    {date(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}-
+                    {time(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Name</span>:
+                  <p>{viewPatientsData?.[0]?.patientsData?.[0]?.patientName}</p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Gender</span>:
+                  <p>
+                    {viewPatientsData?.[0]?.patientsData?.[0]?.patientGender}
+                  </p>
+                </div>
+
+                <div className="flex gap-[10px]">
+                  <span>Emergency NO</span>:
+                  <p>{viewPatientsData?.[0]?.EmergencyPatientData?.mainId}</p>
+                </div>
+
+                <div className="flex gap-[10px]">
+                  <span>Admitting Doctor</span>:
+                  <p>{viewPatientsData?.[0]?.doctorData?.[0]?.doctorName}</p>
+                </div>
               </div>
+            </div>
+            <form className="w-full flex flex-col gap-3">
+              {viewPatientsData?.map((item) => (
+                <div>
+                  <div className="w-full flex items-center">
+                    <p className="text-[1.1rem] font-semibold pr-1">Date: </p>
+                    {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)}
+                  </div>
+                  <div className="w-full ">
+                    <div className="w-full flex justify-between items-center pt-1 pb-3">
+                      <p className="text-[1rem] font-normal">Medicine</p>
+                    </div>
+                    <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                      <thead>
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>S_N</p>
+                        </th>
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>Medicine</p>
+                        </th>
+
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>Quantity</p>
+                        </th>
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>Price</p>
+                        </th>
+                      </thead>
+                      <tbody>
+                        {item?.medicine?.map((item, index) => (
+                          <tr key={index} className="border-b-[1px]">
+                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                              {index + 1}
+                            </td>
+                            <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                              <input
+                                type="text"
+                                className="w-full  outline-none px-4"
+                                placeholder="Medicine"
+                                name="name"
+                                value={item?.Name}
+                                autocomplete="off"
+                                disabled
+                              />
+                            </td>
+
+                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                              <input
+                                type="text"
+                                className="w-[5rem]  outline-none"
+                                placeholder="quantity"
+                                name="quantity"
+                                value={item?.Quantity}
+                                disabled
+                              />
+                            </td>
+                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                              <input
+                                type="text"
+                                className="w-[5rem]  outline-none"
+                                placeholder="price"
+                                name="price"
+                                value={item?.Price}
+                                disabled
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="w-full ">
+                    <div className="w-full flex justify-between items-center pt-1 pb-3">
+                      <p className="text-[1rem] font-normal">Test</p>
+                    </div>
+                    <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                      <thead>
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>S_N</p>
+                        </th>
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>Test</p>
+                        </th>
+
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>Quantity</p>
+                        </th>
+                        <th className="border-[1px] p-1 font-semibold">
+                          <p>Price</p>
+                        </th>
+                      </thead>
+                      <tbody>
+                        {item?.test?.map((item, index) => (
+                          <tr key={index} className="border-b-[1px]">
+                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                              {index + 1}
+                            </td>
+                            <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                              <input
+                                type="text"
+                                className="w-full  outline-none px-4"
+                                placeholder="Test"
+                                name="name"
+                                value={item?.Name}
+                                disabled
+                              />
+                            </td>
+
+                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                              <input
+                                type="text"
+                                className="w-[5rem]  outline-none"
+                                placeholder="quantity"
+                                name="quantity"
+                                value={item?.Quantity}
+                                disabled
+                              />
+                            </td>
+                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                              <input
+                                type="text"
+                                className="w-[5rem]  outline-none"
+                                placeholder="quantity"
+                                name="quantity"
+                                value={item?.Price}
+                                disabled
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="w-full gap-3 py-2 grid grid-cols-2">
+                    <div className="w-full flex flex-col items-start justify-start gap-2">
+                      <p>Symptoms</p>
+                      <textarea
+                        rows={3}
+                        className="w-full border outline-none pl-1 pt-1"
+                        placeholder="Symptoms"
+                        value={item?.Symptoms}
+                        disabled
+                      />{" "}
+                    </div>
+                    <div className="w-full flex flex-col items-start justify-start gap-2">
+                      <p>Notes</p>
+                      <textarea
+                        rows={3}
+                        className="w-full border outline-none pl-1 pt-1"
+                        placeholder="Note's"
+                        value={item?.Note}
+                        disabled
+                      />{" "}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </form>
+          </Box>
+        </Fade>
+      </Modal>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open2}
+        onClose={handleClose2}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
+        }}
+      >
+        <Fade in={open2}>
+          <Box sx={style}>
+            <Typography className="flex items-center justify-center">
+              NO Doctor Visit done
             </Typography>
           </Box>
         </Fade>

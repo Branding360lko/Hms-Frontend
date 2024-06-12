@@ -20,6 +20,7 @@ import PaginationComponent from "../../Pagination";
 import { useDispatch, useSelector } from "react-redux";
 import { convertValue } from "../convertValueStructure";
 import Snackbars from "../../SnackBar";
+import { date } from "../../../utils/DateAndTimeConvertor";
 
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
@@ -97,6 +98,7 @@ function DoctorTable() {
     Symptoms: "",
     Note: "",
     appoiment: "",
+    NextAppoiment: "",
   });
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
@@ -129,7 +131,7 @@ function DoctorTable() {
         </div>
         <hr />
         <h2 className="pt-[10px] pb-[10px] font-semibold text-center">
-          OPD Patients
+          OPD Prescription
         </h2>
         <hr />
         <div className="flex items-start pt-[20px] pb-[20px] gap-[1%] w-full">
@@ -200,16 +202,20 @@ function DoctorTable() {
           <div>
             <div className="flex gap-1 flex-col">
               <span>Appointment Date:</span>
-              <p>{selectedPatient?.appoiment?.split("T", 1)}</p>
+              <p>{date(selectedPatient?.appoiment)}</p>
             </div>
           </div>
         </div>
         <hr />
-        <div className="flex items-start pt-[20px] pb-[20px] gap-4 w-full px-[1rem] flex-col">
+        <div className="flex items-start pt-[20px] pb-[20px] gap-1 w-full px-[1rem] flex-col">
+          <div className="flex items-center justify-start w-full gap-1">
+            <h6 className="text-[20px] font-semibold">Rx</h6>
+          </div>
           <div className="flex items-center justify-start w-full gap-1">
             <h6 className="text-[18px] font-semibold">Symptoms :</h6>
             <p>{selectedPatient?.Symptoms}</p>
           </div>
+          <p>Prescribed Medicine</p>
           <div className="w-full flex flex-col gap-2">
             <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
               <thead>
@@ -217,7 +223,7 @@ function DoctorTable() {
                   <p>S_N</p>
                 </th>
                 <th className="border-[1px] p-1 font-semibold">
-                  <p>Medicine</p>
+                  <p>Name</p>
                 </th>
                 <th className="border-[1px] p-1 font-semibold">
                   <p>Schedule</p>
@@ -241,17 +247,15 @@ function DoctorTable() {
                 ))}
               </tbody>
             </table>
+            <p>Prescribed Test</p>
             <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
               <thead>
                 <th className="border-[1px] p-1 font-semibold">
                   <p>S_N</p>
                 </th>
                 <th className="border-[1px] p-1 font-semibold">
-                  <p>Test's</p>
+                  <p>Name</p>
                 </th>{" "}
-                <th className="border-[1px] p-1 font-semibold">
-                  <p>Time</p>
-                </th>
               </thead>
               <tbody>
                 {selectedPatient?.test?.map((item, index) => (
@@ -262,7 +266,6 @@ function DoctorTable() {
                     <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px] text-start">
                       {item?.Name}
                     </td>{" "}
-                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]"></td>
                   </tr>
                 ))}
               </tbody>
@@ -298,6 +301,7 @@ function DoctorTable() {
     formData.append("Symptoms", selectedPatient?.Symptoms);
     formData.append("isPatientsChecked", true);
     formData.append("OpdPatientData", selectedPatient?.opdPatientId);
+    formData.append("NextAppoiment", selectedPatient?.NextAppoiment);
     selectedPatient?.test?.forEach((testData) => {
       formData.append("test", testData?.value);
     });
@@ -326,6 +330,7 @@ function DoctorTable() {
       opdPatientId: result?.data?.[0]?.OpdPatientData?._id,
       appoiment: result?.data?.[0]?.OpdPatientData?.opdDoctorVisitDate,
       patientId: result?.data?.[0]?.OpdPatientData?.opdPatientId,
+      NextAppoiment: result?.data?.[0]?.NextAppoiment,
     });
     console.log(result);
   };
@@ -677,6 +682,21 @@ function DoctorTable() {
                     className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
                   />
                 </span>
+                <span className="flex flex-col justify-start gap-1">
+                  <p>Next Appoiment</p>
+                  <input
+                    type="text"
+                    placeholder="Next Appoiment"
+                    value={selectedPatient?.NextAppoiment}
+                    onChange={(e) =>
+                      setSelectedPatient({
+                        ...selectedPatient,
+                        NextAppoiment: e.target.value,
+                      })
+                    }
+                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
+                  />
+                </span>
                 {previousPatientsList?.find(
                   (item) =>
                     item?.OpdPatientData == selectedPatient?.opdPatientId
@@ -843,6 +863,16 @@ function DoctorTable() {
                     rows={5}
                     placeholder="Note"
                     value={selectedPatient?.Note}
+                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
+                    disabled
+                  />
+                </span>
+                <span className="flex flex-col justify-start gap-1">
+                  <p>Next Appoiment</p>
+                  <input
+                    type="text"
+                    placeholder="Next Appoiment"
+                    value={selectedPatient?.NextAppoiment}
                     className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
                     disabled
                   />

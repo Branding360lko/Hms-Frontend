@@ -340,6 +340,10 @@ function ReferPatientsDoctorVisitTable() {
 
           <tbody>
             {filteredData
+              ?.filter(
+                (item) =>
+                  item?.ipdPatientsDetails?.ipdPatientDischarged === false
+              )
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
                 <tr key={index} className="border-b-[1px]">

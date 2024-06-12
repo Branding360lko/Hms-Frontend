@@ -176,7 +176,11 @@ export default function IPDPatientList() {
   const date = (dateTime) => {
     const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
+    const day = String(newdate.getDate()).padStart(2, "0");
+    const month = String(newdate.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-based
+    const year = newdate.getFullYear();
+
+    return `${day}/${month}/${year}`;
   };
 
   const time = (dateTime) => {
@@ -283,7 +287,8 @@ export default function IPDPatientList() {
       (item) => item?.ipdNurseId === adminLoggedInData?.adminUniqueId
     );
     setAllIpdPatientsData(filter && filter?.reverse());
-    setFilteredData(filter && filter?.reverse());
+    setFilteredData(filter && filter);
+    console.log(filter, "filter");
   };
   const getIpdPatientsFullDetailsDataHandle = async (Id) => {
     const result = await getIpdPatientsFullDetailsData(Id);
@@ -303,9 +308,7 @@ export default function IPDPatientList() {
     dispatch(GetAllDoctorsHandle());
     getAllIpdPatientsAssignedDataHandle();
   }, []);
-  React.useEffect(() => {
-    console.log(allIpdPatientsData, "allIpdPatientsData");
-  }, [allIpdPatientsData]);
+
   React.useEffect(() => {
     searchHandle();
   }, [search]);
@@ -346,7 +349,7 @@ export default function IPDPatientList() {
                 <p>Doctor Id</p>
               </th>
               <th className="border-[1px] p-1 font-semibold">
-                <p> Admiited Date/TIme </p>
+                <p>Ipd Admiited Date/TIme </p>
               </th>
 
               <th className="border-[1px] p-1 font-semibold">
@@ -356,6 +359,7 @@ export default function IPDPatientList() {
 
             <tbody>
               {filteredData
+                ?.filter((item) => item?.ipdPatientDischarged === false)
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 ?.map((item, index) => (
                   <tr key={index} className="border-b-[1px]">
@@ -428,7 +432,7 @@ export default function IPDPatientList() {
                     <p>{"Uhid" + patientsData?.PatientData?.[0]?.patientId}</p>
                   </div>
                   <div className="flex gap-[10px]">
-                    <span>Admission Date / Time</span>:
+                    <span>Patient Admission Date / Time</span>:
                     <p>
                       {date(patientsData?.updatedAt)}-
                       {time(patientsData?.updatedAt)}

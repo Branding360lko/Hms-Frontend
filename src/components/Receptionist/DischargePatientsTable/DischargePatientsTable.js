@@ -12,6 +12,7 @@ import Snackbars from "../../SnackBar";
 import PaginationComponent from "../../Pagination";
 import { useSelector } from "react-redux";
 import { FaSearch } from "react-icons/fa";
+import { date } from "../../../utils/DateAndTimeConvertor";
 
 function DischargePatientsTable() {
   const label = { inputProps: { "aria-label": "Switch demo" } };
@@ -76,7 +77,7 @@ function DischargePatientsTable() {
         );
       });
       setAllDischargeData(data?.reverse());
-      setFilteredData(data?.reverse());
+      setFilteredData(data);
       console.log(result, data);
     }
   };
@@ -233,7 +234,7 @@ function DischargePatientsTable() {
                     />
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    21/02/24 15:30
+                    {date(item?.updatedAt)}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row">
                     <div className="flex gap-[10px] justify-center">

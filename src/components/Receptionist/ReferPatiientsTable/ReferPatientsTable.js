@@ -16,6 +16,7 @@ import { GetAllDoctorsHandle } from "../../../Store/Slices/DoctorSlice";
 import Snackbars from "../../SnackBar";
 import PaginationComponent from "../../Pagination";
 import { FaSearch } from "react-icons/fa";
+import { date } from "../../../utils/DateAndTimeConvertor";
 function DischargePatientsTable() {
   // Snackbar--------------------
   // ----Succcess
@@ -74,12 +75,15 @@ function DischargePatientsTable() {
     reasonForReferal: "",
     note: "",
   });
-  const renderedIpdPatientsForDropdown = ipdPatients?.map((data) => {
-    return {
-      value: data._id,
-      label: `${"Uhid" + data.ipdPatientId}`,
-    };
-  });
+  const renderedIpdPatientsForDropdown = ipdPatients
+    ?.filter((item) => item?.ipdPatientDischarged === false)
+    ?.map((data) => {
+      return {
+        value: data._id,
+        label: `${"Uhid" + data.ipdPatientId}`,
+      };
+    });
+
   const renderedDoctorIDForDropdown = doctors?.map((data) => {
     return {
       value: data._id,
@@ -106,6 +110,7 @@ function DischargePatientsTable() {
       );
       setAllReferedpatients(filter);
       setFilteredData(filter);
+      console.log(filter, "filter");
     }
   };
   const addNurseReferPatientsDataHandle = async (e) => {
@@ -211,6 +216,10 @@ function DischargePatientsTable() {
           </thead>
           <tbody>
             {filteredData
+              ?.filter(
+                (item) =>
+                  item?.ipdPatientsDetails?.ipdPatientDischarged === false
+              )
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
                 <tr key={index} className="border-b-[1px]">
@@ -227,7 +236,7 @@ function DischargePatientsTable() {
                     {item?.ReferredDoctorDetails?.[0]?.doctorName}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    {item?.ReferedDateAndTime}
+                    {date(item?.ReferedDateAndTime)}
                   </td>
 
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">

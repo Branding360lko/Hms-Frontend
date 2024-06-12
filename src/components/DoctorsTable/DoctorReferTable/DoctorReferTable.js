@@ -122,6 +122,10 @@ function DoctorReferTable() {
           </thead>
           <tbody>
             {allReferPatients
+              ?.filter(
+                (item) =>
+                  item?.ipdPatientsDetails?.ipdPatientDischarged === false
+              )
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
                 <tr key={index}>

@@ -12,6 +12,7 @@ import {
 import Snackbars from "../../SnackBar";
 import { useSelector } from "react-redux";
 import PaginationComponent from "../../Pagination";
+import { date } from "../../../utils/DateAndTimeConvertor";
 function DoctorDischargePatientsTable() {
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
@@ -187,13 +188,13 @@ function DoctorDischargePatientsTable() {
                     />
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    21/02/24 15:30
+                    {date(item?.updatedAt)}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row">
                     <div className="flex gap-[10px] justify-center">
-                      <div className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer">
+                      {/* <div className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer">
                         <CiViewList className="text-[20px] text-[#96999C]" />
-                      </div>{" "}
+                      </div>{" "} */}
                       <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         onClick={(e) => [
