@@ -24,7 +24,7 @@ import { useGetAllPatientsQuery } from "../../../Store/Services/PatientService";
 import { getAllPatients } from "../../../Store/Slices/PatientSlice";
 
 const IPDPatientTable = lazy(() =>
-  import("../../../components/superadmin/IPD_PatientTable/IPD_PatientTable")
+  import("../../../components/Nurse/IPDPatientTableAndForm/IPD_PatientTable")
 );
 
 export default function IPD_Patients() {
@@ -199,15 +199,15 @@ export default function IPD_Patients() {
           <LinearProgress />
         </Box>
       ) : (
-        <div className='superadmin-main flex flex-row w-full h-screen'>
-          <div className='w-[20%] shadow-lg'>
+        <div className="superadmin-main flex flex-row w-full h-screen">
+          <div className="w-[20%] shadow-lg">
             <SideNav
               activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.ipdPatients}`}
             />
           </div>
-          <div className='superadmin-main-right flex flex-col w-[80%]'>
+          <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
-            <div className='superadmin-main-right_dashboard w-full overflow-y-scroll'>
+            <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
               <IPDPatientTable />
             </div>
           </div>

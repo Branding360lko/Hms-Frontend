@@ -206,12 +206,12 @@ export default function EmergencyPatientTable() {
   };
 
   const modalAddEmergencyPatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Add Patient</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleAddOPDPatient}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>UHID</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Add Patient</h2>
+      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddOPDPatient}>
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">UHID</label>
             <Select
               required
               options={renderedPatientIDForDropdown}
@@ -219,8 +219,8 @@ export default function EmergencyPatientTable() {
             />
           </div>
 
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>Doctor Id</label>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Doctor Id</label>
             <Select
               required
               options={renderedDoctorIDForDropdown}
@@ -239,11 +239,11 @@ export default function EmergencyPatientTable() {
               onChange={(e) => setOpdPatientBloodPressure(e.target.value)}
             />
           </div> */}
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Admitting Date / Time</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Admitting Date / Time</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               onChange={(e) => setEmergencyAdmittingTime(e.target.value)}
             />
@@ -252,12 +252,13 @@ export default function EmergencyPatientTable() {
             {addBedFormOpen === false ? (
               <button
                 onClick={(e) => handleAddBedFormOpen(e)}
-                className=' flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
-             hover:text-black rounded-md '>
-                <FaBed className=' text-3xl ' /> +
+                className=" flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
+             hover:text-black rounded-md "
+              >
+                <FaBed className=" text-3xl " /> +
               </button>
             ) : (
-              <div className=' flex flex-col justify-center items-start gap-5'>
+              <div className=" flex flex-col justify-center items-start gap-5">
                 <h2>Select A Bed</h2>
                 <div>
                   <BedSelector
@@ -270,24 +271,24 @@ export default function EmergencyPatientTable() {
           </div>
         </div>
 
-        <div className='flex flex-col gap-[6px]'>
-          <label className='text-[14px]'>Notes</label>
+        <div className="flex flex-col gap-[6px]">
+          <label className="text-[14px]">Notes</label>
           <textarea
-            className='border-b py-[10px] outline-none'
-            placeholder='Enter notes'
+            className="border-b py-[10px] outline-none"
+            placeholder="Enter notes"
             rows={3}
             value={emergencyNotes}
             onChange={(e) => setEmergencyNotes(e.target.value)}
           />
         </div>
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
-            className='buttonFilled'
+            type="submit"
+            className="buttonFilled"
             // onClick={() => setSubmitButton("add")}
           >{`Save >`}</button>
           <button
-            className='buttonOutlined'
+            className="buttonOutlined"
             // onClick={() => setSubmitButton("addPrint")}
           >{`Save & Print >`}</button>
         </div>
@@ -365,14 +366,15 @@ export default function EmergencyPatientTable() {
   };
 
   const modalUpdateEmergencyPatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Update Patient</h2>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Update Patient</h2>
       <form
-        className='flex flex-col gap-[1rem]'
-        onSubmit={handleUpdateOPDPatient}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>UHID</label>
+        className="flex flex-col gap-[1rem]"
+        onSubmit={handleUpdateOPDPatient}
+      >
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">UHID</label>
             <Select
               required
               value={emergencyPatientUHID}
@@ -381,8 +383,8 @@ export default function EmergencyPatientTable() {
             />
           </div>
 
-          <div className='flex flex-col gap-[6px] relative w-full'>
-            <label className='text-[14px]'>Doctor Id</label>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Doctor Id</label>
             <Select
               required
               value={emergencydoctorId}
@@ -403,11 +405,11 @@ export default function EmergencyPatientTable() {
         />
       </div> */}
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Admitting Date / Time</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Admitting Date / Time</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={emergencyAdmittingTime}
               onChange={(e) => setEmergencyAdmittingTime(e.target.value)}
@@ -417,12 +419,13 @@ export default function EmergencyPatientTable() {
             {addBedFormOpen === false ? (
               <button
                 onClick={(e) => handleAddBedFormOpen(e)}
-                className=' flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
-             hover:text-black rounded-md '>
-                <FaBed className=' text-3xl ' /> +
+                className=" flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
+             hover:text-black rounded-md "
+              >
+                <FaBed className=" text-3xl " /> +
               </button>
             ) : (
-              <div className=' flex flex-col justify-center items-start gap-5'>
+              <div className=" flex flex-col justify-center items-start gap-5">
                 <h2>Select A Bed</h2>
                 <div>
                   <BedSelector
@@ -435,20 +438,20 @@ export default function EmergencyPatientTable() {
           </div>
         </div>
 
-        <div className='flex flex-col gap-[6px]'>
-          <label className='text-[14px]'>Notes</label>
+        <div className="flex flex-col gap-[6px]">
+          <label className="text-[14px]">Notes</label>
           <textarea
-            className='border-b py-[10px] outline-none'
-            placeholder='Enter notes'
+            className="border-b py-[10px] outline-none"
+            placeholder="Enter notes"
             rows={3}
             value={emergencyNotes}
             onChange={(e) => setEmergencyNotes(e.target.value)}
           />
         </div>
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
-            className='buttonFilled'
+            type="submit"
+            className="buttonFilled"
             // onClick={() => setSubmitButton("add")}
           >{`Save >`}</button>
         </div>
@@ -529,16 +532,18 @@ export default function EmergencyPatientTable() {
     {
       label: "User Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           <div
             onClick={() => handleOpenViewModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-            <MdViewKanban className='text-[25px] text-[#96999C]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+          >
+            <MdViewKanban className="text-[25px] text-[#96999C]" />
           </div>
           <div
             onClick={() => handleOpenUpdateModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
             onClick={() => handleClickOpenDialogBox(list)}
@@ -555,23 +560,24 @@ export default function EmergencyPatientTable() {
   };
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">
             Emergency Patients
           </h2>
           <button
             onClick={handleOpenAddModal}
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          >
             + Add Emergency Patient
           </button>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
+        <div className="flex justify-between">
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
             <input
-              className='bg-transparent outline-none'
-              placeholder='Search by id'
+              className="bg-transparent outline-none"
+              placeholder="Search by id"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -588,15 +594,16 @@ export default function EmergencyPatientTable() {
       <Modal
         open={openAddModal}
         onClose={handleCloseAddModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Add Emergency Patient
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalAddEmergencyPatient}
           </Typography>
         </Box>
@@ -604,15 +611,16 @@ export default function EmergencyPatientTable() {
       <Modal
         open={openUpdateModal}
         onClose={handleCloseUpdateModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Update Emergency Patient
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalUpdateEmergencyPatient}
           </Typography>
         </Box>
@@ -620,27 +628,29 @@ export default function EmergencyPatientTable() {
       <Modal
         open={openViewModal}
         onClose={handleCloseViewModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <div className='flex justify-between items-center'>
-              <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center">
+              <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Emergency Patient
               </h1>
               <Link
                 // onClick={handleGeneratePdf}
-                target='_blank'
+                target="_blank"
                 to={"01"}
                 // to={opdPatientData?.data?.mainId}
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
-                className='buttonFilled flex items-center gap-[10px]'>
+                className="buttonFilled flex items-center gap-[10px]"
+              >
                 <LuHardDriveDownload />
                 <p>Download</p>
               </Link>
             </div>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewEmergencyPatient}
           </Typography>
         </Box>
@@ -648,14 +658,14 @@ export default function EmergencyPatientTable() {
       <Snackbars
         open={openSnackbarSuccess}
         setOpen={setOpenSnackBarSuccess}
-        severity='success'
+        severity="success"
         message={snackBarMessageSuccess}
       />
       {/* Warning Snackbar */}
       <Snackbars
         open={openSnackbarWarning}
         setOpen={setOpenSnackBarWarning}
-        severity='warning'
+        severity="warning"
         message={snackBarMessageWarning}
       />
     </Suspense>

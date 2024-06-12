@@ -275,6 +275,12 @@ function DoctorTable() {
             <h6 className="text-[18px] font-semibold">Note :</h6>
             <p className="w-11/12 text-start">{selectedPatient?.Note}</p>
           </div>
+          <div className="flex items-start justify-start w-full gap-1">
+            <h6 className="text-[18px] font-semibold">Next Appoiment :</h6>
+            <p className="w-11/12 text-start">
+              {selectedPatient?.NextAppoiment}
+            </p>
+          </div>
         </div>
       </div>
     </div>

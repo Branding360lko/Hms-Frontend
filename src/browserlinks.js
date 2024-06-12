@@ -52,6 +52,7 @@ const browserLinks = {
       editPatient: "Patient List",
       opdPatientList: "OPD Patient List",
       ipdPatientList: "IPD Patient List",
+      ipdPatientPaymentReceipt: "IPDPatient Payment Receipt",
       emergencyPatientList: "Emergency Patient List",
       testPatient: "Patient Tests",
     },

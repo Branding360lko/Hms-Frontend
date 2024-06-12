@@ -196,6 +196,8 @@ export default function IPD_PatientTable() {
     ipdPatientMainId: null,
   });
 
+  const [ipdAddBalanceNote, setIpdAddBalanceNote] = React.useState("");
+
   const [addIpdPatientBalance, responeAddIpdPatientBalance] =
     useAddIPDPatientBalanceByIdMutation();
 
@@ -427,6 +429,61 @@ export default function IPD_PatientTable() {
     responseIpdPatientFinalDischargeReq.isError,
   ]);
 
+  // Balance deposits state and logic
+
+  const [ipdPatientDeposits, setIpdPatientDeposits] = React.useState(null);
+
+  const [selectedPayment, setSelectedPayment] = React.useState(null);
+  const [depositErrorMessage, setDepositErrorMessage] = React.useState("");
+
+  const responseGetIpdPatientDeposits = useGetIPDPatientBalanceByIdQuery(
+    ipdPatientData?.data?.mainId
+  );
+
+  const handleIpdDepositsRefetch = async () => {
+    const responseGetIpdDepositsRefetch =
+      await responseGetIpdPatientDeposits.refetch();
+
+    console.log(
+      "responseGetIpdDepositsRefetch:",
+      responseGetIpdDepositsRefetch
+    );
+
+    setIpdPatientDeposits(responseGetIpdDepositsRefetch?.data?.data?.balance);
+  };
+
+  React.useEffect(() => {
+    handleIpdDepositsRefetch();
+  }, [ipdPatientData?.data?.mainId]);
+
+  // React.useEffect(() => {
+  //   setIpdPatientDeposits(
+  //     responseGetIpdPatientDeposits?.currentData?.data?.balance
+  //   );
+  // }, [responseGetIpdPatientDeposits?.isSuccess]);
+
+  console.log("ipdPatientDeposits:", ipdPatientDeposits);
+
+  console.log("selectedPayment:", selectedPayment);
+
+  const renderedPaymentsForDropdown = ipdPatientDeposits?.map((payment) => {
+    return {
+      value: payment.createdAt,
+      label: `${new Date(payment.createdAt).toLocaleString()} / ${
+        payment.addedBalance
+      }`,
+    };
+  });
+
+  const handlePaymentReceiptDownloadClick = (e) => {
+    if (!selectedPayment) {
+      e.preventDefault();
+      setDepositErrorMessage("Please select a payment");
+    }
+  };
+
+  // console.log("responseGetIpdPatientDeposits:", responseGetIpdPatientDeposits);
+
   // const bedData = [
   //   // Floor 1
   //   { bdId: "1", floorNo: 1, bedType: "pvt", availability: false },
@@ -522,11 +579,7 @@ export default function IPD_PatientTable() {
   const date = (dateTime) => {
     const newdate = new Date(dateTime);
 
-    const day = String(newdate.getDate()).padStart(2, "0");
-    const month = String(newdate.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-based
-    const year = newdate.getFullYear();
-
-    return `${day}/${month}/${year}`;
+    return newdate.toLocaleDateString();
   };
 
   const time = (dateTime) => {
@@ -622,6 +675,9 @@ export default function IPD_PatientTable() {
         setIpdRoomNo();
         setIpdBedNo();
         setIpdPatientNotes();
+
+        setIpdAddBalanceNote("");
+
         handleClose();
       }
       if (submitButton === "addPrint") {
@@ -659,6 +715,8 @@ export default function IPD_PatientTable() {
       ipdNurseId: ipdNurseId?.value,
       ipdDepositAmount: ipdDepositAmount,
       ipdPaymentMode: ipdPaymentMode,
+
+      balanceNote: ipdAddBalanceNote,
       // ipdWardNo: ipdWardNo,
       ipdFloorNo: selectedBed?.bedFloor,
       // ipdRoomNo: ipdRoomNo,
@@ -738,6 +796,16 @@ export default function IPD_PatientTable() {
               <option>Cheque</option>
               <option>Card</option>
             </select>
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Deposit Note</label>
+            <textarea
+              className="border-b py-[10px] outline-none"
+              placeholder="Enter notes"
+              rows={1}
+              value={ipdAddBalanceNote}
+              onChange={(e) => setIpdAddBalanceNote(e.target.value)}
+            />
           </div>
           {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Ward No. *</label>
@@ -1144,7 +1212,12 @@ export default function IPD_PatientTable() {
   }, [handleOpenViewModal]);
 
   // console.log(opdPatientData);
-  const handleCloseViewModal = () => setOpenViewModal(false);
+  const handleCloseViewModal = () => {
+    setOpenViewModal(false);
+
+    setIpdPatientDeposits(null);
+    setSelectedPayment(null);
+  };
 
   // console.log("currentPatientBed:", currentPatientBed);
 
@@ -1410,6 +1483,7 @@ export default function IPD_PatientTable() {
       data: {
         ipdAddedAmount: Number(ipdDepositAmount),
         ipdPaymentMode: ipdPaymentMode,
+        balanceNote: ipdAddBalanceNote,
       },
     };
 
@@ -1474,12 +1548,21 @@ export default function IPD_PatientTable() {
               ₹ {list?.data?.ipdDepositAmount}
             </h2>
           </div>
-          <button
-            onClick={() => handleAddBalanceModalOpen(list)}
-            className=" bg-blue-400 hover:bg-blue-500 text-white font-semibold px-2 py-1 rounded-md"
-          >
-            Add Balance
-          </button>
+          {list?.data?.ipdPatientDischarged ? (
+            <button
+              disabled
+              className=" bg-green-500  text-white font-semibold px-2 py-1 rounded-md"
+            >
+              Discharged
+            </button>
+          ) : (
+            <button
+              onClick={() => handleAddBalanceModalOpen(list)}
+              className=" bg-blue-400 hover:bg-blue-500 text-white font-semibold px-2 py-1 rounded-md"
+            >
+              Add Balance
+            </button>
+          )}
         </>
       ),
     },
@@ -1693,6 +1776,16 @@ export default function IPD_PatientTable() {
                     <option>Card</option>
                   </select>
                 </div>
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px]">Deposit Note</label>
+                  <textarea
+                    className="border-b py-[10px] outline-none"
+                    placeholder="Enter notes"
+                    rows={1}
+                    value={ipdAddBalanceNote}
+                    onChange={(e) => setIpdAddBalanceNote(e.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="flex gap-[1rem] items-center">
@@ -1720,6 +1813,45 @@ export default function IPD_PatientTable() {
               <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 IPD Patient Details
               </h1>
+              <div className="flex justify-center items-end gap-5 bg-blue-50 px-3 py-2 rounded-md">
+                <div className="flex flex-col gap-[6px] relative w-[300px]">
+                  <label className="text-[14px]">Previous Payments *</label>
+                  <Select
+                    required
+                    options={renderedPaymentsForDropdown}
+                    onChange={(option) => {
+                      setSelectedPayment(option.value);
+                      setDepositErrorMessage("");
+                    }}
+                    className="text-sm"
+                  />
+                </div>
+
+                <div>
+                  <Link
+                    target="_blank"
+                    to={`${
+                      browserLinks?.nurse.category
+                    }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
+                      .split(" ")
+                      .join("")}/${
+                      ipdPatientData?.data?.mainId
+                    }/${selectedPayment}`}
+                    className={`buttonFilled flex items-center gap-[10px] text-sm no-underline ${
+                      !selectedPayment ? "disabled" : ""
+                    }`}
+                    onClick={handlePaymentReceiptDownloadClick}
+                  >
+                    <LuHardDriveDownload />
+                    <p>Download Payment Receipt</p>
+                  </Link>
+                  {depositErrorMessage && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {depositErrorMessage}
+                    </p>
+                  )}
+                </div>
+              </div>
 
               {ipdPatientDischargeLoader ? (
                 <div>Loading...</div>

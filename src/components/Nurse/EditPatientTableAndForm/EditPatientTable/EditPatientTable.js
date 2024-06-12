@@ -13,14 +13,10 @@ import { LuHardDriveDownload } from "react-icons/lu";
 import Checkbox from "@mui/material/Checkbox";
 
 import { Link } from "react-router-dom";
+import { date } from "../../../../utils/DateAndTimeConvertor";
 
 export default function EditPatientTable({ setViewEditForm, setPatientId }) {
   const { patients } = useSelector((state) => state.PatientState);
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
-
-    return newdate.toLocaleDateString();
-  };
 
   const time = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -75,17 +71,18 @@ export default function EditPatientTable({ setViewEditForm, setPatientId }) {
     {
       label: "User Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           <div
             // onClick={() => handleOpenViewModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
+            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+          >
             <Link
               // onClick={handleGeneratePdf}
-              target='_blank'
+              target="_blank"
               to={list?.patientId}
               // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
             >
-              <MdViewKanban className='text-[25px] text-[#96999C]' />
+              <MdViewKanban className="text-[25px] text-[#96999C]" />
             </Link>
           </div>
           <div
@@ -94,8 +91,9 @@ export default function EditPatientTable({ setViewEditForm, setPatientId }) {
               setPatientId(list?.patientId);
               setViewEditForm(true);
             }}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
             // onClick={() => handleClickOpenDialogBox(list)}
@@ -113,16 +111,16 @@ export default function EditPatientTable({ setViewEditForm, setPatientId }) {
   };
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>Patient List</h2>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">Patient List</h2>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
+        <div className="flex justify-between">
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
             <input
-              className='bg-transparent outline-none'
-              placeholder='Search by UHID'
+              className="bg-transparent outline-none"
+              placeholder="Search by UHID"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>

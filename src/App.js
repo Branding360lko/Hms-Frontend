@@ -6,7 +6,7 @@ import browserLinks from "./browserlinks";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
-
+import IPD_PatientPaymentReciept from "./components/Nurse/IPDPatientTableAndForm/IPD_PatientPaymentReceipt/IPD_PatientPaymentReceipt";
 import { useSelector, useDispatch } from "react-redux";
 
 // Services
@@ -940,6 +940,26 @@ function App() {
                         }
                       >
                         <IPDPatientReciept />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.nurse.category
+                    }/${browserLinks.nurse.internalPages.ipdPatientPaymentReceipt
+                      .split(" ")
+                      .join("")}/:ipdPatientId/:dateTime`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <IPD_PatientPaymentReciept />
                       </Suspense>
                     }
                   />
