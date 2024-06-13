@@ -2,7 +2,9 @@ import axios from "axios";
 
 export const getAllNurseReferData = async () => {
   try {
-    const response = await axios.get("/api/get-all-refered-patients");
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "get-all-refered-patients"}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -10,7 +12,11 @@ export const getAllNurseReferData = async () => {
 };
 export const addNurseReferPatientsData = async (formData) => {
   try {
-    const response = await axios.post("/api/refer-a-patients", formData);
+    const response = await axios.post(
+      `${process.env.React_App_Base_url + "refer-a-patients"}`,
+
+      formData
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -18,7 +24,9 @@ export const addNurseReferPatientsData = async (formData) => {
 };
 export const getDoctorVisitListWithIpdPatientsData = async () => {
   try {
-    const response = await axios.get("/api/get-each-doctor-with-patients");
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "get-each-doctor-with-patients"}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -26,7 +34,9 @@ export const getDoctorVisitListWithIpdPatientsData = async () => {
 };
 export const getAllDischargePatientsListData = async () => {
   try {
-    const response = await axios.get("/api/IPDPatient-GET-ALL");
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "IPDPatient-GET-ALL"}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -35,7 +45,12 @@ export const getAllDischargePatientsListData = async () => {
 export const addNurseDetailsForPatientsDischargeData = async (Id, formData) => {
   try {
     const response = await axios.put(
-      `/api/IPDPatientDischarge-NurseDischargeDetails-PUT/${Id}`,
+      `${
+        process.env.React_App_Base_url +
+        "IPDPatientDischarge-NurseDischargeDetails-PUT/" +
+        Id
+      }`,
+
       formData,
       {
         headers: {
@@ -50,7 +65,11 @@ export const addNurseDetailsForPatientsDischargeData = async (Id, formData) => {
 };
 export const addDailyDoctorVisitIpdData = async (formData) => {
   try {
-    const response = await axios.post("/api/IPD-Create", formData);
+    const response = await axios.post(
+      `${process.env.React_App_Base_url + "IPD-Create"}`,
+
+      formData
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -59,7 +78,9 @@ export const addDailyDoctorVisitIpdData = async (formData) => {
 export const addDailyDoctorVisitEmergencyData = async (formData) => {
   try {
     const response = await axios.post(
-      "/api/add-EmergencyPatientsChecks-Routes",
+      `${
+        process.env.React_App_Base_url + "add-EmergencyPatientsChecks-Routes"
+      }`,
       formData
     );
     return response;
@@ -69,7 +90,9 @@ export const addDailyDoctorVisitEmergencyData = async (formData) => {
 };
 export const getOnePatientsDoctorVisitData = async (Id) => {
   try {
-    const response = await axios.get(`/api/get-one-ipd-data/${Id}`);
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "get-one-ipd-data/" + Id}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -78,7 +101,9 @@ export const getOnePatientsDoctorVisitData = async (Id) => {
 export const getOneEmergencyPatientsDoctorVisitData = async (Id) => {
   try {
     const response = await axios.get(
-      `/api/get-one-EmergencyPatientsChecks/${Id}`
+      `${
+        process.env.React_App_Base_url + "get-one-EmergencyPatientsChecks/" + Id
+      }`
     );
     return response;
   } catch (error) {
@@ -87,7 +112,9 @@ export const getOneEmergencyPatientsDoctorVisitData = async (Id) => {
 };
 export const getAllIpdPatientsAssignedData = async () => {
   try {
-    const response = await axios.get("/api/IPDPatient-GET-ALL");
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "IPDPatient-GET-ALL"}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -96,7 +123,10 @@ export const getAllIpdPatientsAssignedData = async () => {
 export const getAllEmergencyPatientsData = async () => {
   try {
     const response = await axios.get(
-      "/api/get-each-doctor-with-patients-emergency"
+      `${
+        process.env.React_App_Base_url +
+        "/get-each-doctor-with-patients-emergency"
+      }`
     );
     return response;
   } catch (error) {
@@ -105,7 +135,9 @@ export const getAllEmergencyPatientsData = async () => {
 };
 export const getAllEmergencyPatientsListData = async () => {
   try {
-    const response = await axios.get("/api/All-EmergencyPatientsChecks-Routes");
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "All-EmergencyPatientsChecks-Routes"}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -113,7 +145,9 @@ export const getAllEmergencyPatientsListData = async () => {
 };
 export const getAllDoctorVisitPatientsListData = async () => {
   try {
-    const response = await axios.get("/api/All-Ipd-Routes");
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "All-Ipd-Routes"}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);
@@ -122,7 +156,9 @@ export const getAllDoctorVisitPatientsListData = async () => {
 export const getIpdPatientsFullDetailsData = async (Id) => {
   try {
     const response = await axios.get(
-      `/api/get-patients-details-with-ipdId/${Id}`
+      `${
+        process.env.React_App_Base_url + "get-patients-details-with-ipdId/" + Id
+      }`
     );
     return response;
   } catch (error) {
@@ -132,7 +168,9 @@ export const getIpdPatientsFullDetailsData = async (Id) => {
 export const getIpdPatientsDetailsData = async (Id) => {
   try {
     const response = await axios.get(
-      `/api/get-patients-details-with-ipdId/${Id}`
+      `${
+        process.env.React_App_Base_url + "get-patients-details-with-ipdId/" + Id
+      }`
     );
     return response;
   } catch (error) {
@@ -141,7 +179,9 @@ export const getIpdPatientsDetailsData = async (Id) => {
 };
 export const getOneReferPatientDataData = async (Id) => {
   try {
-    const response = await axios.get(`/api/get-one-refered-patients/${Id}`);
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "get-one-refered-patients/" + Id}`
+    );
     return response;
   } catch (error) {
     throw new Error(error);

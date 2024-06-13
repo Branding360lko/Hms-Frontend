@@ -242,7 +242,7 @@ export default function IPD_PatientReciept() {
                   className="text-center"
                   style={{
                     borderTop: "2px solid #373737",
-                    borderBottom: "2px solid #373737",
+                    // borderBottom: "2px solid #373737",
                   }}
                 >
                   IPD Discharge Slip
@@ -500,6 +500,7 @@ export default function IPD_PatientReciept() {
                   </div>
                   <br />
                   <br />
+                  <div className="pagebreak"></div>
                   <div>
                     <h3>Nurse and Doctor Approval</h3>
                     <br />
@@ -536,7 +537,7 @@ export default function IPD_PatientReciept() {
                           </p>
                         </div>
                       </div>
-                      <br />
+
                       <div className=" grid grid-cols-1 text-[14px]">
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
@@ -604,114 +605,112 @@ export default function IPD_PatientReciept() {
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <br />
+                  <div className="pagebreak"></div>
+                  <div className=" ">
+                    <h4>Doctor's Approval</h4>
                     <br />
-                    <div className=" ">
-                      <h4>Doctor's Approval</h4>
-                      <br />
-                      <div className="grid grid-cols-2 gap-[10px] text-[14px]">
-                        <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Doctor's Name
-                          </p>
-                          <p>{ipdPatientDoctorDischargeDetails?.name}</p>
-                        </div>
-                        <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Doctor Id
-                          </p>
-                          <p>{ipdPatientDoctorDischargeDetails?.doctorId}</p>
-                        </div>
-                        <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Patient Name
-                          </p>
-                          <p>
-                            {responseGetPatientById?.currentData?.patientName}
-                          </p>
-                        </div>
-                        <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Patient ID
-                          </p>
-                          <p>
-                            {ipdPatientDoctorDischargeDetails?.ipdPatientRegId}
-                          </p>
+                    <div className="grid grid-cols-2 gap-[10px] text-[14px]">
+                      <div className="flex">
+                        <p className="font-[500] w-[130px] text-start">
+                          Doctor's Name
+                        </p>
+                        <p>{ipdPatientDoctorDischargeDetails?.name}</p>
+                      </div>
+                      <div className="flex">
+                        <p className="font-[500] w-[130px] text-start">
+                          Doctor Id
+                        </p>
+                        <p>{ipdPatientDoctorDischargeDetails?.doctorId}</p>
+                      </div>
+                      <div className="flex">
+                        <p className="font-[500] w-[130px] text-start">
+                          Patient Name
+                        </p>
+                        <p>
+                          {responseGetPatientById?.currentData?.patientName}
+                        </p>
+                      </div>
+                      <div className="flex">
+                        <p className="font-[500] w-[130px] text-start">
+                          Patient ID
+                        </p>
+                        <p>
+                          {ipdPatientDoctorDischargeDetails?.ipdPatientRegId}
+                        </p>
+                      </div>
+                    </div>
+                    <br />
+                    <div className=" grid grid-cols-1 text-[14px]">
+                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          BHT / Surgery:
+                        </span>
+                        <p></p>
+                      </div>
+                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          Provisional Diagnosis:
+                        </span>
+                        <p>
+                          {
+                            ipdPatientDoctorDischargeDetails?.provisionalDiagnosis
+                          }
+                        </p>
+                      </div>
+                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          Disease Diagnose:
+                        </span>
+                        <p>
+                          {ipdPatientDoctorDischargeDetails?.disease_Diagnose}
+                        </p>
+                      </div>
+                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          Final Diagnosis:
+                        </span>
+                        <p>
+                          {ipdPatientDoctorDischargeDetails?.finalDiagnosis}
+                        </p>
+                      </div>
+                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          Advise During Discharge:
+                        </span>
+                        <p>
+                          {
+                            ipdPatientDoctorDischargeDetails?.adviseDuringDischarge
+                          }
+                        </p>
+                      </div>
+                      <div className=" flex justify-between items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          Physician In-charge:
+                        </span>
+                        <p>
+                          {ipdPatientDoctorDischargeDetails?.physicianInCharge}
+                        </p>
+                        <div className=" flex justify-between items-center h-full">
+                          <span className=" px-2">Signature:</span>
+                          <span className=" px-24 h-full border-2"></span>
                         </div>
                       </div>
-                      <br />
-                      <div className=" grid grid-cols-1 text-[14px]">
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            BHT / Surgery:
-                          </span>
-                          <p></p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Provisional Diagnosis:
-                          </span>
-                          <p>
-                            {
-                              ipdPatientDoctorDischargeDetails?.provisionalDiagnosis
-                            }
-                          </p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Disease Diagnose:
-                          </span>
-                          <p>
-                            {ipdPatientDoctorDischargeDetails?.disease_Diagnose}
-                          </p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Final Diagnosis:
-                          </span>
-                          <p>
-                            {ipdPatientDoctorDischargeDetails?.finalDiagnosis}
-                          </p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Advise During Discharge:
-                          </span>
-                          <p>
-                            {
-                              ipdPatientDoctorDischargeDetails?.adviseDuringDischarge
-                            }
-                          </p>
-                        </div>
-                        <div className=" flex justify-between items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Physician In-charge:
-                          </span>
-                          <p>
-                            {
-                              ipdPatientDoctorDischargeDetails?.physicianInCharge
-                            }
-                          </p>
-                          <div className=" flex justify-between items-center h-full">
-                            <span className=" px-2">Signature:</span>
-                            <span className=" px-24 h-full border-2"></span>
-                          </div>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            ICD:
-                          </span>
-                          <p>{ipdPatientDoctorDischargeDetails?.ICD}</p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Result:
-                          </span>
-                          <p>{ipdPatientDoctorDischargeDetails?.result}</p>
-                        </div>
+                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          ICD:
+                        </span>
+                        <p>{ipdPatientDoctorDischargeDetails?.ICD}</p>
+                      </div>
+                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          Result:
+                        </span>
+                        <p>{ipdPatientDoctorDischargeDetails?.result}</p>
                       </div>
                     </div>
                   </div>
-                  <br />
                   <div className=" w-full flex justify-between items-center">
                     <div className=" flex flex-col w-[300px] self-end justify-center items-start h-[100px]">
                       <span className=" px-2">Remarks (If Any):</span>
@@ -724,9 +723,6 @@ export default function IPD_PatientReciept() {
                       <span className=" w-full h-full border-2"></span>
                     </div>
                   </div>
-
-                  <br />
-                  <br />
                 </div>
               </div>
             </div>

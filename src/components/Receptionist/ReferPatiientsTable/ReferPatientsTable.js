@@ -109,7 +109,7 @@ function DischargePatientsTable() {
           adminLoggedInData?.adminUniqueId
       );
       setAllReferedpatients(filter);
-      setFilteredData(filter);
+      setFilteredData(filter?.reverse());
       console.log(filter, "filter");
     }
   };

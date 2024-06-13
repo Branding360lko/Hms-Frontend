@@ -226,7 +226,7 @@ function ReferPatientsDoctorVisitTable() {
         adminLoggedInData?.adminUniqueId
     );
     setAllReferedPatients(filter);
-    setFilteredData(filter);
+    setFilteredData(filter?.reverse());
   };
   const getAllDoctorVisitPatientsListDataHandle = async () => {
     const result = await getAllDoctorVisitPatientsListData();
@@ -243,6 +243,7 @@ function ReferPatientsDoctorVisitTable() {
     formData.append("isPatientsChecked", true);
     formData.append("doctorId", dailyDoctorVisitData?.referringDoctorId);
     formData.append("ReferedDoctorId", dailyDoctorVisitData?.referDoctorId);
+    formData.append("submittedBy", "Refered Doctor");
     formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
     formData.append("medicine", JSON.stringify(selectedMedicine));
     formData.append("test", JSON.stringify(selectedTest));

@@ -7,8 +7,10 @@ const initialState = {
 export const getMedicineDataHandle = createAsyncThunk(
   "getMedicineDataHandle",
   async () => {
-    const { data } = await axios.get("/api/GET-ALL-Medicine");
-
+    const { data } = await axios.get(
+      `${process.env.React_App_Base_url + "GET-ALL-Medicine"}`
+    );
+    console.log(data);
     return data;
   }
 );

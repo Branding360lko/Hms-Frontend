@@ -262,7 +262,7 @@ export default function EmergencyPatientTable() {
                 <h2>Select A Bed</h2>
                 <div>
                   <BedSelector
-                    beds={beds?.filter((data) => data.bedType === "Emergency")}
+                    beds={beds?.filter((data) => data.bedType === "EMERGENCY")}
                     handleBedSelect={handleBedSelect}
                   />
                 </div>
@@ -429,7 +429,7 @@ export default function EmergencyPatientTable() {
                 <h2>Select A Bed</h2>
                 <div>
                   <BedSelector
-                    beds={beds?.filter((data) => data.bedType === "Emergency")}
+                    beds={beds?.filter((data) => data.bedType === "EMERGENCY")}
                     handleBedSelect={handleBedSelect}
                   />
                 </div>
@@ -533,12 +533,12 @@ export default function EmergencyPatientTable() {
       label: "User Action",
       render: (list) => (
         <div className="flex gap-[10px] justify-center">
-          <div
+          {/* <div
             onClick={() => handleOpenViewModal(list)}
             className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
           >
             <MdViewKanban className="text-[25px] text-[#96999C]" />
-          </div>
+          </div> */}
           <div
             onClick={() => handleOpenUpdateModal(list)}
             className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"

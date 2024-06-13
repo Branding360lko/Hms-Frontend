@@ -19,6 +19,7 @@ import { date } from "../../../utils/DateAndTimeConvertor";
 import { time } from "../../../utils/DateAndTimeConvertor";
 import Snackbars from "../../SnackBar";
 import { FaSearch } from "react-icons/fa";
+import PaginationComponent from "../../Pagination";
 
 function EmergencyPatientsTable() {
   const [open, setOpen] = React.useState(false);
@@ -51,6 +52,16 @@ function EmergencyPatientsTable() {
     notes: "",
     visitDateTime: "",
   });
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   // Snackbar--------------------
   // ----Succcess
   const [openSnackbarSuccess, setOpenSnackBarSuccess] = React.useState(false);
@@ -224,7 +235,7 @@ function EmergencyPatientsTable() {
   const getAllEmergencyPatientsDataHandle = async () => {
     const result = await getAllEmergencyPatientsData();
     setAllEmergencyPatients(result && result?.data?.data);
-    setFilteredData(result && result?.data?.data);
+    setFilteredData(result && result?.data?.data?.reverse());
     console.log(result, "dasfsgZ");
   };
   const getAllEmergencyPatientsListDataHandle = async () => {
@@ -292,68 +303,78 @@ function EmergencyPatientsTable() {
           </thead>
 
           <tbody>
-            {filteredData?.map((item, index) => (
-              <tr key={index} className="border-b-[1px]">
-                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                  {index + 1}
-                </td>
-                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                  {"Uhid" + item?.patientsId}
-                </td>
-                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                  {item?.doctorName}
-                </td>
-                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                  {date(item?.EmergencyPatientCreatedTime)}-
-                  {time(item?.EmergencyPatientCreatedTime)}
-                </td>{" "}
-                <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
-                  <div className="flex gap-[10px] justify-center">
-                    {allEmergencyPatientsListData?.find(
-                      (val) =>
-                        val?.EmergencyPatientData === item?.Emergencypatient_id
-                    ) ? (
-                      <div
-                        onClick={() => [
-                          getOneEmergencyPatientsDoctorVisitDataHandle(
-                            item?.Emergencypatient_id
-                          ),
-                          handleOpen1(),
-                        ]}
-                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                      >
-                        <CiViewList className="text-[20px] text-[#96999C]" />
-                      </div>
-                    ) : (
-                      <div
-                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                        onClick={handleOpen2}
-                      >
-                        <CiViewList className="text-[20px] text-[#96999C]" />
-                      </div>
-                    )}
+            {filteredData
+              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              ?.map((item, index) => (
+                <tr key={index} className="border-b-[1px]">
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    {index + 1}
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    {"Uhid" + item?.patientsId}
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    {item?.doctorName}
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    {date(item?.EmergencyPatientCreatedTime)}-
+                    {time(item?.EmergencyPatientCreatedTime)}
+                  </td>{" "}
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                    <div className="flex gap-[10px] justify-center">
+                      {allEmergencyPatientsListData?.find(
+                        (val) =>
+                          val?.EmergencyPatientData ===
+                          item?.Emergencypatient_id
+                      ) ? (
+                        <div
+                          onClick={() => [
+                            getOneEmergencyPatientsDoctorVisitDataHandle(
+                              item?.Emergencypatient_id
+                            ),
+                            handleOpen1(),
+                          ]}
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                        >
+                          <CiViewList className="text-[20px] text-[#96999C]" />
+                        </div>
+                      ) : (
+                        <div
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                          onClick={handleOpen2}
+                        >
+                          <CiViewList className="text-[20px] text-[#96999C]" />
+                        </div>
+                      )}
 
-                    <div
-                      className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
-                      onClick={() => [
-                        handleOpen(),
-                        setDailyDoctorVisitData({
-                          ...dailyDoctorVisitData,
-                          doctorId: item?._id,
-                          doctorName: item?.doctorName,
-                          patientsId: item?.patientsId,
-                          ipdPatientId: item?.Emergencypatient_id,
-                        }),
-                      ]}
-                    >
-                      <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen(),
+                          setDailyDoctorVisitData({
+                            ...dailyDoctorVisitData,
+                            doctorId: item?._id,
+                            doctorName: item?.doctorName,
+                            patientsId: item?.patientsId,
+                            ipdPatientId: item?.Emergencypatient_id,
+                          }),
+                        ]}
+                      >
+                        <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                      </div>
                     </div>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
+        <PaginationComponent
+          page={page}
+          rowsPerPage={rowsPerPage}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          data={filteredData}
+        />
       </div>
       <Modal
         aria-labelledby="transition-modal-title"

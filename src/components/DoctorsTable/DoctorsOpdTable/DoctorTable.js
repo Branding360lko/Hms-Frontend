@@ -408,6 +408,7 @@ function DoctorTable() {
   useEffect(() => {
     console.log(opdPatients);
   }, [opdPatients]);
+  console.log(process.env.React_App_Base_url);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
