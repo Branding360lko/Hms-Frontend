@@ -262,7 +262,7 @@ export default function EmergencyPatientTable() {
                 <h2>Select A Bed</h2>
                 <div>
                   <BedSelector
-                    beds={beds?.filter((data) => data.bedType === "Emergency")}
+                    beds={beds?.filter((data) => data.bedType === "EMERGENCY")}
                     handleBedSelect={handleBedSelect}
                   />
                 </div>
@@ -429,7 +429,7 @@ export default function EmergencyPatientTable() {
                 <h2>Select A Bed</h2>
                 <div>
                   <BedSelector
-                    beds={beds?.filter((data) => data.bedType === "Emergency")}
+                    beds={beds?.filter((data) => data.bedType === "EMERGENCY")}
                     handleBedSelect={handleBedSelect}
                   />
                 </div>

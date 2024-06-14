@@ -32,12 +32,22 @@ import DialogBoxToDelete from "../../DialogBoxToDelete";
 
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import {
+  createTestOfPatientChange,
+  updateTestOfPatientChange,
+  deleteTestOfPatientChange,
+} from "../../../Store/Slices/TestPatientSlice";
+import {
+  useCreateTestOfPatientMutation,
+  useUpdateTestOfPatientByIdMutation,
+} from "../../../Store/Services/TestPatient";
 
 export default function TestPatientTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
+  const { testOfPatients } = useSelector((state) => state.TestPatientState);
 
   const data = [
     {
@@ -312,10 +322,10 @@ export default function TestPatientTable() {
 
   const [search, setSearch] = React.useState("");
 
-  const filteredArray = data?.filter((data) => {
+  const filteredArray = testOfPatients?.filter((data) => {
     if (search !== "") {
       const userSearch = search.toLowerCase();
-      const searchInData = data?.emergencyRegId?.toLowerCase();
+      const searchInData = data?.testPatientId?.toLowerCase();
 
       return searchInData?.startsWith(userSearch);
     }
@@ -358,11 +368,11 @@ export default function TestPatientTable() {
     },
     {
       label: "UHID",
-      render: (list) => list?.data?.UHID,
+      render: (list) => list?.data?.testPatientId,
     },
     {
       label: "Test Name",
-      render: (list) => list?.data?.testName,
+      render: (list) => list?.data?.test,
     },
     {
       label: "Prescribed by Doctor",
