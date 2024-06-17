@@ -125,6 +125,14 @@ export default function Login() {
       }
       if (
         localStorage.getItem("AdminToken") &&
+        adminLoggedInData?.adminRole === "Emergency"
+      ) {
+        navigate(
+          `${browserLinks.emergency.category}/${browserLinks.emergency.internalPages.dashboard}`
+        );
+      }
+      if (
+        localStorage.getItem("AdminToken") &&
         adminLoggedInData?.adminRole === "Pharmacist"
       ) {
         navigate(

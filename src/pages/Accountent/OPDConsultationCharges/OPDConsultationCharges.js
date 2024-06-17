@@ -2,8 +2,7 @@ import React from "react";
 import SideNav from "../../../components/Accountent/SideNav";
 import UpperNav from "../../../components/Accountent/UpperNav/UpperNav";
 import browserLinks from "../../../browserlinks";
-import OPDConsultationChargesTable from "../../../components/Accountent/OpdConsultationChargesTable/OpdConsultationChargesTable";
-
+import OPDConsultationChargesTable from "../../../components/Accountent/OPDConsultationChargesTable/OPDConsultationChargesTable";
 function OPDConsultationCharges() {
   return (
     <div className="superadmin-main flex flex-row w-full h-screen">

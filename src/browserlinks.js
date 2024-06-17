@@ -110,6 +110,13 @@ const browserLinks = {
       TraumaCases: "Trauma Cases",
     },
   },
+  emergency: {
+    category: "/Emergency",
+    internalPages: {
+      dashboard: "Dashboard",
+      addEmergencyPatientPrescription: "Emergency Prescription",
+    },
+  },
 };
 
 // 1 = "Super Admin"
