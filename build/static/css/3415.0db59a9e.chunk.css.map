@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/3415.0db59a9e.chunk.css","mappings":"AAAA,cACE,yBACF","sources":["components/HR/SideNav.css"],"sourcesContent":[".sideNavLinks {\r\n  height: calc(100vh - 9rem);\r\n}\r\n"],"names":[],"sourceRoot":""}

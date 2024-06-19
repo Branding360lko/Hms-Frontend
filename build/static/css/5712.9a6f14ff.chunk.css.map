@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/5712.9a6f14ff.chunk.css","mappings":"AAAA,cACI,yBACJ","sources":["components/Nurse/SideNav.css"],"sourcesContent":[".sideNavLinks {\n    height: calc(100vh - 9rem);\n}"],"names":[],"sourceRoot":""}

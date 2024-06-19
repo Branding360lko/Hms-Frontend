@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkhospital_management_system=self.webpackChunkhospital_management_system||[]).push([[1917],{1917:(s,e,n)=>{n.r(e),n.d(e,{default:()=>c});n(2791);var t=n(7689),a=n(184);function c(){const s=(0,t.s0)();return(0,a.jsxs)("div",{children:[(0,a.jsx)("p",{children:"Unauthorized Access"}),(0,a.jsx)("button",{className:"buttonFilled",onClick:()=>s("/"),children:"Login"})]})}}}]);
+//# sourceMappingURL=1917.bab67c21.chunk.js.map

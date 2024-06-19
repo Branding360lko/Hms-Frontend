@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/1761.f9bf7bcb.chunk.css","mappings":"AAAA,aACE,WACE,uBACF,CACF","sources":["components/Nurse/IPDPatientTableAndForm/IPD_PatientReciept/IPD_PatientReciept.css"],"sourcesContent":["@media print {\r\n  .pagebreak {\r\n    page-break-after: always;\r\n  }\r\n}\r\n"],"names":[],"sourceRoot":""}
