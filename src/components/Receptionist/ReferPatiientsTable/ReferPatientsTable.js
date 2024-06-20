@@ -270,7 +270,9 @@ function DischargePatientsTable() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={filteredData}
+          data={filteredData?.filter(
+            (item) => item?.ipdPatientsDetails?.ipdPatientDischarged === false
+          )}
         />
       </div>
       <Modal

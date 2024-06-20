@@ -154,8 +154,8 @@ function ReferPatientsDoctorVisitTable() {
     oldValue[index] = {
       ...oldValue[index],
       name: item?.Name,
-      price: item?.RATE,
-      total: item?.RATE * oldValue[index].quantity,
+      price: item?.Mrp,
+      total: item?.Mrp * oldValue[index].quantity,
     };
     setSelectedMedicine(oldValue && oldValue);
     setSearchMedicine([]);
@@ -429,7 +429,9 @@ function ReferPatientsDoctorVisitTable() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={filteredData}
+          data={filteredData?.filter(
+            (item) => item?.ipdPatientsDetails?.ipdPatientDischarged === false
+          )}
         />
       </div>
       <Modal
@@ -525,7 +527,7 @@ function ReferPatientsDoctorVisitTable() {
                       <p>Quantity</p>
                     </th>
                     <th className="border-[1px] p-1 font-semibold">
-                      <p>Price</p>
+                      <p>Total</p>
                     </th>
 
                     <th className="border-[1px] p-1 font-semibold">
@@ -646,7 +648,7 @@ function ReferPatientsDoctorVisitTable() {
                       <p>Quantity</p>
                     </th>
                     <th className="border-[1px] p-1 font-semibold">
-                      <p>Price</p>
+                      <p>Total</p>
                     </th>
 
                     <th className="border-[1px] p-1 font-semibold">
@@ -870,7 +872,7 @@ function ReferPatientsDoctorVisitTable() {
                             <p>Quantity</p>
                           </th>
                           <th className="border-[1px] p-1 font-semibold">
-                            <p>Price</p>
+                            <p>Total</p>
                           </th>
                         </thead>
                         <tbody>
@@ -933,7 +935,7 @@ function ReferPatientsDoctorVisitTable() {
                             <p>Quantity</p>
                           </th>
                           <th className="border-[1px] p-1 font-semibold">
-                            <p>Price</p>
+                            <p>Total</p>
                           </th>
                         </thead>
                         <tbody>

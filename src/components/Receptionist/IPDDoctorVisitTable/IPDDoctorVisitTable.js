@@ -161,12 +161,15 @@ export default function IPDDoctorVisitTable() {
     e.preventDefault();
     setSelectedMedicine([
       ...selectedMedicine,
-      { name: "", quantity: 1, price: "" },
+      { name: "", quantity: 1, price: 0, total: 0 },
     ]);
   };
   const addTestTableHandle = (e) => {
     e.preventDefault();
-    setSelectedTest([...selectedTest, { name: "", quantity: 1, price: "" }]);
+    setSelectedTest([
+      ...selectedTest,
+      { name: "", quantity: 1, price: 0, total: 0 },
+    ]);
   };
   const getMedicineData = (e, index) => {
     let oldValue = [...selectedMedicine];
@@ -174,8 +177,11 @@ export default function IPDDoctorVisitTable() {
       ...oldValue[index],
       [e.target.name]: e.target.value,
     };
+    oldValue[index] = {
+      ...oldValue[index],
+      total: oldValue[index].quantity * oldValue[index].price,
+    };
     setSelectedMedicine(oldValue && oldValue);
-    console.log(selectedMedicine);
   };
   const getTestData = (e, index) => {
     let oldValue = [...selectedTest];
@@ -183,8 +189,11 @@ export default function IPDDoctorVisitTable() {
       ...oldValue[index],
       [e.target.name]: e.target.value,
     };
+    oldValue[index] = {
+      ...oldValue[index],
+      total: oldValue[index].quantity * oldValue[index].price,
+    };
     setSelectedTest(oldValue && oldValue);
-    console.log(selectedTest);
   };
   const addSelectedMedicineDataHandle = (index, item) => {
     let oldValue = [...selectedMedicine];
@@ -192,7 +201,8 @@ export default function IPDDoctorVisitTable() {
     oldValue[index] = {
       ...oldValue[index],
       name: item?.Name,
-      price: item?.RATE,
+      price: item?.Mrp,
+      total: item?.Mrp * oldValue[index].quantity,
     };
     setSelectedMedicine(oldValue && oldValue);
     setSearchMedicine([]);
@@ -204,6 +214,7 @@ export default function IPDDoctorVisitTable() {
       ...oldValue[index],
       name: item?.Name,
       price: item?.Cost,
+      total: item?.Cost * oldValue[index].quantity,
     };
     setSelectedTest(oldValue && oldValue);
     setSearchTest([]);
@@ -450,7 +461,9 @@ export default function IPDDoctorVisitTable() {
             rowsPerPage={rowsPerPage}
             handleChangePage={handleChangePage}
             handleChangeRowsPerPage={handleChangeRowsPerPage}
-            data={filteredData}
+            data={filteredData?.filter(
+              (item) => item?.IpdPatientDischarge === false
+            )}
           />
         </div>
       </div>
@@ -535,7 +548,7 @@ export default function IPDDoctorVisitTable() {
                       <p>Quantity</p>
                     </th>
                     <th className="border-[1px] p-1 font-semibold">
-                      <p>Price</p>
+                      <p>Total</p>
                     </th>
 
                     <th className="border-[1px] p-1 font-semibold">
@@ -617,7 +630,7 @@ export default function IPDDoctorVisitTable() {
                             className="w-[5rem]  outline-none"
                             placeholder="price"
                             name="price"
-                            value={item?.price}
+                            value={item?.total}
                             onChange={(e) => getMedicineData(e, index)}
                           />
                         </td>
@@ -656,7 +669,7 @@ export default function IPDDoctorVisitTable() {
                       <p>Quantity</p>
                     </th>
                     <th className="border-[1px] p-1 font-semibold">
-                      <p>Price</p>
+                      <p>Total</p>
                     </th>
 
                     <th className="border-[1px] p-1 font-semibold">
@@ -734,7 +747,7 @@ export default function IPDDoctorVisitTable() {
                             className="w-[5rem]  outline-none"
                             placeholder="price"
                             name="price"
-                            value={item?.price}
+                            value={item?.total}
                             onChange={(e) => getTestData(e, index)}
                           />
                         </td>
@@ -874,7 +887,7 @@ export default function IPDDoctorVisitTable() {
                           <p>Quantity</p>
                         </th>
                         <th className="border-[1px] p-1 font-semibold">
-                          <p>Price</p>
+                          <p>Total</p>
                         </th>
                       </thead>
                       <tbody>
@@ -937,7 +950,7 @@ export default function IPDDoctorVisitTable() {
                           <p>Quantity</p>
                         </th>
                         <th className="border-[1px] p-1 font-semibold">
-                          <p>Price</p>
+                          <p>Total</p>
                         </th>
                       </thead>
                       <tbody>

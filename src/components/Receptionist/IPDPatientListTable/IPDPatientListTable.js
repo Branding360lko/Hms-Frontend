@@ -399,7 +399,9 @@ export default function IPDPatientList() {
             rowsPerPage={rowsPerPage}
             handleChangePage={handleChangePage}
             handleChangeRowsPerPage={handleChangeRowsPerPage}
-            data={filteredData}
+            data={filteredData?.filter(
+              (item) => item?.ipdPatientDischarged === false
+            )}
           />
         </div>
       </div>

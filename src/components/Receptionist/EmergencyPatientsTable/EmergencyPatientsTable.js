@@ -51,6 +51,7 @@ function EmergencyPatientsTable() {
     symtoms: "",
     notes: "",
     visitDateTime: "",
+    mainId: "",
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -114,12 +115,15 @@ function EmergencyPatientsTable() {
     e.preventDefault();
     setSelectedMedicine([
       ...selectedMedicine,
-      { name: "", quantity: 1, price: "" },
+      { name: "", quantity: 1, price: 0, total: 0 },
     ]);
   };
   const addTestTableHandle = (e) => {
     e.preventDefault();
-    setSelectedTest([...selectedTest, { name: "", quantity: 1, price: "" }]);
+    setSelectedTest([
+      ...selectedTest,
+      { name: "", quantity: 1, price: 0, total: 0 },
+    ]);
   };
   const getMedicineData = (e, index) => {
     let oldValue = [...selectedMedicine];
@@ -127,8 +131,11 @@ function EmergencyPatientsTable() {
       ...oldValue[index],
       [e.target.name]: e.target.value,
     };
+    oldValue[index] = {
+      ...oldValue[index],
+      total: oldValue[index].quantity * oldValue[index].price,
+    };
     setSelectedMedicine(oldValue && oldValue);
-    console.log(selectedMedicine);
   };
   const getTestData = (e, index) => {
     let oldValue = [...selectedTest];
@@ -136,16 +143,20 @@ function EmergencyPatientsTable() {
       ...oldValue[index],
       [e.target.name]: e.target.value,
     };
+    oldValue[index] = {
+      ...oldValue[index],
+      total: oldValue[index].quantity * oldValue[index].price,
+    };
     setSelectedTest(oldValue && oldValue);
-    console.log(selectedTest);
   };
   const addSelectedMedicineDataHandle = (index, item) => {
     let oldValue = [...selectedMedicine];
-    console.log(item);
+    console.log(item, "addSelectedMedicineDataHandle");
     oldValue[index] = {
       ...oldValue[index],
       name: item?.Name,
-      price: item?.RATE,
+      price: item?.Mrp,
+      total: item?.Mrp * oldValue[index].quantity,
     };
     setSelectedMedicine(oldValue && oldValue);
     setSearchMedicine([]);
@@ -157,6 +168,7 @@ function EmergencyPatientsTable() {
       ...oldValue[index],
       name: item?.Name,
       price: item?.Cost,
+      total: item?.Cost * oldValue[index].quantity,
     };
     setSelectedTest(oldValue && oldValue);
     setSearchTest([]);
@@ -185,6 +197,7 @@ function EmergencyPatientsTable() {
     formData.append("EmergencyPatientData", dailyDoctorVisitData?.ipdPatientId);
     formData.append("isPatientsChecked", true);
     formData.append("doctorId", dailyDoctorVisitData?.doctorId);
+    formData.append("mainId", dailyDoctorVisitData?.mainId);
     formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
     formData.append("medicine", JSON.stringify(selectedMedicine));
     formData.append("test", JSON.stringify(selectedTest));
@@ -357,6 +370,7 @@ function EmergencyPatientsTable() {
                             doctorName: item?.doctorName,
                             patientsId: item?.patientsId,
                             ipdPatientId: item?.Emergencypatient_id,
+                            mainId: item?.EmergencyPatientMainId,
                           }),
                         ]}
                       >
@@ -457,7 +471,7 @@ function EmergencyPatientsTable() {
                       <p>Quantity</p>
                     </th>
                     <th className="border-[1px] p-1 font-semibold">
-                      <p>Price</p>
+                      <p>Total</p>
                     </th>
 
                     <th className="border-[1px] p-1 font-semibold">
@@ -539,7 +553,7 @@ function EmergencyPatientsTable() {
                             className="w-[5rem]  outline-none"
                             placeholder="price"
                             name="price"
-                            value={item?.price}
+                            value={item?.total}
                             onChange={(e) => getMedicineData(e, index)}
                           />
                         </td>
@@ -578,7 +592,7 @@ function EmergencyPatientsTable() {
                       <p>Quantity</p>
                     </th>
                     <th className="border-[1px] p-1 font-semibold">
-                      <p>Price</p>
+                      <p>Total</p>
                     </th>
 
                     <th className="border-[1px] p-1 font-semibold">
@@ -656,7 +670,7 @@ function EmergencyPatientsTable() {
                             className="w-[5rem]  outline-none"
                             placeholder="price"
                             name="price"
-                            value={item?.price}
+                            value={item?.total}
                             onChange={(e) => getTestData(e, index)}
                           />
                         </td>
@@ -796,7 +810,7 @@ function EmergencyPatientsTable() {
                           <p>Quantity</p>
                         </th>
                         <th className="border-[1px] p-1 font-semibold">
-                          <p>Price</p>
+                          <p>Total</p>
                         </th>
                       </thead>
                       <tbody>
@@ -859,7 +873,7 @@ function EmergencyPatientsTable() {
                           <p>Quantity</p>
                         </th>
                         <th className="border-[1px] p-1 font-semibold">
-                          <p>Price</p>
+                          <p>Total</p>
                         </th>
                       </thead>
                       <tbody>
