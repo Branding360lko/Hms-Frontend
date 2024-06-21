@@ -161,25 +161,33 @@ export default function PatientViewPage() {
                         {responseGetPatientById?.currentData?.patientBloodGroup}
                       </p>
                     </div>
-                    <div className="flex">
-                      <p className="font-[500] w-[150px] text-start">
-                        Father Name:
-                      </p>
-                      <p>
-                        {responseGetPatientById?.currentData?.patientFatherName}
-                      </p>
-                    </div>
-                    <div className="flex">
-                      <p className="font-[500] w-[150px] text-start">
-                        Husband Name:
-                      </p>
-                      <p>
-                        {
-                          responseGetPatientById?.currentData
-                            ?.patientHusbandName
-                        }
-                      </p>
-                    </div>
+                    {responseGetPatientById?.currentData?.patientFatherName && (
+                      <div className="flex">
+                        <p className="font-[500] w-[150px] text-start">
+                          Father Name:
+                        </p>
+                        <p>
+                          {
+                            responseGetPatientById?.currentData
+                              ?.patientFatherName
+                          }
+                        </p>
+                      </div>
+                    )}
+                    {responseGetPatientById?.currentData
+                      ?.patientHusbandName && (
+                      <div className="flex">
+                        <p className="font-[500] w-[150px] text-start">
+                          Husband Name:
+                        </p>
+                        <p>
+                          {
+                            responseGetPatientById?.currentData
+                              ?.patientHusbandName
+                          }
+                        </p>
+                      </div>
+                    )}
                     <div className="flex">
                       <p className="font-[500] w-[150px] text-start">Email:</p>
                       <p>{responseGetPatientById?.currentData?.patientEmail}</p>

@@ -242,7 +242,7 @@ export default function IPD_PatientReciept() {
                   className="text-center"
                   style={{
                     borderTop: "2px solid #373737",
-                    // borderBottom: "2px solid #373737",
+                    borderBottom: "2px solid #373737",
                   }}
                 >
                   IPD Discharge Slip
@@ -367,7 +367,7 @@ export default function IPD_PatientReciept() {
                   className="flex flex-col justify-between p-[1rem]"
                   style={{
                     borderTop: "2px solid #373737",
-                    borderBottom: "2px solid #373737",
+                    borderBottom: "2px solid transparent",
                   }}
                 >
                   <PatientBedChargesCal
