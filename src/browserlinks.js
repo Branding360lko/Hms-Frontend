@@ -125,4 +125,6 @@ const browserLinks = {
 // nurse = receptionist (nurse section is named as receptionist)
 // receptionist = nurse (receptionist is named as nurse)
 
+// uivkjifdhgdf
+
 export default browserLinks;
