@@ -2,7 +2,7 @@ import React from "react";
 import SideNav from "../../../components/Accountent/SideNav";
 import UpperNav from "../../../components/Accountent/UpperNav/UpperNav";
 import browserLinks from "../../../browserlinks";
-import OPDConsultationChargesTable from "../../../components/Accountent/OpdConsultationChargesTable/OpdConsultationChargesTable";
+// import OPDConsultationChargesTable from "../../../components/Accountent/OpdConsultationChargesTable/OpdConsultationChargesTable";
 
 function OPDConsultationCharges() {
   return (
@@ -15,7 +15,7 @@ function OPDConsultationCharges() {
       <div className="superadmin-main-right flex flex-col w-[80%]">
         <UpperNav />
         <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
-          <OPDConsultationChargesTable />
+          {/* <OPDConsultationChargesTable /> */}
         </div>
       </div>
     </div>

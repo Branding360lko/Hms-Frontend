@@ -741,7 +741,10 @@ export default function IPD_PatientTable() {
   const modalAddIPDPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Add Patient</h2>
-      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddIPDPatient}>
+      <form
+        className="flex flex-col gap-[1rem] w-full"
+        onSubmit={handleAddIPDPatient}
+      >
         <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID *</label>
@@ -861,7 +864,7 @@ export default function IPD_PatientTable() {
           </div> */}
         </div>
         {/* // Add Bed */}
-        <div>
+        <div className=" w-full">
           {addBedFormOpen === false ? (
             <button
               onClick={(e) => handleAddBedFormOpen(e)}
@@ -871,9 +874,9 @@ export default function IPD_PatientTable() {
               <FaBed className=" text-3xl " /> +
             </button>
           ) : (
-            <div className=" flex flex-col justify-center items-start gap-5">
+            <div className=" w-full flex flex-col justify-center items-start gap-5">
               <h2>Select A Bed</h2>
-              <div>
+              <div className=" w-full">
                 <BedSelector beds={beds} handleBedSelect={handleBedSelect} />
               </div>
             </div>

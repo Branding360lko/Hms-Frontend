@@ -59,6 +59,25 @@ export default function EmergencyPatientTable() {
     (state) => state.EmergencyPatientState
   );
 
+  // New Code
+
+  const date = (dateTime) => {
+    const newdate = new Date(dateTime);
+
+    return newdate.toLocaleDateString();
+  };
+
+  const time = (dateTime) => {
+    const newDate = new Date(dateTime);
+
+    return newDate.toLocaleTimeString();
+  };
+
+  // Emergency Patient state
+
+  const [currentEmergencyPatient, setCurrentEmergencyPatient] =
+    React.useState(null);
+
   // Add Bed Form Open State and Logic
   const [addBedFormOpen, setAddBedFormOpen] = React.useState(false);
 
@@ -248,27 +267,27 @@ export default function EmergencyPatientTable() {
               onChange={(e) => setEmergencyAdmittingTime(e.target.value)}
             />
           </div>
-          <div>
-            {addBedFormOpen === false ? (
-              <button
-                onClick={(e) => handleAddBedFormOpen(e)}
-                className=" flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
+        </div>
+        <div className=" w-full">
+          {addBedFormOpen === false ? (
+            <button
+              onClick={(e) => handleAddBedFormOpen(e)}
+              className=" flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
              hover:text-black rounded-md "
-              >
-                <FaBed className=" text-3xl " /> +
-              </button>
-            ) : (
-              <div className=" flex flex-col justify-center items-start gap-5">
-                <h2>Select A Bed</h2>
-                <div>
-                  <BedSelector
-                    beds={beds?.filter((data) => data.bedType === "EMERGENCY")}
-                    handleBedSelect={handleBedSelect}
-                  />
-                </div>
+            >
+              <FaBed className=" text-3xl " /> +
+            </button>
+          ) : (
+            <div className=" flex flex-col justify-center items-start gap-5 w-full">
+              <h2>Select A Bed</h2>
+              <div className=" w-full">
+                <BedSelector
+                  beds={beds?.filter((data) => data.bedType === "EMERGENCY")}
+                  handleBedSelect={handleBedSelect}
+                />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-[6px]">
@@ -415,7 +434,7 @@ export default function EmergencyPatientTable() {
               onChange={(e) => setEmergencyAdmittingTime(e.target.value)}
             />
           </div>
-          <div>
+          <div className=" w-full">
             {addBedFormOpen === false ? (
               <button
                 onClick={(e) => handleAddBedFormOpen(e)}
@@ -425,7 +444,7 @@ export default function EmergencyPatientTable() {
                 <FaBed className=" text-3xl " /> +
               </button>
             ) : (
-              <div className=" flex flex-col justify-center items-start gap-5">
+              <div className=" flex flex-col w-full justify-center items-start gap-5">
                 <h2>Select A Bed</h2>
                 <div>
                   <BedSelector
@@ -460,10 +479,184 @@ export default function EmergencyPatientTable() {
   );
 
   const [openViewModal, setOpenViewModal] = React.useState(false);
-  const handleOpenViewModal = () => setOpenViewModal(true);
+  const handleOpenViewModal = (patientData) => {
+    setCurrentEmergencyPatient(patientData);
+    setOpenViewModal(true);
+  };
+
+  console.log("currentEmergencyPatient:", currentEmergencyPatient);
   const handleCloseViewModal = () => setOpenViewModal(false);
 
-  const modalViewEmergencyPatient = <div>Hello</div>;
+  const modalViewEmergencyPatient = (
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+        <h3 className="font-[500]">ID: </h3>
+        <h3>{currentEmergencyPatient?.data?.mainId}</h3>
+      </div>
+      <div className=" flex justify-center items-center">
+        <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+          <h3 className="font-[500]">Total Deposit: </h3>
+          <h3>
+            Rs.
+            {currentEmergencyPatient?.balanceData?.totalAddedBalance
+              ? currentEmergencyPatient?.balanceData?.totalAddedBalance
+              : "Not Found"}
+          </h3>
+        </div>
+        <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+          <h3 className="font-[500]">Total Expense: </h3>
+          <h3>
+            Rs.
+            {currentEmergencyPatient?.balanceData?.finalTotal
+              ? currentEmergencyPatient?.balanceData?.finalTotal
+              : "Not Found"}
+          </h3>
+        </div>
+        {/* <div
+          className={`border-b flex gap-[1rem] py-[1rem] w-full ${
+            ipdPatientNegativeBalanceAlert ? "text-red-500" : ""
+          }`}
+        >
+          <h3 className="font-[500]">Remaining Balance: </h3>
+          <h3>
+            Rs.
+            {currentEmergencyPatient?.balanceData?.remainingBalance
+              ? currentEmergencyPatient?.balanceData?.remainingBalance
+              : "Not Found"}
+          </h3>
+        </div> */}
+      </div>
+
+      <div className="flex w-full">
+        <div className="w-[25%] flex flex-col items-center">
+          <img
+            className="w-[200px] h-[200px] object-contain"
+            src={
+              currentEmergencyPatient?.patientData?.patientImage
+                ? process.env.React_App_Base_Image_Url +
+                  currentEmergencyPatient?.patientData?.patientImage
+                : placeholder
+            }
+            alt="patientImage"
+          />
+          {/* <button className="buttonFilled w-fit">Button</button> */}
+        </div>
+        <div className="w-[75%] flex flex-col gap-[10px] text-[14px]">
+          <div className="grid grid-cols-2 gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Id: </p>
+              <p>{currentEmergencyPatient?.data?.ipdPatientId}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Id: </p>
+              <p>{currentEmergencyPatient?.data?.ipdDoctorId}</p>
+            </div>
+
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Name: </p>
+              <p>{currentEmergencyPatient?.patientData?.patientName}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Name: </p>
+              <p>{currentEmergencyPatient?.doctorData?.doctorName}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Blood Group: </p>
+              <p>{currentEmergencyPatient?.patientData?.patientBloodGroup}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Phone: </p>
+              <p>{currentEmergencyPatient?.doctorData?.doctorPhone}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Gender: </p>
+              <p>{currentEmergencyPatient?.patientData?.patientGender}</p>
+            </div>
+            {/* <div className='flex'>
+          <p className='font-[600] w-[150px]'>Case No: </p>
+          <p>{currentEmergencyPatient?.data?.ipdCaseId}</p>
+        </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient DOB: </p>
+              <p>{currentEmergencyPatient?.patientData?.patientDateOfBirth}</p>
+            </div>
+            {/* <div className='flex'>
+          <p className='font-[600] w-[150px]'>OPD No: </p>
+          <p>{currentEmergencyPatient?.data?.ipdId}</p>
+        </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Phone: </p>
+              <p>{currentEmergencyPatient?.patientData?.patientPhone}</p>
+            </div>
+            {/* <div className='flex'>
+          <p className='font-[600] w-[150px]'>Blood Pressure: </p>
+          <p>{currentEmergencyPatient?.data?.ipdPatientBloodPressure}</p>
+        </div> */}
+            {/* <div className="flex">
+              <p className="font-[600] w-[150px]">Bed No: </p>
+              <p>{currentPatientBed?.bedNumber}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Bed Floor: </p>
+              <p>{currentPatientBed?.bedFloor}</p>
+            </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Height: </p>
+              <p>{currentEmergencyPatient?.patientData?.patientHeight}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Bill Status: </p>
+              <p>
+                {currentEmergencyPatient?.data?.ipdBillStatus === true
+                  ? "Paid"
+                  : "Unpaid"}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Weight: </p>
+              <p>{currentEmergencyPatient?.patientData?.patientWeight}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Bed: </p>
+              <p>{currentEmergencyPatient?.data?.ipdPatientBed}</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-[10px]">
+            <div className="flex flex-col">
+              <p className="font-[600] w-[150px]">Notes: </p>
+              <p className="text-[14px]">
+                {currentEmergencyPatient?.data?.ipdPatientNotes}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Created On: </p>
+              <p className="break-word text-[14px]">
+                {`${date(currentEmergencyPatient?.data?.createdAt)} ${time(
+                  currentEmergencyPatient?.data?.createdAt
+                )}`}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Updated On: </p>
+              <p className="break-word text-[14px]">
+                {`${date(currentEmergencyPatient?.data?.updatedAt)} ${time(
+                  currentEmergencyPatient?.data?.updatedAt
+                )}`}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* <IpdChargesShowcase
+        currentPatientBed={currentPatientBed}
+        currentEmergencyPatient={currentEmergencyPatient}
+        setIpdPatientCurrentBalance={setIpdPatientCurrentBalance}
+        setCurrentPatientBedCharges={setCurrentPatientBedCharges}
+        openViewModal={openViewModal}
+      /> */}
+    </div>
+  );
 
   const [search, setSearch] = React.useState("");
 
@@ -533,12 +726,12 @@ export default function EmergencyPatientTable() {
       label: "User Action",
       render: (list) => (
         <div className="flex gap-[10px] justify-center">
-          {/* <div
+          <div
             onClick={() => handleOpenViewModal(list)}
             className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
           >
             <MdViewKanban className="text-[25px] text-[#96999C]" />
-          </div> */}
+          </div>
           <div
             onClick={() => handleOpenUpdateModal(list)}
             className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
