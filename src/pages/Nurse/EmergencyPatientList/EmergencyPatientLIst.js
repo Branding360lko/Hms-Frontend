@@ -34,6 +34,8 @@ const NurseEmergencyTable = lazy(() =>
 //   )
 // );
 
+//Branch Check
+
 export default function EmergencyPatientLIst() {
   const dispatch = useDispatch();
   const responseGetAllPatients = useGetAllPatientsQuery();
