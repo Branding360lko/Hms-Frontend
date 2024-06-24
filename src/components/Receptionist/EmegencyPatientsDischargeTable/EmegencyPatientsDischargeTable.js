@@ -1,0 +1,314 @@
+import React, { useState } from "react";
+import { FaSearch } from "react-icons/fa";
+import PaginationComponent from "../../Pagination";
+import { RiEdit2Fill } from "react-icons/ri";
+import { Backdrop, Box, Fade, Modal, Switch } from "@mui/material";
+import { IoIosArrowForward } from "react-icons/io";
+import style from "../../../styling/styling";
+
+function EmegencyPatientsDischargeTable() {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [patientsDischargeData, setPatientsDischargeData] = useState({
+    ipdPatientId: "",
+    admittedFor: "",
+    investigationORProcedure: "",
+    conditionDuringDischarge: "",
+    date: "",
+    operations: "",
+    indications: "",
+    surgeon: "",
+    assistants: "",
+    nurse: "",
+    anaesthetist: "",
+    anaesthesia: "",
+    implantDetails: "",
+  });
+  return (
+    <div className="flex flex-col gap-[1rem] p-[1rem]">
+      <div className="flex justify-between">
+        <h2 className="border-b-[4px] border-[#3497F9]">
+          Emergency Discharge Patient List
+        </h2>
+      </div>
+      <div className="flex justify-between">
+        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+          <FaSearch className="text-[#56585A]" />
+          <input
+            className="bg-transparent outline-none"
+            placeholder="Search by patient id"
+          />
+        </div>
+      </div>
+      <div className="w-full">
+        <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+          <thead>
+            <th className="border-[1px] p-1 font-semibold">
+              <p>S_N</p>
+            </th>
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Emergency Id</p>
+            </th>
+
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Dis Checked</p>
+            </th>
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Date and time</p>
+            </th>
+
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Action</p>
+            </th>
+          </thead>
+          <tbody>
+            <tr key={""} className="border-b-[1px]">
+              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                {"index"}
+              </td>
+              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                {"Uhid"}
+              </td>
+
+              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                <Switch checked={true} />
+              </td>
+              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r"></td>
+              <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row">
+                <div className="flex gap-[10px] justify-center">
+                  <div
+                    className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] "
+                    onClick={handleOpen}
+                  >
+                    <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {/* <PaginationComponent
+          page={page}
+          rowsPerPage={rowsPerPage}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          data={filteredData}
+        /> */}
+      </div>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
+        }}
+      >
+        <Fade in={open}>
+          <Box sx={style}>
+            <h2 className="border-b-[4px] border-[#3497F9] w-fit mb-2 pb-1">
+              Discharge Patient
+            </h2>
+            <form className="w-full flex flex-col justify-start items-start gap-2">
+              <div className="w-full flex flex-col justify-start items-start gap-1">
+                <p>Admitted For:</p>
+                <textarea
+                  rows={3}
+                  placeholder="Admitted For"
+                  className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                  value={patientsDischargeData?.admittedFor}
+                  onChange={(e) =>
+                    setPatientsDischargeData({
+                      ...patientsDischargeData,
+                      admittedFor: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="w-full flex flex-col justify-start items-start gap-1">
+                <p>Investigation / Procedure:</p>
+                <textarea
+                  rows={3}
+                  placeholder="Investigation / Procedure"
+                  className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                  value={patientsDischargeData?.investigationORProcedure}
+                  onChange={(e) =>
+                    setPatientsDischargeData({
+                      ...patientsDischargeData,
+                      investigationORProcedure: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="w-full flex flex-col justify-start items-start gap-1">
+                <p>Condition During Discharge:</p>
+                <textarea
+                  rows={3}
+                  placeholder="Condition During 
+                  Discharge"
+                  className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                  value={patientsDischargeData?.conditionDuringDischarge}
+                  onChange={(e) =>
+                    setPatientsDischargeData({
+                      ...patientsDischargeData,
+                      conditionDuringDischarge: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <p className="text-[1rem] font-semibold">
+                Treatment Given in Brief:
+              </p>
+              <div className="w-full grid grid-cols-3 gap-2">
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Date:</p>
+                  <input
+                    type="date"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1 h-[3.4rem]"
+                    value={patientsDischargeData?.date}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        date: e.target.value,
+                      })
+                    }
+                  />
+                </div>{" "}
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Operation:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Operation"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.operations}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        operations: e.target.value,
+                      })
+                    }
+                  />
+                </div>{" "}
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Indications:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Indications"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.indications}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        indications: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Surgeon:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Surgeon"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.surgeon}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        surgeon: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Assistants:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Assistants"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.assistants}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        assistants: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Nurse:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Nurse"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.nurse}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        nurse: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Anaesthetist:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Anaesthetist"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.anaesthetist}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        anaesthetist: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Anaesthesia:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Anaesthesia"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.anaesthesia}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        anaesthesia: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="w-full flex flex-col justify-start items-start gap-1">
+                  <p>Implant Details:</p>
+                  <textarea
+                    rows={2}
+                    placeholder="Implant Details"
+                    className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                    value={patientsDischargeData?.implantDetails}
+                    onChange={(e) =>
+                      setPatientsDischargeData({
+                        ...patientsDischargeData,
+                        implantDetails: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <button className="flex items-center justify-center gap-2 bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md ">
+                Save <IoIosArrowForward />
+              </button>
+            </form>
+          </Box>
+        </Fade>
+      </Modal>
+    </div>
+  );
+}
+
+export default EmegencyPatientsDischargeTable;

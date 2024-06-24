@@ -8,7 +8,6 @@ import browserLinks from "../../browserlinks";
 import { AiFillDashboard } from "react-icons/ai";
 import { FaUserDoctor } from "react-icons/fa6";
 import { FaUser } from "react-icons/fa";
-import { FaEdit } from "react-icons/fa";
 
 import { IoIosArrowDown } from "react-icons/io";
 
@@ -62,6 +61,11 @@ export default function SideNav({ activePage }) {
         {
           icon: <VscReferences />,
           name: browserLinks?.receptionist?.internalPages?.emergency,
+        },
+        {
+          icon: <VscReferences />,
+          name: browserLinks?.receptionist?.internalPages
+            ?.emergencyPatienDischarge,
         },
       ],
     },

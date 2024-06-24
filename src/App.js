@@ -199,6 +199,11 @@ const ReferPatientsNurse = lazy(() =>
 const DischargePatientsNurse = lazy(() =>
   import("./pages/Receptionist/DischargePatients/DischargePatients")
 );
+const EmergencyDischargePatientsNurse = lazy(() =>
+  import(
+    "./pages/Receptionist/EmegencyPatientsDischarge/EmegencyPatientsDischarge"
+  )
+);
 const EmergencyPatientsNurse = lazy(() =>
   import("./pages/Receptionist/EmergencyPatients/EmergencyPatients")
 );
@@ -1889,6 +1894,26 @@ function App() {
                         }
                       >
                         <DischargePatientsNurse />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.receptionist.category
+                    }/${browserLinks?.receptionist?.internalPages?.emergencyPatienDischarge
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <EmergencyDischargePatientsNurse />
                       </Suspense>
                     }
                   />
