@@ -23,6 +23,9 @@ import {
   getAllDoctorsProfessionalDetails,
 } from "../../../Store/Slices/DoctorSlice";
 
+import { useGetAllTestOfPatientQuery } from "../../../Store/Services/TestPatient";
+import { getAllTestOfPatient } from "../../../Store/Slices/TestPatientSlice";
+
 const NursePanelTableAndForm = lazy(() =>
   import("../../../components/Nurse/TestPatientTable/TestPatientTable")
 );
@@ -34,6 +37,8 @@ export default function TestPatient() {
   const responseGetAllDoctorProfessionalDetails =
     useGetAllDoctorProfessionalDetailsQuery();
   const responseGetAllPatients = useGetAllPatientsQuery();
+  const responseGetAllTestPatient = useGetAllTestOfPatientQuery();
+  console.log(responseGetAllTestPatient);
   const { OPDPatients, createOPDPatient, updateOPDPatient, deleteOPDPatient } =
     useSelector((state) => state.OPDPatientState);
   const {
@@ -46,6 +51,14 @@ export default function TestPatient() {
   const { patients, patientCreate, patientUpdate, patientDelete } = useSelector(
     (state) => state.PatientState
   );
+  const {
+    testOfPatients,
+    createTestOfPatients,
+    updateTestOfPatients,
+    deleteTestOfPatients,
+  } = useSelector((state) => state.TestPatientState);
+
+  // console.log(testOfPatients);
 
   const apiRefetch = async () => {
     // OPD Patients
@@ -112,6 +125,21 @@ export default function TestPatient() {
       dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
     //------------------
+    // Test Patients
+    const responseGetAllTestPatientsRefetch =
+      await responseGetAllTestPatient.refetch();
+    if (responseGetAllTestPatientsRefetch.isSuccess) {
+      const reverseArrayGetAllTestPatients =
+        responseGetAllTestPatientsRefetch?.data?.map(
+          responseGetAllTestPatientsRefetch?.data?.pop,
+          [...responseGetAllTestPatientsRefetch?.data]
+        );
+      const filteredArrayGetAllTestPatients =
+        reverseArrayGetAllTestPatients?.filter(
+          (data) => data.isDeleted === false && data
+        );
+      dispatch(getAllTestOfPatient(filteredArrayGetAllTestPatients));
+    }
   };
   useEffect(() => {
     apiRefetch();
@@ -171,6 +199,20 @@ export default function TestPatient() {
 
       dispatch(getAllPatients(filteredArrayGetAllPatients));
     }
+    // Test Patients
+    if (responseGetAllTestPatient.isSuccess) {
+      const reverseArrayGetAllTestPatient =
+        responseGetAllTestPatient?.data?.map(
+          responseGetAllTestPatient?.data?.pop,
+          [...responseGetAllTestPatient?.data]
+        );
+      const filteredArrayGetAllTestPatient =
+        reverseArrayGetAllTestPatient?.filter(
+          (data) => data.isDeleted === false && data
+        );
+
+      dispatch(getAllTestOfPatient(filteredArrayGetAllTestPatient));
+    }
   }, [
     createOPDPatient,
     updateOPDPatient,
@@ -185,13 +227,18 @@ export default function TestPatient() {
     patientUpdate,
     patientDelete,
     responseGetAllPatients.isSuccess,
+    createTestOfPatients,
+    updateTestOfPatients,
+    deleteTestOfPatients,
+    responseGetAllTestPatient.isSuccess,
   ]);
   return (
     <>
       {responseGetAllOPDPatients.isLoading &&
       responseGetAllPatients.isLoading &&
       responseGetAllDoctorProfessionalDetails.isLoading &&
-      responseGetAllDoctors.isLoading ? (
+      responseGetAllDoctors.isLoading &&
+      responseGetAllTestPatient.isLoading ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>
