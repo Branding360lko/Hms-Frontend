@@ -8,7 +8,6 @@ import style from "../../../styling/styling";
 import { useSelector } from "react-redux";
 import {
   addNurseDetailsForEmergencyPatientsDischargeData,
-  addNurseDetailsForPatientsDischargeData,
   getAllEmergencyDischargePatientsListData,
 } from "../NurseApi";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
