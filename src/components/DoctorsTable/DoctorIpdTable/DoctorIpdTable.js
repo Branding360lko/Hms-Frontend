@@ -75,9 +75,7 @@ function DoctorIpdTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const { adminUniqueId, adminLoggedInData } = useSelector(
-    (state) => state.AdminState
-  );
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const { medicineData } = useSelector((state) => state.MedicineData);
   const { testData } = useSelector((state) => state.TestData);
   const [medicine, setMedicine] = useState([]);

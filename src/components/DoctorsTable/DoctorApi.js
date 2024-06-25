@@ -130,10 +130,43 @@ export const addDoctorDetailsForPatientsDischargeData = async (
     throw new Error(error);
   }
 };
+export const addDoctorDetailsForEmergencyPatientsDischargeData = async (
+  Id,
+  formData
+) => {
+  try {
+    const response = await axios.put(
+      `${
+        process.env.React_App_Base_url +
+        "EmergencyPatientDischarge-DoctorDischargeDetails-PUT/" +
+        Id
+      }`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const getAllIpdPatientsData = async () => {
   try {
     const response = await axios.get(
       `${process.env.React_App_Base_url + "IPDPatient-GET-ALL"}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getDoctorDashboardData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "doctor-dashboard-details/" + Id}`
     );
     return response;
   } catch (error) {

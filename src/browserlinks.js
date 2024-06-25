@@ -87,6 +87,7 @@ const browserLinks = {
       OpdPatients: "OpdPatients",
       EmergencyPatients: "Emergenc Patients",
       DischargePatients: "Discharge Patients",
+      EmergencyDischargePatients: "Emergency Discharge Patients",
       ReferralPatients: "Referral Patients",
     },
   },

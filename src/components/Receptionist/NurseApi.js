@@ -42,12 +42,49 @@ export const getAllDischargePatientsListData = async () => {
     throw new Error(error);
   }
 };
+export const getAllEmergencyDischargePatientsListData = async () => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-emergency-discharge-patients-request-list"
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const addNurseDetailsForPatientsDischargeData = async (Id, formData) => {
   try {
     const response = await axios.put(
       `${
         process.env.React_App_Base_url +
         "IPDPatientDischarge-NurseDischargeDetails-PUT/" +
+        Id
+      }`,
+
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const addNurseDetailsForEmergencyPatientsDischargeData = async (
+  Id,
+  formData
+) => {
+  try {
+    const response = await axios.put(
+      `${
+        process.env.React_App_Base_url +
+        "EmergencyPatientDischarge-NurseDischargeDetails-PUT/" +
         Id
       }`,
 

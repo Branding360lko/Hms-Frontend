@@ -47,9 +47,7 @@ function DischargePatientsTable() {
     setOpenSnackBarWarning(true);
   };
   // ----------------------------
-  const { adminUniqueId, adminLoggedInData } = useSelector(
-    (state) => state.AdminState
-  );
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [allDischargeData, setAllDischargeData] = useState([]);
   const [patientsDischargeData, setPatientsDischargeData] = useState({
     ipdPatientId: "",
@@ -167,9 +165,7 @@ function DischargePatientsTable() {
   useEffect(() => {
     getAllDischargePatientsListDataHandle();
   }, []);
-  useEffect(() => {
-    console.log(patientsDischargeData);
-  }, [patientsDischargeData]);
+
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">

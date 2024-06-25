@@ -253,6 +253,11 @@ const Doctors = lazy(() => import("./pages/Doctors/DoctorDashboard/Doctors"));
 const DoctorsDischarge = lazy(() =>
   import("./pages/Doctors/DoctorDischargePatients/DoctorDischargePatients")
 );
+const DoctorsEmergencyDischarge = lazy(() =>
+  import(
+    "./pages/Doctors/EmergencyPatientsDischarge/EmergencyPatientsDischarge"
+  )
+);
 const DoctorsRefer = lazy(() =>
   import("./pages/Doctors/DoctorReferPatients/DoctorReferPatients")
 );
@@ -1682,6 +1687,26 @@ function App() {
                         }
                       >
                         <DoctorsDischarge />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.Doctor.category
+                    }/${browserLinks?.Doctor?.internalPages?.EmergencyDischargePatients?.split(
+                      " "
+                    ).join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <DoctorsEmergencyDischarge />
                       </Suspense>
                     }
                   />

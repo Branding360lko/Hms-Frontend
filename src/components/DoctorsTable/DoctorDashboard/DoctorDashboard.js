@@ -3,16 +3,24 @@ import { BsPeopleFill } from "react-icons/bs";
 import { FaFileAlt } from "react-icons/fa";
 import { RiMedicineBottleFill } from "react-icons/ri";
 import DashBoardCard from "../../../utils/DashBoardCard/DashBoardCard";
-import { getAllOpdPatientsData } from "../DoctorApi";
+import { getAllOpdPatientsData, getDoctorDashboardData } from "../DoctorApi";
 import { useDispatch, useSelector } from "react-redux";
 import { getMedicineDataHandle } from "../../../Store/Slices/Medicine";
 import { getTestDataHandle } from "../../../Store/Slices/Test";
 
 function DoctorDashboard() {
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
+  const [dashboardData, setDashboardData] = useState();
   const dispatch = useDispatch();
+  const getDoctorDashboardDataHandle = async (Id) => {
+    const result = await getDoctorDashboardData(Id);
+    console.log(result, "result");
+    setDashboardData(result && result?.data);
+  };
   useEffect(() => {
     dispatch(getMedicineDataHandle());
     dispatch(getTestDataHandle());
+    getDoctorDashboardDataHandle(adminLoggedInData?.adminUniqueId);
   }, []);
   return (
     <div className="superadmin-main-right_dashboard flex flex-col w-full p-[1rem] overflow-y-scroll gap-[2rem]">
@@ -22,28 +30,32 @@ function DoctorDashboard() {
           <DashBoardCard
             bg={"#FFF59878"}
             title={"Today's Appointment"}
-            appointmentNumber="100"
+            appointmentNumber={
+              dashboardData?.ipdPatientsDetails +
+              dashboardData?.opdPatientsDetails +
+              dashboardData?.emergencyPatientsDetails
+            }
           />
           <DashBoardCard
             bg={"#CCA4FF6B"}
             title={"Today IPD"}
-            appointmentNumber="60"
+            appointmentNumber={dashboardData?.ipdPatientsDetails}
           />
           <DashBoardCard
             bg={"#A4FFBD66"}
             title={"Today OPD"}
-            appointmentNumber="30"
+            appointmentNumber={dashboardData?.opdPatientsDetails}
           />
           <DashBoardCard
             bg={"#A4D2FF66"}
             title={"Today Emergency"}
-            appointmentNumber="10"
+            appointmentNumber={dashboardData?.emergencyPatientsDetails}
           />
-          <DashBoardCard
+          {/* <DashBoardCard
             bg={"#FFF59878"}
             title={"Today Total Patients Checked "}
             appointmentNumber="60"
-          />
+          /> */}
         </div>
       </div>
     </div>

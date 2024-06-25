@@ -1,17 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import PaginationComponent from "../../Pagination";
 import { RiEdit2Fill } from "react-icons/ri";
 import { Backdrop, Box, Fade, Modal, Switch } from "@mui/material";
 import { IoIosArrowForward } from "react-icons/io";
 import style from "../../../styling/styling";
+import { useSelector } from "react-redux";
+import {
+  addNurseDetailsForEmergencyPatientsDischargeData,
+  addNurseDetailsForPatientsDischargeData,
+  getAllEmergencyDischargePatientsListData,
+} from "../NurseApi";
+import { date, time } from "../../../utils/DateAndTimeConvertor";
+import Snackbars from "../../SnackBar";
 
 function EmegencyPatientsDischargeTable() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  // Snackbar--------------------
+  // ----Succcess
+  const [openSnackbarSuccess, setOpenSnackBarSuccess] = React.useState(false);
+  const [snackBarMessageSuccess, setSnackBarSuccessMessage] =
+    React.useState("");
+
+  const handleClickSnackbarSuccess = () => {
+    setOpenSnackBarSuccess(true);
+  };
+  // ----Warning
+  const [openSnackbarWarning, setOpenSnackBarWarning] = React.useState(false);
+  const [snackBarMessageWarning, setSnackBarSuccessWarning] =
+    React.useState("");
+
+  const handleClickSnackbarWarning = () => {
+    setOpenSnackBarWarning(true);
+  };
+  // ----------------------------
+  const [filteredData, setFilteredData] = React.useState([]);
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
+  const [allDischargeData, setAllDischargeData] = useState([]);
   const [patientsDischargeData, setPatientsDischargeData] = useState({
-    ipdPatientId: "",
+    emergencyPatientId: "",
     admittedFor: "",
     investigationORProcedure: "",
     conditionDuringDischarge: "",
@@ -25,6 +54,84 @@ function EmegencyPatientsDischargeTable() {
     anaesthesia: "",
     implantDetails: "",
   });
+  const getAllEmergencyDischargePatientsListDataHandle = async () => {
+    const result = await getAllEmergencyDischargePatientsListData();
+
+    setAllDischargeData(result?.data?.data?.reverse());
+    setFilteredData(result?.data?.data?.reverse());
+    console.log(result, "result");
+  };
+  const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("nurseId", "");
+    formData.append("admittedFor", patientsDischargeData?.admittedFor);
+    formData.append(
+      "investigationORProcedure",
+      patientsDischargeData?.investigationORProcedure
+    );
+    formData.append(
+      "conditionDuringDischarge",
+      patientsDischargeData?.conditionDuringDischarge
+    );
+    formData.append("date", patientsDischargeData?.date);
+    formData.append("operations", patientsDischargeData?.operations);
+    formData.append("indications", patientsDischargeData?.indications);
+    formData.append("surgeon", patientsDischargeData?.surgeon);
+    formData.append("assistants", patientsDischargeData?.assistants);
+    formData.append("nurse", patientsDischargeData?.nurse);
+    formData.append("anaesthetist", patientsDischargeData?.anaesthetist);
+    formData.append("anaesthesia", patientsDischargeData?.anaesthesia);
+    formData.append("implantDetails", patientsDischargeData?.implantDetails);
+    const result = await addNurseDetailsForEmergencyPatientsDischargeData(
+      patientsDischargeData?.emergencyPatientId,
+      formData
+    );
+    if (result?.status === 200) {
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(result?.data?.message);
+      handleClose();
+      setPatientsDischargeData({
+        emergencyPatientId: "",
+        admittedFor: "",
+        investigationORProcedure: "",
+        conditionDuringDischarge: "",
+        date: "",
+        operations: "",
+        indications: "",
+        surgeon: "",
+        assistants: "",
+        nurse: "",
+        anaesthetist: "",
+        anaesthesia: "",
+        implantDetails: "",
+      });
+    }
+    if (result?.status !== 200) {
+      getAllEmergencyDischargePatientsListDataHandle();
+      handleClickSnackbarWarning();
+      setSnackBarSuccessWarning(result?.data?.message);
+      handleClose();
+      setPatientsDischargeData({
+        emergencyPatientId: "",
+        admittedFor: "",
+        investigationORProcedure: "",
+        conditionDuringDischarge: "",
+        date: "",
+        operations: "",
+        indications: "",
+        surgeon: "",
+        assistants: "",
+        nurse: "",
+        anaesthetist: "",
+        anaesthesia: "",
+        implantDetails: "",
+      });
+    }
+  };
+  useEffect(() => {
+    getAllEmergencyDischargePatientsListDataHandle();
+  }, []);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -63,29 +170,51 @@ function EmegencyPatientsDischargeTable() {
             </th>
           </thead>
           <tbody>
-            <tr key={""} className="border-b-[1px]">
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                {"index"}
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                {"Uhid"}
-              </td>
+            {filteredData?.map((item, index) => (
+              <tr key={index} className="border-b-[1px]">
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {index + 1}
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {item?.mainId}
+                </td>
 
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                <Switch checked={true} />
-              </td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r"></td>
-              <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row">
-                <div className="flex gap-[10px] justify-center">
-                  <div
-                    className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] "
-                    onClick={handleOpen}
-                  >
-                    <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  <Switch
+                    checked={
+                      item?.emergencyPatientNurseConfirmation === true
+                        ? true
+                        : false
+                    }
+                  />
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {date(item?.updatedAt)}-{time(item?.updatedAt)}
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row">
+                  <div className="flex gap-[10px] justify-center">
+                    {item?.emergencyPatientNurseConfirmation === false ? (
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen(),
+                          setPatientsDischargeData({
+                            ...patientsDischargeData,
+                            emergencyPatientId: item?.mainId,
+                          }),
+                        ]}
+                      >
+                        <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                      </div>
+                    ) : (
+                      <div className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-not-allowed">
+                        <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
         {/* <PaginationComponent
@@ -114,7 +243,10 @@ function EmegencyPatientsDischargeTable() {
             <h2 className="border-b-[4px] border-[#3497F9] w-fit mb-2 pb-1">
               Discharge Patient
             </h2>
-            <form className="w-full flex flex-col justify-start items-start gap-2">
+            <form
+              className="w-full flex flex-col justify-start items-start gap-2"
+              onSubmit={addNurseDetailsForPatientsDischargeDataHandle}
+            >
               <div className="w-full flex flex-col justify-start items-start gap-1">
                 <p>Admitted For:</p>
                 <textarea
@@ -307,6 +439,20 @@ function EmegencyPatientsDischargeTable() {
           </Box>
         </Fade>
       </Modal>
+      {/* Success Snackbar */}
+      <Snackbars
+        open={openSnackbarSuccess}
+        setOpen={setOpenSnackBarSuccess}
+        severity="success"
+        message={snackBarMessageSuccess}
+      />
+      {/* Warning Snackbar */}
+      <Snackbars
+        open={openSnackbarWarning}
+        setOpen={setOpenSnackBarWarning}
+        severity="warning"
+        message={snackBarMessageWarning}
+      />
     </div>
   );
 }

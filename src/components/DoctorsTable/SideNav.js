@@ -41,6 +41,10 @@ export default function SideNav({ activePage }) {
       name: browserLinks.Doctor.internalPages.EmergencyPatients,
     },
     {
+      icon: <MdEmergency />,
+      name: browserLinks.Doctor.internalPages.EmergencyDischargePatients,
+    },
+    {
       icon: <GiBed />,
       name: browserLinks.Doctor.internalPages.DischargePatients,
     },
