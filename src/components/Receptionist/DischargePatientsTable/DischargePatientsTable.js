@@ -7,6 +7,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import {
   addNurseDetailsForPatientsDischargeData,
   getAllDischargePatientsListData,
+  getAllNurseDischargePatientsListData,
 } from "../NurseApi";
 import Snackbars from "../../SnackBar";
 import PaginationComponent from "../../Pagination";
@@ -65,19 +66,20 @@ function DischargePatientsTable() {
     implantDetails: "",
   });
   const getAllDischargePatientsListDataHandle = async () => {
-    const result = await getAllDischargePatientsListData();
-    if (result) {
-      const data = result?.data?.filter((item) => {
-        return (
-          item?.ipdNurseId === adminLoggedInData?.adminUniqueId &&
-          item?.ipdPatientDoctorRequestForDischarge === true &&
-          item?.ipdPatientNurseRequestForDischarge === true
-        );
-      });
-      setAllDischargeData(data?.reverse());
-      setFilteredData(data);
-      console.log(result, data);
-    }
+    const result = await getAllNurseDischargePatientsListData(
+      adminLoggedInData?.adminUniqueId
+    );
+    // if (result) {
+    //   const data = result?.data?.filter((item) => {
+    //     return (
+    //       item?.ipdNurseId === adminLoggedInData?.adminUniqueId &&
+    //       item?.ipdPatientDoctorRequestForDischarge === true &&
+    //       item?.ipdPatientNurseRequestForDischarge === true
+    //     );
+    //   });
+    setAllDischargeData(result?.data?.data?.reverse());
+    setFilteredData(result?.data?.data);
+    console.log(result);
   };
   const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();

@@ -9,7 +9,7 @@ function DashBoardCard({ bg, title, appointmentNumber }) {
     >
       <RiMedicineBottleFill className="text-[35px]" />
       <div className="flex flex-col">
-        <p>{appointmentNumber ? appointmentNumber : "100"}</p>
+        <p>{appointmentNumber}</p>
         <p className="text-[16px] font-semibold">
           {title ? title : "appointment"}
         </p>

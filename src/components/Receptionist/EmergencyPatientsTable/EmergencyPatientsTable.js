@@ -5,6 +5,7 @@ import {
   addDailyDoctorVisitIpdData,
   getAllEmergencyPatientsData,
   getAllEmergencyPatientsListData,
+  getAllEmergencyPatientsNurseData,
   getOneEmergencyPatientsDoctorVisitData,
 } from "../NurseApi";
 import img from "../../../assets/20180125_001_1_.jpg";
@@ -219,6 +220,9 @@ function EmergencyPatientsTable() {
     setViewPatientsData(result && result?.data?.data);
     console.log(result, "ghfgfh");
   };
+  const { adminUniqueId, adminLoggedInData } = useSelector(
+    (state) => state.AdminState
+  );
   const [allEmergencyPatients, setAllEmergencyPatients] = useState([]);
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeTestIndex, setActiveTestIndex] = useState(null);
@@ -246,14 +250,16 @@ function EmergencyPatientsTable() {
   }, []);
 
   const getAllEmergencyPatientsDataHandle = async () => {
-    const result = await getAllEmergencyPatientsData();
+    const result = await getAllEmergencyPatientsNurseData(
+      adminLoggedInData?.adminUniqueId
+    );
     setAllEmergencyPatients(result && result?.data?.data);
     setFilteredData(result && result?.data?.data?.reverse());
-    console.log(result, "dasfsgZ");
   };
   const getAllEmergencyPatientsListDataHandle = async () => {
     const result = await getAllEmergencyPatientsListData();
     setAllEmergencyPatientsListData(result && result?.data?.data);
+    console.log(result, "result");
   };
   const searchHandle = () => {
     const filter = allEmergencyPatients?.filter((item) => {

@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import {
   addNurseDetailsForEmergencyPatientsDischargeData,
   getAllEmergencyDischargePatientsListData,
+  getAllEmergencyDischargePatientsNurseListData,
 } from "../NurseApi";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
 import Snackbars from "../../SnackBar";
@@ -54,11 +55,12 @@ function EmegencyPatientsDischargeTable() {
     implantDetails: "",
   });
   const getAllEmergencyDischargePatientsListDataHandle = async () => {
-    const result = await getAllEmergencyDischargePatientsListData();
+    const result = await getAllEmergencyDischargePatientsNurseListData(
+      adminLoggedInData?.adminUniqueId
+    );
 
     setAllDischargeData(result?.data?.data?.reverse());
     setFilteredData(result?.data?.data?.reverse());
-    console.log(result, "result");
   };
   const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();

@@ -1,25 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { BsPeopleFill } from "react-icons/bs";
-import { FaFileAlt } from "react-icons/fa";
-import { RiMedicineBottleFill } from "react-icons/ri";
 import DashBoardCard from "../../../utils/DashBoardCard/DashBoardCard";
-import { getAllOpdPatientsData, getDoctorDashboardData } from "../DoctorApi";
-import { useDispatch, useSelector } from "react-redux";
-import { getMedicineDataHandle } from "../../../Store/Slices/Medicine";
-import { getTestDataHandle } from "../../../Store/Slices/Test";
+import { useSelector } from "react-redux";
+import { getNurseDashboardData } from "../../DoctorsTable/DoctorApi";
 
-function DoctorDashboard() {
+function DashboardTable() {
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [dashboardData, setDashboardData] = useState();
-  const dispatch = useDispatch();
-  const getDoctorDashboardDataHandle = async (Id) => {
-    const result = await getDoctorDashboardData(Id);
+  const getNurseDashboardDataHandle = async (Id) => {
+    const result = await getNurseDashboardData(Id);
+    console.log(result, "result");
     setDashboardData(result && result?.data);
   };
   useEffect(() => {
-    dispatch(getMedicineDataHandle());
-    dispatch(getTestDataHandle());
-    getDoctorDashboardDataHandle(adminLoggedInData?.adminUniqueId);
+    getNurseDashboardDataHandle(adminLoggedInData?.adminUniqueId);
   }, []);
   return (
     <div className="superadmin-main-right_dashboard flex flex-col w-full p-[1rem] overflow-y-scroll gap-[2rem]">
@@ -30,8 +23,9 @@ function DoctorDashboard() {
             bg={"#FFF59878"}
             title={"Today's Appointment"}
             appointmentNumber={
+              dashboardData?.ipdPatientsDischargeDetails +
               dashboardData?.ipdPatientsDetails +
-              dashboardData?.opdPatientsDetails +
+              dashboardData?.emergencyPatientsDischargeDetails +
               dashboardData?.emergencyPatientsDetails
             }
           />
@@ -40,25 +34,26 @@ function DoctorDashboard() {
             title={"Today IPD"}
             appointmentNumber={dashboardData?.ipdPatientsDetails}
           />
-          <DashBoardCard
-            bg={"#A4FFBD66"}
-            title={"Today OPD"}
-            appointmentNumber={dashboardData?.opdPatientsDetails}
-          />
+
           <DashBoardCard
             bg={"#A4D2FF66"}
             title={"Today Emergency"}
             appointmentNumber={dashboardData?.emergencyPatientsDetails}
           />
-          {/* <DashBoardCard
+          <DashBoardCard
             bg={"#FFF59878"}
-            title={"Today Total Patients Checked "}
-            appointmentNumber="60"
-          /> */}
+            title={"Today Ipd Discharge Patients"}
+            appointmentNumber={dashboardData?.ipdPatientsDischargeDetails}
+          />
+          <DashBoardCard
+            bg={"#A4FFBD66"}
+            title={"Today Emergency Discharge Patients"}
+            appointmentNumber={dashboardData?.emergencyPatientsDischargeDetails}
+          />
         </div>
       </div>
     </div>
   );
 }
 
-export default DoctorDashboard;
+export default DashboardTable;

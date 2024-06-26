@@ -176,7 +176,7 @@ const NursePanelTestPatient = lazy(() =>
 );
 // Nurse Panel
 const ReceptionistPanelDashboard = lazy(() =>
-  import("./pages/Receptionist/Dashboard")
+  import("./pages/Receptionist/Dashboard/Dashboard")
 );
 const ReceptionistPanelIPDPatientList = lazy(() =>
   import("./pages/Receptionist/IPDPatientList/IPDPatientList")

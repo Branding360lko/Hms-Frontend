@@ -12,6 +12,7 @@ import {
   addDailyDoctorVisitIpdData,
   getAllDoctorVisitPatientsListData,
   getDoctorVisitListWithIpdPatientsData,
+  getDoctorVisitListWithIpdPatientsNurseData,
   getIpdPatientsDetailsData,
   getOnePatientsDoctorVisitData,
 } from "../NurseApi";
@@ -209,7 +210,6 @@ export default function IPDDoctorVisitTable() {
   };
   const addSelectedTestDataHandle = (index, item) => {
     let oldValue = [...selectedTest];
-    console.log(item);
     oldValue[index] = {
       ...oldValue[index],
       name: item?.Name,
@@ -237,16 +237,11 @@ export default function IPDDoctorVisitTable() {
   };
 
   const getDoctorVisitListWithIpdPatientsDataHandle = async () => {
-    const result = await getDoctorVisitListWithIpdPatientsData();
-    if (result?.status === 200) {
-      const filter = result?.data?.data?.filter(
-        (item) => item?.IpdPatientNurseId === adminLoggedInData?.adminUniqueId
-      );
-      setDoctorWithPatients(filter);
-      setFilteredData(filter?.reverse());
-      console.log(filter, "filter", adminLoggedInData?.adminUniqueId);
-    }
-    console.log(result, "docor all data   ");
+    const result = await getDoctorVisitListWithIpdPatientsNurseData(
+      adminLoggedInData?.adminUniqueId
+    );
+    setDoctorWithPatients(result?.data?.data);
+    setFilteredData(result?.data?.data?.reverse());
   };
   const addDailyDoctorVisitIpdDataHandle = async (e) => {
     e.preventDefault();

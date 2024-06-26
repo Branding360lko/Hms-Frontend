@@ -69,15 +69,15 @@ export default function Dashboard() {
           <LinearProgress />
         </Box>
       ) : (
-        <div className='superadmin-main flex flex-row w-full h-screen'>
-          <div className='superadmin-main-left w-[20%] shadow-lg'>
+        <div className="superadmin-main flex flex-row w-full h-screen">
+          <div className="superadmin-main-left w-[20%] shadow-lg">
             <SideNav
               activePage={`${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.dashboard}`}
             />
           </div>
-          <div className='superadmin-main-right flex flex-col w-[80%]'>
+          <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
-            <div className='superadmin-main-right_dashboard w-full overflow-y-scroll'>
+            <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
               <DashboardTable />
             </div>
           </div>

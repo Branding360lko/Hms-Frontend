@@ -32,10 +32,38 @@ export const getDoctorVisitListWithIpdPatientsData = async () => {
     throw new Error(error);
   }
 };
+export const getDoctorVisitListWithIpdPatientsNurseData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-each-doctor-with-patients-nurse/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const getAllDischargePatientsListData = async () => {
   try {
     const response = await axios.get(
       `${process.env.React_App_Base_url + "IPDPatient-GET-ALL"}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getAllNurseDischargePatientsListData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-all-ipd-patients-discharge-nurse/" +
+        Id
+      }`
     );
     return response;
   } catch (error) {
@@ -48,6 +76,20 @@ export const getAllEmergencyDischargePatientsListData = async () => {
       `${
         process.env.React_App_Base_url +
         "get-emergency-discharge-patients-request-list"
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getAllEmergencyDischargePatientsNurseListData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-emergency-discharge-patients-request-list-nurse/" +
+        Id
       }`
     );
     return response;
@@ -157,12 +199,36 @@ export const getAllIpdPatientsAssignedData = async () => {
     throw new Error(error);
   }
 };
+export const getAllIpdPatientsAssignedNurseData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "IPDPatient-GET-ALL-Nurse/" + Id}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const getAllEmergencyPatientsData = async () => {
   try {
     const response = await axios.get(
       `${
         process.env.React_App_Base_url +
         "/get-each-doctor-with-patients-emergency"
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getAllEmergencyPatientsNurseData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "/get-each-doctor-with-patients-emergency-nurse/" +
+        Id
       }`
     );
     return response;

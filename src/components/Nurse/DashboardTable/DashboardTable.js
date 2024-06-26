@@ -87,9 +87,9 @@ export default function DashboardTable() {
   };
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>Patients</h2>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">Patients</h2>
         </div>
 
         <Table data={mappedPatientData} config={config} keyFn={keyFn} />

@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { GetAllDoctorsHandle } from "../../../Store/Slices/DoctorSlice";
 import {
   getAllIpdPatientsAssignedData,
+  getAllIpdPatientsAssignedNurseData,
   getIpdPatientsFullDetailsData,
 } from "../NurseApi";
 import { CiViewList } from "react-icons/ci";
@@ -282,13 +283,12 @@ export default function IPDPatientList() {
   };
   const [allIpdPatientsData, setAllIpdPatientsData] = React.useState([]);
   const getAllIpdPatientsAssignedDataHandle = async () => {
-    const result = await getAllIpdPatientsAssignedData();
-    const filter = result?.data?.filter(
-      (item) => item?.ipdNurseId === adminLoggedInData?.adminUniqueId
+    const result = await getAllIpdPatientsAssignedNurseData(
+      adminLoggedInData?.adminUniqueId
     );
-    setAllIpdPatientsData(filter && filter?.reverse());
-    setFilteredData(filter && filter);
-    console.log(filter, "filter");
+
+    setAllIpdPatientsData(result && result?.data?.data?.reverse());
+    setFilteredData(result?.data?.data?.reverse());
   };
   const getIpdPatientsFullDetailsDataHandle = async (Id) => {
     const result = await getIpdPatientsFullDetailsData(Id);

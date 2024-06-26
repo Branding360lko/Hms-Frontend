@@ -173,3 +173,13 @@ export const getDoctorDashboardData = async (Id) => {
     throw new Error(error);
   }
 };
+export const getNurseDashboardData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "nurse-dashboard-details/" + Id}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
