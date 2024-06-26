@@ -1,0 +1,11 @@
+@media print {
+  .print-show {
+    display: block;
+  }
+  .breakPage {
+    page-break-after: always;
+  }
+}
+.print-hide {
+  display: none;
+}
