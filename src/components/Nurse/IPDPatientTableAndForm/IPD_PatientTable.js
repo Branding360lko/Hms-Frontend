@@ -928,6 +928,10 @@ export default function IPD_PatientTable() {
       value: data?.data?.ipdDoctorId,
       label: data?.data?.ipdDoctorId,
     });
+    setIpdNurseId({
+      value: data?.data?.ipdNurseId,
+      label: data?.data?.ipdNurseId,
+    });
     setIpdDespositAmount(data?.data?.ipdDepositAmount);
     setIpdPaymentMode(data?.data?.ipdPaymentMode);
     setIpdWardNo(data?.data?.ipdWardNo);
@@ -954,6 +958,7 @@ export default function IPD_PatientTable() {
     setIpdPatientId({ value: "", label: "" });
 
     setIpdDoctorId({ value: "", label: "" });
+    setIpdNurseId({ value: "", label: "" });
     setIpdDespositAmount();
     setIpdPaymentMode("UPI");
     setIpdWardNo();
@@ -989,6 +994,7 @@ export default function IPD_PatientTable() {
     const submitData = {
       ipdPatientId: ipdPatientId?.value,
       ipdDoctorId: ipdDoctorId?.value,
+      ipdNurseId: ipdNurseId?.value,
       ipdDepositAmount: ipdDepositAmount,
       ipdPaymentMode: ipdPaymentMode,
       // ipdWardNo: ipdWardNo,
@@ -1060,6 +1066,15 @@ export default function IPD_PatientTable() {
               options={renderedDoctorIDForDropdown}
               onChange={setIpdDoctorId}
               defaultValue={ipdDoctorId}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Nurse Id *</label>
+            <Select
+              required
+              options={renderedNursesIDForDropdown}
+              onChange={setIpdNurseId}
+              defaultValue={ipdNurseId}
             />
           </div>
 
@@ -1145,11 +1160,11 @@ export default function IPD_PatientTable() {
             />
           </div> */}
         </div>
-        <BedSelector
+        {/* <BedSelector
           beds={beds}
           handleBedSelect={handleUpdatedBedSelect}
           ipdPtientEdit={true}
-        />
+        /> */}
 
         <div className="flex flex-col gap-[6px]">
           <label className="text-[14px]">Notes</label>

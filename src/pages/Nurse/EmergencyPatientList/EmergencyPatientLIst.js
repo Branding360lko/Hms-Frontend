@@ -15,6 +15,10 @@ import { getAllDoctors } from "../../../Store/Slices/DoctorSlice";
 
 import { useGetAllEmergencyPatientQuery } from "../../../Store/Services/EmergencyPatientService";
 import { getAllEmergencyPatient } from "../../../Store/Slices/EmergencyPatientSlice";
+import { useGetAllNursesQuery } from "../../../Store/Services/NurseService";
+import { getAllNurses } from "../../../Store/Slices/NurseSlice";
+
+
 import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
 import { getAllBeds } from "../../../Store/Slices/BedSlice";
 
@@ -43,6 +47,9 @@ export default function EmergencyPatientLIst() {
   const responseGetAllEmergencyPatient = useGetAllEmergencyPatientQuery();
   const responseGetAllBeds = useGetAllBedsQuery();
 
+  const responseGetAllNurses = useGetAllNursesQuery();
+
+
   const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
     (state) => state.BedState
   );
@@ -67,7 +74,24 @@ export default function EmergencyPatientLIst() {
     deleteDoctor,
   } = useSelector((state) => state.DoctorState);
 
+  const { nurses, createNurse, updateNurse, deleteNurse } = useSelector(
+    (state) => state.NurseState
+  );
+
   const apiRefetch = async () => {
+        // Nurses
+        const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
+        if (responseGetAllNursesRefetch.isSuccess) {
+          const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
+            responseGetAllNursesRefetch?.data?.pop,
+            [...responseGetAllNursesRefetch?.data]
+          );
+          const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+            (data) => data.isDeleted === false && data
+          );
+          dispatch(getAllNurses(filteredArrayGetAllNurses));
+        }
+
     // Patients
     const responseGetAllPatientsRefetch =
       await responseGetAllPatients.refetch();
@@ -128,6 +152,21 @@ export default function EmergencyPatientLIst() {
   };
   useEffect(() => {
     apiRefetch();
+    
+        // Nurses
+
+        if (responseGetAllNurses.isSuccess) {
+          const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
+            responseGetAllNurses?.data?.pop,
+            [...responseGetAllNurses?.data]
+          );
+          const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+            (data) => data.isDeleted === false && data
+          );
+          dispatch(getAllNurses(filteredArrayGetAllNurses));
+        }
+    
+
     // Patients
     if (responseGetAllPatients.isSuccess) {
       const reverseArrayGetAllPatients = responseGetAllPatients?.data?.map(
@@ -188,6 +227,10 @@ export default function EmergencyPatientLIst() {
     updateDoctor,
     deleteDoctor,
     responseGetAllDoctors.isSuccess,
+    createNurse,
+    updateNurse,
+    deleteNurse,
+    responseGetAllNurses.isSuccess,
     createEmergencyPatient,
     updateEmergencyPatient,
     deleteEmergencyPatient,

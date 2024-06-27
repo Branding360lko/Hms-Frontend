@@ -13,6 +13,7 @@ import WardSlice from "./Slices/WardSlice";
 import FloorDepartmentSlice from "./Slices/FloorDepartmentSlice";
 import EmergencyPatientSlice from "./Slices/EmergencyPatientSlice";
 import IPDPatientBalanceSlice from "./Slices/IPDPatientBalanceSlice";
+import EmergencyPatientBalanceSlice from "./Slices/EmergencyPatientBalanceSlice";
 import NurseSlice from "./Slices/NurseSlice";
 import TestPatientSlice from "./Slices/TestPatientSlice";
 // Services
@@ -67,6 +68,7 @@ export const store = configureStore({
     [NurseService.reducerPath]: NurseService.reducer,
     TestPatientState: TestPatientSlice,
     [testOfPatientService.reducerPath]: testOfPatientService.reducer,
+    EmergencyPatientBalanceState: EmergencyPatientBalanceSlice,
   },
 
   middleware: (getDefaultMiddleware) =>

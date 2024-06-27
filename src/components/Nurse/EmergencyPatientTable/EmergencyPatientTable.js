@@ -37,8 +37,14 @@ import { useNavigate } from "react-router-dom";
 import { useUpdateBedAvailabilityMutation } from "../../../Store/Services/BedService";
 
 import {
+  useAddEmergencyPatientBalanceByIdMutation,
+  useAddEmergencyPatientExtraChargesByIdMutation,
   useCreateEmergencyPatientMutation,
   useDeleteEmergencyPatientByIdMutation,
+  useGetAllEmergencyPatientBalanceQuery,
+  useGetEmergencyPatientBalanceByIdQuery,
+  useGetEmergencyPatientMedDocLabDetailsByIdQuery,
+  useGetEmergencyPatientMedDocLabTotalByIdQuery,
   useUpdateEmergencyPatientByIdMutation,
 } from "../../../Store/Services/EmergencyPatientService";
 
@@ -49,17 +55,21 @@ import {
 } from "../../../Store/Slices/EmergencyPatientSlice";
 
 import BedSelector from "../AddBedSelector/AddBedSelector";
+import EmergencyChargesShowcase from "../EmergencyChargesShowcase/EmergencyChargesShowcase";
+import AddOtherCharges from "../../Receptionist/AddOtherCharges/AddOtherCharges";
+import { updateEmergencyPatientDepositAmountChange } from "../../../Store/Slices/EmergencyPatientBalanceSlice";
 
 export default function EmergencyPatientTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
+  const { nurses } = useSelector((state) => state.NurseState);
   const { emergencyPatients } = useSelector(
     (state) => state.EmergencyPatientState
   );
 
-  // New Code
+  // console.log("nurses:", nurses);
 
   const date = (dateTime) => {
     const newdate = new Date(dateTime);
@@ -76,6 +86,12 @@ export default function EmergencyPatientTable() {
   // Emergency Patient state
 
   const [currentEmergencyPatient, setCurrentEmergencyPatient] =
+    React.useState(null);
+
+  const [currentEmergencyPatientBedTotal, setCurrentEmergencyPatientBedTotal] =
+    React.useState(null);
+
+  const [currentEmergencyPatientBalance, setCurrentEmergencyPatientBalance] =
     React.useState(null);
 
   // Add Bed Form Open State and Logic
@@ -138,10 +154,18 @@ export default function EmergencyPatientTable() {
     value: "",
     label: "",
   });
+  const [emergencyNurseId, setEmergencyNurseId] = React.useState({
+    value: "",
+    label: "",
+  });
   const [emergencyAdmittingTime, setEmergencyAdmittingTime] =
     React.useState("");
   // const [emergencyBedNo, setEmergencyBedNo] = React.useState("");
   const [emergencyNotes, setEmergencyNotes] = React.useState("");
+
+  const [emergencyDepositAmount, setEmergencyDepositAmount] = React.useState(0);
+  const [emergencyPaymentMode, setEmergencyPaymentMode] = React.useState(null);
+  const [emergencyDepositNote, setEmergencyDepositNote] = React.useState("");
 
   const style = {
     position: "absolute",
@@ -172,6 +196,13 @@ export default function EmergencyPatientTable() {
     };
   });
 
+  const renderedNurseIDForDropdown = nurses?.map((nurse) => {
+    return {
+      value: nurse.nurseId,
+      label: `${nurse.nurseId} / ${nurse.nurseName}`,
+    };
+  });
+
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const handleOpenAddModal = () => {
     setOpenAddModal(true);
@@ -183,13 +214,22 @@ export default function EmergencyPatientTable() {
       value: "",
       label: "",
     });
+    setEmergencyNurseId({
+      value: "",
+      label: "",
+    });
     setEmergencyAdmittingTime("");
+    setEmergencyDepositAmount(0);
+    setEmergencyDepositNote("");
+    setEmergencyPaymentMode("UPI");
 
     setEmergencyNotes("");
   };
   const handleCloseAddModal = () => {
     setOpenAddModal(false);
   };
+
+  console.log("Logger...");
 
   React.useEffect(() => {
     if (responseCreateEmergencyPatient.isSuccess) {
@@ -200,9 +240,13 @@ export default function EmergencyPatientTable() {
         bedId: responseCreateEmergencyPatient?.data?.data?.bedId,
         data: { bedAvailableOrNot: false },
       });
+      setEmergencyDepositAmount(0);
+      setEmergencyDepositNote("");
+      setEmergencyPaymentMode("UPI");
       handleCloseAddModal();
     } else if (responseCreateEmergencyPatient.isError) {
       setSnackBarSuccessWarning(responseCreateEmergencyPatient?.error?.data);
+      console.log(responseCreateEmergencyPatient?.error);
       handleClickSnackbarWarning();
     }
   }, [
@@ -211,15 +255,23 @@ export default function EmergencyPatientTable() {
   ]);
 
   // console.log(selectedBed);
-  const handleAddOPDPatient = (e) => {
+  const handleAddEmergencyPatient = (e) => {
     e.preventDefault();
 
     const submitData = {
       patientId: emergencyPatientUHID?.value,
       doctorId: emergencydoctorId?.value,
+      nurseId: emergencyNurseId?.value,
+
       admittingDateTime: emergencyAdmittingTime,
       bedId: selectedBed?.bedId,
       notes: emergencyNotes,
+      emergencyDepositAmount: emergencyDepositAmount
+        ? emergencyDepositAmount
+        : 0,
+      emergencyPaymentMode: emergencyPaymentMode,
+      // emergencyFloorNo:emerge,
+      balanceNote: emergencyDepositNote,
     };
     createEmergencyPatient(submitData);
   };
@@ -227,7 +279,10 @@ export default function EmergencyPatientTable() {
   const modalAddEmergencyPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Add Patient</h2>
-      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddOPDPatient}>
+      <form
+        className="flex flex-col gap-[1rem]"
+        onSubmit={handleAddEmergencyPatient}
+      >
         <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID</label>
@@ -244,6 +299,53 @@ export default function EmergencyPatientTable() {
               required
               options={renderedDoctorIDForDropdown}
               onChange={setEmergencyDoctorId}
+            />
+          </div>
+
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Nurse Id</label>
+            <Select
+              required
+              options={renderedNurseIDForDropdown}
+              onChange={setEmergencyNurseId}
+            />
+          </div>
+
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Deposit Amount *</label>
+
+            <input
+              className="py-[10px] outline-none border-b"
+              placeholder="Enter deposit amount"
+              value={emergencyDepositAmount}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                setEmergencyDepositAmount(value);
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Payment Mode *</label>
+            <select
+              required
+              className="py-[10px] outline-none border-b bg-transparent"
+              value={emergencyPaymentMode}
+              onChange={(e) => setEmergencyPaymentMode(e.target.value)}
+            >
+              <option>UPI</option>
+              <option>Cash</option>
+              <option>Cheque</option>
+              <option>Card</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Deposit Note</label>
+            <textarea
+              className="border-b py-[10px] outline-none"
+              placeholder="Enter notes"
+              rows={1}
+              value={emergencyDepositNote}
+              onChange={(e) => setEmergencyDepositNote(e.target.value)}
             />
           </div>
 
@@ -384,6 +486,35 @@ export default function EmergencyPatientTable() {
     });
   };
 
+  const [
+    addEmergencyPatientExtraCharges,
+    responseAddEmergencyPatientExtraCharges,
+  ] = useAddEmergencyPatientExtraChargesByIdMutation();
+
+  const handleAddEmergencyPatientExtraCharges = (updateData) => {
+    addEmergencyPatientExtraCharges(updateData);
+  };
+
+  React.useEffect(() => {
+    if (responseAddEmergencyPatientExtraCharges.isSuccess) {
+      // dispatch(updateIpdPatientMedicalChargesChange(Math.random()));
+
+      setSnackBarSuccessMessage(
+        responseAddEmergencyPatientExtraCharges?.data?.message
+      );
+      handleClickSnackbarSuccess();
+      handleCloseUpdateModal();
+    } else if (responseAddEmergencyPatientExtraCharges.isError) {
+      setSnackBarSuccessWarning(
+        responseAddEmergencyPatientExtraCharges?.error?.data
+      );
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responseAddEmergencyPatientExtraCharges.isSuccess,
+    responseAddEmergencyPatientExtraCharges.isError,
+  ]);
+
   const modalUpdateEmergencyPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Update Patient</h2>
@@ -475,15 +606,94 @@ export default function EmergencyPatientTable() {
           >{`Save >`}</button>
         </div>
       </form>
+
+      <AddOtherCharges
+        handleAddMedicalCharges={handleAddEmergencyPatientExtraCharges}
+        mainId={emergencyPatientId}
+      />
     </div>
   );
 
   const [openViewModal, setOpenViewModal] = React.useState(false);
+
+  // const responseGetAllBalanceData = useGetAllEmergencyPatientBalanceQuery();
+
+  // console.log("responseGetAllBalanceData:", responseGetAllBalanceData);
+
+  const [currentPatientId, setCurrentPatientId] = React.useState(null);
+  const [currentPatientFinalBalance, setCurrentPatientFinalBalance] =
+    React.useState(null);
+
+  const [currentPatientExtraCharges, setCurrentPatientExtraCharges] =
+    React.useState(null);
+
+  const [currentPatientExtraChargesTotal, setCurrentPatientExtraChargesTotal] =
+    React.useState(null);
+
+  const {
+    data: responseAllBalanceCallData,
+    isError: isErrorAllBalanceDataCall,
+    isLoading: isLoadingAllBalanceDataCall,
+    isFetching: isFetchingAllBalanceDataCall,
+    refetch: refetchAllBalanceDataCall,
+  } = useGetAllEmergencyPatientBalanceQuery();
+
+  const { data: responseGetPatientBalance, refetch: refetchGetPatientBalance } =
+    useGetEmergencyPatientBalanceByIdQuery(currentPatientId);
+
+  const { data: responseMedDocLabDetails, refetch: refetchMedDocLabDetails } =
+    useGetEmergencyPatientMedDocLabDetailsByIdQuery(currentPatientId);
+
+  const { data: responseMedDocLabTotal, refetch: refetchMedDocLabTotal } =
+    useGetEmergencyPatientMedDocLabTotalByIdQuery(currentPatientId);
+
+  console.log("responseGetPatientBalance:", responseGetPatientBalance);
+
+  console.log("responseMedDocLabDetails:", responseMedDocLabDetails);
+
+  console.log("responseMedDocLabTotal:", responseMedDocLabTotal);
+
+  React.useEffect(() => {
+    refetchAllBalanceDataCall();
+    refetchGetPatientBalance();
+    refetchMedDocLabDetails();
+    refetchMedDocLabTotal();
+  }, [currentPatientId]);
+
+  React.useEffect(() => {
+    if (responseGetPatientBalance?.data?.charges) {
+      setCurrentPatientExtraCharges(responseGetPatientBalance?.data?.charges);
+      setCurrentPatientExtraChargesTotal(
+        responseGetPatientBalance?.totalMedicalCharges
+      );
+    }
+  }, [currentPatientId, responseGetPatientBalance]);
+
+  console.log("currentPatientExtraCharges:", currentPatientExtraCharges);
+
+  React.useEffect(() => {
+    const currentPatientData =
+      responseAllBalanceCallData?.balanceCalculation?.find(
+        (patientData) => patientData._id === currentPatientId
+      );
+
+    setCurrentPatientFinalBalance(currentPatientData);
+  }, [responseAllBalanceCallData, currentPatientId]);
+
+  console.log("currentPatientFinalBalance:", currentPatientFinalBalance);
+
+  // const currentPatientBalance =
+  //   resposnseAllBalanceCallData?.balanceCalculation?.find(
+  //     (patient) => patient._id === currentPatientId
+  //   );
+
   const handleOpenViewModal = (patientData) => {
     setCurrentEmergencyPatient(patientData);
+    setCurrentPatientId(patientData?.data?.mainId);
     setOpenViewModal(true);
   };
 
+  console.log("currentPatientId:", currentPatientId);
   console.log("currentEmergencyPatient:", currentEmergencyPatient);
   const handleCloseViewModal = () => setOpenViewModal(false);
 
@@ -493,26 +703,23 @@ export default function EmergencyPatientTable() {
         <h3 className="font-[500]">ID: </h3>
         <h3>{currentEmergencyPatient?.data?.mainId}</h3>
       </div>
-      <div className=" flex justify-center items-center">
-        <div className="border-b flex gap-[1rem] py-[1rem] w-full">
-          <h3 className="font-[500]">Total Deposit: </h3>
-          <h3>
-            Rs.
-            {currentEmergencyPatient?.balanceData?.totalAddedBalance
-              ? currentEmergencyPatient?.balanceData?.totalAddedBalance
-              : "Not Found"}
-          </h3>
-        </div>
-        <div className="border-b flex gap-[1rem] py-[1rem] w-full">
-          <h3 className="font-[500]">Total Expense: </h3>
-          <h3>
-            Rs.
-            {currentEmergencyPatient?.balanceData?.finalTotal
-              ? currentEmergencyPatient?.balanceData?.finalTotal
-              : "Not Found"}
-          </h3>
-        </div>
-        {/* <div
+      {currentPatientFinalBalance ? (
+        <div className=" flex justify-center items-center">
+          <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+            <h3 className="font-[500]">Total Deposit: </h3>
+            <h3>
+              Rs.
+              {currentPatientFinalBalance?.totalAddedBalance}
+            </h3>
+          </div>
+          <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+            <h3 className="font-[500]">Total Expense: </h3>
+            <h3>
+              Rs.
+              {currentPatientFinalBalance?.finalTotal}
+            </h3>
+          </div>
+          {/* <div
           className={`border-b flex gap-[1rem] py-[1rem] w-full ${
             ipdPatientNegativeBalanceAlert ? "text-red-500" : ""
           }`}
@@ -525,7 +732,10 @@ export default function EmergencyPatientTable() {
               : "Not Found"}
           </h3>
         </div> */}
-      </div>
+        </div>
+      ) : (
+        <div>Not Found</div>
+      )}
 
       <div className="flex w-full">
         <div className="w-[25%] flex flex-col items-center">
@@ -545,11 +755,11 @@ export default function EmergencyPatientTable() {
           <div className="grid grid-cols-2 gap-[10px]">
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Id: </p>
-              <p>{currentEmergencyPatient?.data?.ipdPatientId}</p>
+              <p>{currentEmergencyPatient?.data?.mainId}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Doctor Id: </p>
-              <p>{currentEmergencyPatient?.data?.ipdDoctorId}</p>
+              <p>{currentEmergencyPatient?.data?.doctorId}</p>
             </div>
 
             <div className="flex">
@@ -605,11 +815,12 @@ export default function EmergencyPatientTable() {
               <p>{currentEmergencyPatient?.patientData?.patientHeight}</p>
             </div>
             <div className="flex">
-              <p className="font-[600] w-[150px]">Bill Status: </p>
+              <p className="font-[600] w-[150px]">Discharge Status: </p>
               <p>
-                {currentEmergencyPatient?.data?.ipdBillStatus === true
-                  ? "Paid"
-                  : "Unpaid"}
+                {currentEmergencyPatient?.data?.emergencyPatientDischarged ===
+                true
+                  ? "Discharged"
+                  : "Not Discharged"}
               </p>
             </div>
             <div className="flex">
@@ -617,15 +828,19 @@ export default function EmergencyPatientTable() {
               <p>{currentEmergencyPatient?.patientData?.patientWeight}</p>
             </div>
             <div className="flex">
-              <p className="font-[600] w-[150px]">Bed: </p>
-              <p>{currentEmergencyPatient?.data?.ipdPatientBed}</p>
+              <p className="font-[600] w-[150px]">Bed Number: </p>
+              <p>{currentEmergencyPatient?.bedData?.bedNumber}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Bed Floor: </p>
+              <p>{currentEmergencyPatient?.bedData?.bedFloor}</p>
             </div>
           </div>
           <div className="flex flex-col gap-[10px]">
             <div className="flex flex-col">
               <p className="font-[600] w-[150px]">Notes: </p>
               <p className="text-[14px]">
-                {currentEmergencyPatient?.data?.ipdPatientNotes}
+                {currentEmergencyPatient?.data?.notes}
               </p>
             </div>
             <div className="flex">
@@ -647,6 +862,13 @@ export default function EmergencyPatientTable() {
           </div>
         </div>
       </div>
+
+      <EmergencyChargesShowcase
+        currentPatientFinalBalance={currentPatientFinalBalance}
+        currentPatientMedDocLabTotal={responseMedDocLabTotal?.data}
+        currentPatientExtraCharges={currentPatientExtraCharges}
+        currentPatientExtraChargesTotal={currentPatientExtraChargesTotal}
+      />
 
       {/* <IpdChargesShowcase
         currentPatientBed={currentPatientBed}
@@ -701,6 +923,87 @@ export default function EmergencyPatientTable() {
   //     };
   //   });
 
+  // Add Balance Modal States And Logic
+
+  const [openAddBalanceModal, setOpenAddBalanceModal] = React.useState(false);
+
+  const [addBalanceData, setAddBalanceData] = React.useState({
+    emergencyPatientMainId: null,
+    depositAmount: null,
+    balanceNote: null,
+    paymentMode: null,
+  });
+
+  const [addEmergencyPatientBalance, responeAddEmergencyPatientBalance] =
+    useAddEmergencyPatientBalanceByIdMutation();
+
+  const updateBalanceState = (newState) => {
+    setAddBalanceData((prevState) => ({
+      ...prevState,
+      ...newState,
+    }));
+  };
+
+  const handleAddBalanceModalOpen = (list) => {
+    const currentPatientId = list.data.mainId;
+    updateBalanceState({ emergencyPatientMainId: currentPatientId });
+
+    setOpenAddBalanceModal(true);
+  };
+
+  const handleAddBalanceModalClose = () => {
+    setOpenAddBalanceModal(false);
+
+    updateBalanceState({
+      emergencyPatientMainId: null,
+      depositAmount: null,
+      balanceNote: null,
+      paymentMode: null,
+    });
+  };
+
+  const handleAddBalanceFormSubmit = (e) => {
+    e.preventDefault();
+    console.log("Handle Add Balance Called !!!!");
+
+    const updateData = {
+      emergencyPatientMainId: addBalanceData.emergencyPatientMainId,
+      data: {
+        emergencyAddedAmount: Number(addBalanceData.depositAmount),
+        emergencyPaymentMode: addBalanceData.paymentMode,
+        balanceNote: addBalanceData.balanceNote,
+      },
+    };
+
+    console.log("updatedData:", updateData);
+
+    addEmergencyPatientBalance(updateData);
+  };
+
+  React.useEffect(() => {
+    if (responeAddEmergencyPatientBalance.isSuccess) {
+      dispatch(updateEmergencyPatientDepositAmountChange(Math.random()));
+      updateBalanceState({
+        emergencyPatientMainId: null,
+        depositAmount: null,
+        balanceNote: null,
+        paymentMode: null,
+      });
+
+      setSnackBarSuccessMessage(
+        responeAddEmergencyPatientBalance?.data?.message
+      );
+      handleClickSnackbarSuccess();
+      handleAddBalanceModalClose();
+    } else if (responeAddEmergencyPatientBalance.isError) {
+      setSnackBarSuccessWarning(responeAddEmergencyPatientBalance?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responeAddEmergencyPatientBalance.isSuccess,
+    responeAddEmergencyPatientBalance.isError,
+  ]);
+
   const config = [
     {
       label: "S No.",
@@ -721,6 +1024,37 @@ export default function EmergencyPatientTable() {
     {
       label: "Bed No",
       render: (list) => list?.bedData?.bedNumber,
+    },
+    {
+      label: "Total Deposit",
+      render: (list) => (
+        <>
+          <div className="">
+            <h2
+            // className={`${
+            //   list.data.ipdDepositAmount > 5000 ? "" : " text-red-500"
+            // }`}
+            >
+              ₹ {list?.data?.ipdDepositAmount}
+            </h2>
+          </div>
+          {list?.data?.ipdPatientDischarged ? (
+            <button
+              disabled
+              className=" bg-green-500  text-white font-semibold px-2 py-1 rounded-md"
+            >
+              Discharged
+            </button>
+          ) : (
+            <button
+              onClick={() => handleAddBalanceModalOpen(list)}
+              className=" bg-blue-400 hover:bg-blue-500 text-white font-semibold px-2 py-1 rounded-md"
+            >
+              Add Balance
+            </button>
+          )}
+        </>
+      ),
     },
     {
       label: "User Action",
@@ -828,7 +1162,7 @@ export default function EmergencyPatientTable() {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             <div className="flex justify-between items-center">
               <h1 className="headingBottomUnderline w-fit pb-[10px]">
-                Emergency Patient
+                Emergency Patient Details
               </h1>
               <Link
                 // onClick={handleGeneratePdf}
@@ -845,6 +1179,96 @@ export default function EmergencyPatientTable() {
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewEmergencyPatient}
+          </Typography>
+        </Box>
+      </Modal>
+      <Modal
+        open={openAddBalanceModal}
+        onClose={handleAddBalanceModalClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "90%",
+            height: "40%",
+            bgcolor: "background.paper",
+            borderRadius: "12px",
+            border: "none",
+            outline: "none",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
+              Update IPD Patient Balance
+            </h1>
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <form
+              className="flex flex-col gap-[1rem]"
+              onSubmit={(e) => handleAddBalanceFormSubmit(e)}
+            >
+              <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px]">Deposit Amount *</label>
+
+                  <input
+                    className="py-[10px] outline-none border-b"
+                    required
+                    placeholder="Enter deposit amount"
+                    defaultValue={0}
+                    value={addBalanceData?.depositAmount}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      updateBalanceState({ depositAmount: value });
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px]">Payment Mode *</label>
+                  <select
+                    required
+                    className="py-[10px] outline-none border-b bg-transparent"
+                    value={addBalanceData?.paymentMode}
+                    onChange={(e) =>
+                      updateBalanceState({ paymentMode: e.target.value })
+                    }
+                  >
+                    <option>UPI</option>
+                    <option>Cash</option>
+                    <option>Cheque</option>
+                    <option>Card</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-[6px]">
+                  <label className="text-[14px]">Deposit Note</label>
+                  <textarea
+                    className="border-b py-[10px] outline-none"
+                    placeholder="Enter notes"
+                    rows={1}
+                    value={addBalanceData?.balanceNote}
+                    onChange={(e) =>
+                      updateBalanceState({ balanceNote: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-[1rem] items-center">
+                <button
+                  type="submit"
+                  className="buttonFilled"
+                  // onClick={() => setSubmitButton("add")}
+                >{`Save >`}</button>
+              </div>
+            </form>
+            {/* ///// */}
           </Typography>
         </Box>
       </Modal>

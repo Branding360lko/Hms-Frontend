@@ -20,6 +20,40 @@ export const emergencyPatientService = createApi({
         };
       },
     }),
+
+    getEmergencyPatientBalanceById: builder.query({
+      query: (id) => {
+        return {
+          url: `EmergencyPatient-Balance-GET/${id}`,
+          method: "GET",
+        };
+      },
+    }),
+    getAllEmergencyPatientBalance: builder.query({
+      query: () => {
+        return {
+          url: `EmergencyPatient-Balance-GET-ALL`,
+          method: "GET",
+        };
+      },
+    }),
+    getEmergencyPatientMedDocLabDetailsById: builder.query({
+      query: (id) => {
+        return {
+          url: `get-one-emergency-patients-data/${id}`,
+          method: "GET",
+        };
+      },
+    }),
+
+    getEmergencyPatientMedDocLabTotalById: builder.query({
+      query: (id) => {
+        return {
+          url: `get-one-emergency-patients-data-total/${id}`,
+          method: "GET",
+        };
+      },
+    }),
     createEmergencyPatient: builder.mutation({
       query: (newData) => {
         return {
@@ -46,6 +80,24 @@ export const emergencyPatientService = createApi({
         };
       },
     }),
+    addEmergencyPatientExtraChargesById: builder.mutation({
+      query: (updateData) => {
+        return {
+          url: `EmergencyPatient-PUT-AddItemCharges/${updateData.id}`,
+          method: "PUT",
+          body: updateData.data,
+        };
+      },
+    }),
+    addEmergencyPatientBalanceById: builder.mutation({
+      query: (updateData) => {
+        return {
+          url: `EmergencyPatient-PUT-UpdateDepositAmount/${updateData.emergencyPatientMainId}`,
+          method: "PUT",
+          body: updateData.data,
+        };
+      },
+    }),
   }),
 });
 
@@ -55,4 +107,10 @@ export const {
   useGetAllEmergencyPatientQuery,
   useGetEmergencyPatientByIdQuery,
   useUpdateEmergencyPatientByIdMutation,
+  useGetAllEmergencyPatientBalanceQuery,
+  useGetEmergencyPatientBalanceByIdQuery,
+  useGetEmergencyPatientMedDocLabDetailsByIdQuery,
+  useGetEmergencyPatientMedDocLabTotalByIdQuery,
+  useAddEmergencyPatientExtraChargesByIdMutation,
+  useAddEmergencyPatientBalanceByIdMutation,
 } = emergencyPatientService;
