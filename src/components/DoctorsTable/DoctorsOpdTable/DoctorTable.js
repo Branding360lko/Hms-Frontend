@@ -13,14 +13,17 @@ import {
   addOpdDoctorCheckData,
   getAllOpdPatientsData,
   getAllOpdPatientsDoctorData,
+  getAllOpdPatientsWithDoctorIdData,
   getOneOpdDoctorCheckData,
   updateOpdDoctorCheckData,
+  updateOpdDoctorVisitCompletedStatusData,
 } from "../DoctorApi";
 import PaginationComponent from "../../Pagination";
 import { useDispatch, useSelector } from "react-redux";
 import { convertValue } from "../convertValueStructure";
 import Snackbars from "../../SnackBar";
-import { date } from "../../../utils/DateAndTimeConvertor";
+import { date, time } from "../../../utils/DateAndTimeConvertor";
+import PaginationForApi from "../../PaginationForApi";
 
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
@@ -76,15 +79,19 @@ function DoctorTable() {
   };
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getMedicineDataHandle());
-    dispatch(getTestDataHandle());
+    if (medicineData?.data?.length === 0) {
+      dispatch(getMedicineDataHandle());
+    }
+    if (testData?.data?.length === 0) {
+      dispatch(getTestDataHandle());
+    }
   }, []);
   const { medicineData } = useSelector((state) => state.MedicineData);
   const { testData } = useSelector((state) => state.TestData);
   const [patientData, setPatientData] = useState([]);
   const [previousMedicine, setPreviousMedicine] = useState([]);
   const [previousTest, setPreviousTest] = useState([]);
-  const [opdPatients, setOpdPatients] = useState();
+  const [opdPatients, setOpdPatients] = useState([]);
   const [previousPatientsList, setoldPreviousPatientsList] = useState([]);
   const [isMedicineLoading, setIsMedicineLoading] = useState(false);
   const [isTestLoading, setIsTestLoading] = useState(false);
@@ -286,14 +293,20 @@ function DoctorTable() {
     </div>
   );
 
+  const [totalData, setTotalData] = useState(0);
+  const [visitedPages, setVisitedPages] = useState([]);
   const getAllOpdPatientsDataHandle = async () => {
-    const data = await getAllOpdPatientsData();
+    if (!visitedPages.includes(page)) {
+      const data = await getAllOpdPatientsWithDoctorIdData(
+        adminLoggedInData?.adminUniqueId,
+        page,
+        rowsPerPage
+      );
 
-    const filter = data?.data?.filter(
-      (item) => item?.opdDoctorId === adminLoggedInData?.adminUniqueId
-    );
-
-    setOpdPatients(filter && filter?.reverse());
+      setTotalData(data?.data?.totalDocuments);
+      setOpdPatients(data && [...opdPatients, ...data?.data?.OPDPatientData]);
+      setVisitedPages((prevVisitedPages) => [...prevVisitedPages, page]);
+    }
   };
 
   const getAllOpdPatientsDoctorDataHandle = async () => {
@@ -338,7 +351,6 @@ function DoctorTable() {
       patientId: result?.data?.[0]?.OpdPatientData?.opdPatientId,
       NextAppoiment: result?.data?.[0]?.NextAppoiment,
     });
-    console.log(result);
   };
   const updateOpdDoctorCheckDataHandle = async (e, Id) => {
     e.preventDefault();
@@ -365,10 +377,15 @@ function DoctorTable() {
       setOpenSnackBarSuccess(true);
     }
   };
+  const updateOpdDoctorVisitCompletedStatusDataHandle = async (Id) => {
+    const result = await updateOpdDoctorVisitCompletedStatusData(Id);
+  };
   useEffect(() => {
-    getAllOpdPatientsDataHandle();
     getAllOpdPatientsDoctorDataHandle();
   }, []);
+  useEffect(() => {
+    getAllOpdPatientsDataHandle();
+  }, [page, rowsPerPage]);
   useEffect(() => {
     const result = convertValue(medicineData?.data);
     setMedicine(result);
@@ -406,9 +423,8 @@ function DoctorTable() {
     setTest(result);
   }, [testData]);
   useEffect(() => {
-    console.log(opdPatients);
+    console.log("dfd", opdPatients, visitedPages, page);
   }, [opdPatients]);
-  console.log(process.env.React_App_Base_url);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -440,7 +456,7 @@ function DoctorTable() {
             {opdPatients
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
-                <tr key={index}>
+                <tr key={item?._id}>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
                     {index + 1}
                   </td>
@@ -448,7 +464,7 @@ function DoctorTable() {
                     {"uhid" + item?.opdPatientId}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                    Arman
+                    {item?.patientName}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
                     <Switch
@@ -528,12 +544,12 @@ function DoctorTable() {
               ))}
           </tbody>
         </table>
-        <PaginationComponent
+        <PaginationForApi
           page={page}
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={opdPatients}
+          data={totalData}
         />
       </div>
       {printView}
@@ -757,52 +773,34 @@ function DoctorTable() {
                 <span>
                   <img src={img} alt="patients " className="w-[15rem] " />
                 </span>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-1">
                   <div className="flex gap-[10px]">
-                    <span>Patients Reg ID</span>:<p>19</p>
+                    <span>Patients Uhid</span>:
+                    <p>{"Uhid" + patientData?.patientId}</p>
                   </div>
                   <div className="flex gap-[10px]">
-                    <span>Admission Date / Time</span>:<p>19</p>
+                    <span>Admission Date / Time</span>:
+                    <p>
+                      {date(patientData?.createdAt)}-
+                      {time(patientData?.createdAt)}
+                    </p>
                   </div>
                   <div className="flex gap-[10px]">
-                    <span>Name</span>:<p>19</p>
+                    <span>Name</span>:<p>{patientData?.patientName}</p>
                   </div>
                   <div className="flex gap-[10px]">
-                    <span>Discharge Date / Time</span>:<p>19</p>
+                    <span>Gender</span>:<p>{patientData?.patientGender}</p>
                   </div>
+
+                  {/* <div className="flex gap-[10px]">
+                    <span>IPD NO</span>:
+                    <p>{patientData?.IpdPatientData?.ipdPatientId}</p>
+                  </div>
+
                   <div className="flex gap-[10px]">
-                    <span>Gender</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Categ</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Age</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Tarilt Catrg</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>IPD NO</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>MR and IP No</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Bill Bed Catrg</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Admitting Doctor</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>OCC bed categ</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Room and bed NO</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Bill Date and Time</span>:<p>19</p>
-                  </div>
+                    <span>Admitting Doctor</span>:
+                    <p>{patientData?.doctorData?.[0]?.doctorName}</p>
+                  </div> */}
                 </div>
               </div>
               <div className="w-full flex flex-col justify-start gap-2">
@@ -884,7 +882,15 @@ function DoctorTable() {
                     disabled
                   />
                 </span>
-                <button className="buttonFilled" onClick={handlePrint}>
+                <button
+                  className="buttonFilled"
+                  onClick={() => [
+                    handlePrint(),
+                    updateOpdDoctorVisitCompletedStatusDataHandle(
+                      selectedPatient?._id
+                    ),
+                  ]}
+                >
                   Print
                 </button>
               </div>
