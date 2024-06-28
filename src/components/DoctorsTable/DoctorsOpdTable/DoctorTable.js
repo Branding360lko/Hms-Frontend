@@ -18,13 +18,13 @@ import {
   updateOpdDoctorCheckData,
   updateOpdDoctorVisitCompletedStatusData,
 } from "../DoctorApi";
-import PaginationComponent from "../../Pagination";
+import { FaSearch } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { convertValue } from "../convertValueStructure";
 import Snackbars from "../../SnackBar";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
 import PaginationForApi from "../../PaginationForApi";
-
+import useDebounce from "../../../utils/DebounceHook";
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
   backgroundColor: "",
@@ -292,7 +292,12 @@ function DoctorTable() {
       </div>
     </div>
   );
-
+  const [searchTerm, setSearchTerm] = useState("fgfghfhfgh");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  useEffect(() => {
+    console.log(debouncedSearchTerm, "debouncedSearchTerm");
+  }, [searchTerm]);
+  const [search, setSearch] = useState("");
   const [totalData, setTotalData] = useState(0);
   const [visitedPages, setVisitedPages] = useState([]);
   const getAllOpdPatientsDataHandle = async () => {
@@ -422,15 +427,22 @@ function DoctorTable() {
     const result = convertValue(testData?.data);
     setTest(result);
   }, [testData]);
-  useEffect(() => {
-    console.log("dfd", opdPatients, visitedPages, page);
-  }, [opdPatients]);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
         <h2 className="border-b-[4px] border-[#3497F9]">
           OPD Patient Table Data
         </h2>
+      </div>
+      <div className="flex justify-between">
+        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+          <FaSearch className="text-[#56585A]" />
+          <input
+            className="bg-transparent outline-none"
+            placeholder="Search by patient id"
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
