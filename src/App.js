@@ -909,7 +909,7 @@ function App() {
                       browserLinks.nurse.category
                     }/${browserLinks.nurse.internalPages.emergencyPatientPaymentReceipt
                       .split(" ")
-                      .join("")}/:emergencyPatientId`}
+                      .join("")}/:emergencyPatientId/:dateTime`}
                     element={
                       <Suspense
                         fallback={

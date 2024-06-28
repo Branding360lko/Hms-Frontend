@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
-import "./IPD_PatientReciept.css";
+// import "./IPD_PatientReciept.css";
 
 import { useParams } from "react-router-dom";
 

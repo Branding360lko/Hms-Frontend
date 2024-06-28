@@ -1163,6 +1163,56 @@ export default function EmergencyPatientTable() {
   const keyFn = (list) => {
     return list.mainId;
   };
+
+  // Balance deposits state and logic
+
+  const [patientAllDeposits, setPatientAllDeposits] = React.useState(null);
+
+  const [selectedPayment, setSelectedPayment] = React.useState(null);
+  const [depositErrorMessage, setDepositErrorMessage] = React.useState("");
+
+  // const responseGetIpdPatientDeposits = useGetIPDPatientBalanceByIdQuery(
+  //   ipdPatientData?.data?.mainId
+  // );
+
+  const handleDepositsRefetch = async () => {
+    const responseGetDepositsRefetch = await refetchGetPatientBalance();
+
+    console.log("responseGetDepositsRefetch:", responseGetDepositsRefetch);
+
+    setPatientAllDeposits(responseGetDepositsRefetch?.data?.data?.balance);
+  };
+
+  React.useEffect(() => {
+    handleDepositsRefetch();
+  }, [currentPatientId]);
+
+  // React.useEffect(() => {
+  //   setIpdPatientDeposits(
+  //     responseGetIpdPatientDeposits?.currentData?.data?.balance
+  //   );
+  // }, [responseGetIpdPatientDeposits?.isSuccess]);
+
+  console.log("patientAllDeposits:", patientAllDeposits);
+
+  console.log("selectedPayment:", selectedPayment);
+
+  const renderedPaymentsForDropdown = patientAllDeposits?.map((payment) => {
+    return {
+      value: payment.createdAt,
+      label: `${new Date(payment.createdAt).toLocaleString()} / ${
+        payment.addedBalance
+      }`,
+    };
+  });
+
+  const handlePaymentReceiptDownloadClick = (e) => {
+    if (!selectedPayment) {
+      e.preventDefault();
+      setDepositErrorMessage("Please select a payment");
+    }
+  };
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1242,27 +1292,42 @@ export default function EmergencyPatientTable() {
               <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Emergency Patient Details
               </h1>
-              <div>
-                <Link
-                  target="_blank"
-                  to={`${
-                    browserLinks?.nurse.category
-                  }/${browserLinks?.nurse?.internalPages?.emergencyPatientList
-                    .split(" ")
-                    .join("")}/${currentPatientId}/${selectedPayment}`}
-                  className={`buttonFilled flex items-center gap-[10px] text-sm no-underline ${
-                    !selectedPayment ? "disabled" : ""
-                  }`}
-                  onClick={handlePaymentReceiptDownloadClick}
-                >
-                  <LuHardDriveDownload />
-                  <p>Download Payment Receipt</p>
-                </Link>
-                {depositErrorMessage && (
-                  <p className="text-red-500 text-sm mt-2">
-                    {depositErrorMessage}
-                  </p>
-                )}
+              <div className="flex justify-center items-end gap-5 bg-blue-50 px-3 py-2 rounded-md">
+                <div className="flex flex-col gap-[6px] relative w-[300px]">
+                  <label className="text-[14px]">Previous Payments *</label>
+                  <Select
+                    required
+                    options={renderedPaymentsForDropdown}
+                    onChange={(option) => {
+                      setSelectedPayment(option.value);
+                      setDepositErrorMessage("");
+                    }}
+                    className="text-sm"
+                  />
+                </div>
+
+                <div>
+                  <Link
+                    target="_blank"
+                    to={`${
+                      browserLinks?.nurse.category
+                    }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
+                      .split(" ")
+                      .join("")}/${currentPatientId}/${selectedPayment}`}
+                    className={`buttonFilled flex items-center gap-[10px] text-sm no-underline ${
+                      !selectedPayment ? "disabled" : ""
+                    }`}
+                    onClick={handlePaymentReceiptDownloadClick}
+                  >
+                    <LuHardDriveDownload />
+                    <p>Download Payment Receipt</p>
+                  </Link>
+                  {depositErrorMessage && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {depositErrorMessage}
+                    </p>
+                  )}
+                </div>
               </div>
               <Link
                 // onClick={handleGeneratePdf}
