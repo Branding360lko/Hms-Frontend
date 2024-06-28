@@ -57,7 +57,14 @@ import {
 import BedSelector from "../AddBedSelector/AddBedSelector";
 import EmergencyChargesShowcase from "../EmergencyChargesShowcase/EmergencyChargesShowcase";
 import AddOtherCharges from "../../Receptionist/AddOtherCharges/AddOtherCharges";
-import { updateEmergencyPatientDepositAmountChange } from "../../../Store/Slices/EmergencyPatientBalanceSlice";
+import {
+  updateEmergencyPatientDepositAmountChange,
+  updateEmergencyPatientMedicalChargesChange,
+} from "../../../Store/Slices/EmergencyPatientBalanceSlice";
+
+import axios from "axios";
+
+import { date, time } from "../../../utils/DateAndTimeConvertor";
 
 export default function EmergencyPatientTable() {
   const navigate = useNavigate();
@@ -71,19 +78,24 @@ export default function EmergencyPatientTable() {
 
   // console.log("nurses:", nurses);
 
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
+  // const date = (dateTime) => {
+  //   const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
-  };
+  //   return newdate.toLocaleDateString();
+  // };
 
-  const time = (dateTime) => {
-    const newDate = new Date(dateTime);
+  // const time = (dateTime) => {
+  //   const newDate = new Date(dateTime);
 
-    return newDate.toLocaleTimeString();
-  };
+  //   return newDate.toLocaleTimeString();
+  // };
 
   // Emergency Patient state
+
+  // const fetchBalanceData = async () => {
+
+  //   await axios.get(`${process.env.React_App_Base_url}/EmergencyPatient-Balance-GET-ALL`).then((data) => setAllPatientsFinalBalance(data)).catch((error) => console.log(error));
+  // }
 
   const [currentEmergencyPatient, setCurrentEmergencyPatient] =
     React.useState(null);
@@ -497,7 +509,9 @@ export default function EmergencyPatientTable() {
 
   React.useEffect(() => {
     if (responseAddEmergencyPatientExtraCharges.isSuccess) {
-      // dispatch(updateIpdPatientMedicalChargesChange(Math.random()));
+      dispatch(updateEmergencyPatientMedicalChargesChange(Math.random()));
+
+      handleAllPatientsBalanceCall();
 
       setSnackBarSuccessMessage(
         responseAddEmergencyPatientExtraCharges?.data?.message
@@ -882,6 +896,28 @@ export default function EmergencyPatientTable() {
 
   const [search, setSearch] = React.useState("");
 
+  const [allPatientsFinalBalance, setAllPatientsFinalBalance] =
+    React.useState(null);
+
+  const handleAllPatientsBalanceCall = () => {
+    refetchAllBalanceDataCall();
+  };
+
+  // console.log(
+  //   "responseAllBalanceCallData from handler:",
+  //   responseAllBalanceCallData
+  // );
+
+  // console.log("allPatientsFinalBalance:", allPatientsFinalBalance);
+
+  React.useEffect(() => {
+    handleAllPatientsBalanceCall();
+  }, []);
+
+  React.useEffect(() => {
+    setAllPatientsFinalBalance(responseAllBalanceCallData?.balanceCalculation);
+  }, [responseAllBalanceCallData?.balanceCalculation]);
+
   const filteredArray = emergencyPatients?.filter((data) => {
     if (search !== "") {
       const userSearch = search.toLowerCase();
@@ -900,12 +936,17 @@ export default function EmergencyPatientTable() {
       (doctor) => doctor?.doctorId === data?.doctorId
     );
     const filteredBedData = beds?.find((bed) => bed?.bedId === data?.bedId);
+
+    const filteredFinalBalance = allPatientsFinalBalance?.find(
+      (patientData) => patientData?._id === data?.mainId
+    );
     return {
       id: index + 1,
       data,
       patientData: filteredPatientData,
       doctorData: filteredDoctorData,
       bedData: filteredBedData,
+      balanceData: filteredFinalBalance,
     };
   });
 
@@ -983,6 +1024,7 @@ export default function EmergencyPatientTable() {
   React.useEffect(() => {
     if (responeAddEmergencyPatientBalance.isSuccess) {
       dispatch(updateEmergencyPatientDepositAmountChange(Math.random()));
+      handleAllPatientsBalanceCall();
       updateBalanceState({
         emergencyPatientMainId: null,
         depositAmount: null,
@@ -1035,10 +1077,10 @@ export default function EmergencyPatientTable() {
             //   list.data.ipdDepositAmount > 5000 ? "" : " text-red-500"
             // }`}
             >
-              ₹ {list?.data?.ipdDepositAmount}
+              ₹ {list?.data?.emergencyDepositAmount}
             </h2>
           </div>
-          {list?.data?.ipdPatientDischarged ? (
+          {list?.data?.emergencyPatientDischarged ? (
             <button
               disabled
               className=" bg-green-500  text-white font-semibold px-2 py-1 rounded-md"
@@ -1052,6 +1094,40 @@ export default function EmergencyPatientTable() {
             >
               Add Balance
             </button>
+          )}
+        </>
+      ),
+    },
+    {
+      label: "Remaining Balance",
+      render: (list) => (
+        <>
+          <div className="">
+            <h2
+              className={`${
+                list.balanceData?.remainingBalance > 5000 ? "" : " text-red-500"
+              }`}
+            >
+              ₹ {list?.balanceData?.remainingBalance}
+            </h2>
+          </div>
+          {list.balanceData?.remainingBalance < 5000 &&
+          list.balanceData?.remainingBalance > 0 ? (
+            <button
+              disabled
+              className=" bg-red-500 text-white font-semibold px-2 py-1 rounded-md"
+            >
+              Low Balance
+            </button>
+          ) : list.balanceData?.remainingBalance < 0 ? (
+            <button
+              disabled
+              className=" bg-red-500 text-white font-semibold px-2 py-1 rounded-md"
+            >
+              Negative Balance
+            </button>
+          ) : (
+            ""
           )}
         </>
       ),
@@ -1081,6 +1157,8 @@ export default function EmergencyPatientTable() {
       ),
     },
   ];
+
+  console.log("mappedEmergencyRegTableData:", mappedEmergencyRegTableData);
 
   const keyFn = (list) => {
     return list.mainId;
@@ -1164,6 +1242,28 @@ export default function EmergencyPatientTable() {
               <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Emergency Patient Details
               </h1>
+              <div>
+                <Link
+                  target="_blank"
+                  to={`${
+                    browserLinks?.nurse.category
+                  }/${browserLinks?.nurse?.internalPages?.emergencyPatientList
+                    .split(" ")
+                    .join("")}/${currentPatientId}/${selectedPayment}`}
+                  className={`buttonFilled flex items-center gap-[10px] text-sm no-underline ${
+                    !selectedPayment ? "disabled" : ""
+                  }`}
+                  onClick={handlePaymentReceiptDownloadClick}
+                >
+                  <LuHardDriveDownload />
+                  <p>Download Payment Receipt</p>
+                </Link>
+                {depositErrorMessage && (
+                  <p className="text-red-500 text-sm mt-2">
+                    {depositErrorMessage}
+                  </p>
+                )}
+              </div>
               <Link
                 // onClick={handleGeneratePdf}
                 target="_blank"

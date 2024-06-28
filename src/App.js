@@ -53,6 +53,7 @@ import Tariffsofminorprocedures from "./pages/Accountent/Tariffsofminorprocedure
 import IpdPatientsDoctorTable from "./pages/Doctors/IpdPatientsDoctorTable/IpdPatientsDoctorTable";
 import OpdPatientsDoctorTable from "./pages/Doctors/OpdPatientsDoctorTable/OpdPatientsDoctorTable";
 import EmergencyPatientsDoctorTable from "./pages/Doctors/EmergencyPatientsDoctorTable/EmergencyPatientsDoctorTable";
+import EmergencyPatientPaymentReciept from "./components/Nurse/EmergencyPatientTable/EmergencyPatientPaymentReceipt/EmergencyPatientPaymentReceipt";
 
 const LoginPage = lazy(() => import("./Login"));
 
@@ -900,6 +901,26 @@ function App() {
                         }
                       >
                         <EmergencyPatientReciept />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.nurse.category
+                    }/${browserLinks.nurse.internalPages.emergencyPatientPaymentReceipt
+                      .split(" ")
+                      .join("")}/:emergencyPatientId`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <EmergencyPatientPaymentReciept />
                       </Suspense>
                     }
                   />

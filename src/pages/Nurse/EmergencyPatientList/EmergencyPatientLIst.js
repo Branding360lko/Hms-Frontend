@@ -18,9 +18,9 @@ import { getAllEmergencyPatient } from "../../../Store/Slices/EmergencyPatientSl
 import { useGetAllNursesQuery } from "../../../Store/Services/NurseService";
 import { getAllNurses } from "../../../Store/Slices/NurseSlice";
 
-
 import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
 import { getAllBeds } from "../../../Store/Slices/BedSlice";
+import { useGetAllEmergencyPatientBalanceQuery } from "../../../Store/Services/EmergencyPatientService";
 
 const SideNav = lazy(() => import("../../../components/Nurse/SideNav"));
 const UpperNav = lazy(() =>
@@ -48,7 +48,6 @@ export default function EmergencyPatientLIst() {
   const responseGetAllBeds = useGetAllBedsQuery();
 
   const responseGetAllNurses = useGetAllNursesQuery();
-
 
   const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
     (state) => state.BedState
@@ -78,19 +77,23 @@ export default function EmergencyPatientLIst() {
     (state) => state.NurseState
   );
 
+  const { updateEmergencyPatientDepositAmount } = useSelector(
+    (state) => state.EmergencyPatientBalanceState
+  );
+
   const apiRefetch = async () => {
-        // Nurses
-        const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
-        if (responseGetAllNursesRefetch.isSuccess) {
-          const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
-            responseGetAllNursesRefetch?.data?.pop,
-            [...responseGetAllNursesRefetch?.data]
-          );
-          const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-            (data) => data.isDeleted === false && data
-          );
-          dispatch(getAllNurses(filteredArrayGetAllNurses));
-        }
+    // Nurses
+    const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
+    if (responseGetAllNursesRefetch.isSuccess) {
+      const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
+        responseGetAllNursesRefetch?.data?.pop,
+        [...responseGetAllNursesRefetch?.data]
+      );
+      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllNurses(filteredArrayGetAllNurses));
+    }
 
     // Patients
     const responseGetAllPatientsRefetch =
@@ -152,20 +155,19 @@ export default function EmergencyPatientLIst() {
   };
   useEffect(() => {
     apiRefetch();
-    
-        // Nurses
 
-        if (responseGetAllNurses.isSuccess) {
-          const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
-            responseGetAllNurses?.data?.pop,
-            [...responseGetAllNurses?.data]
-          );
-          const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-            (data) => data.isDeleted === false && data
-          );
-          dispatch(getAllNurses(filteredArrayGetAllNurses));
-        }
-    
+    // Nurses
+
+    if (responseGetAllNurses.isSuccess) {
+      const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
+        responseGetAllNurses?.data?.pop,
+        [...responseGetAllNurses?.data]
+      );
+      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+        (data) => data.isDeleted === false && data
+      );
+      dispatch(getAllNurses(filteredArrayGetAllNurses));
+    }
 
     // Patients
     if (responseGetAllPatients.isSuccess) {
@@ -239,6 +241,7 @@ export default function EmergencyPatientLIst() {
     createBeds,
     updateBeds,
     deleteBeds,
+    updateEmergencyPatientDepositAmount,
   ]);
   return (
     <>
