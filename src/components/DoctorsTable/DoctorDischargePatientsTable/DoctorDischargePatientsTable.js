@@ -7,6 +7,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import style from "../../../styling/styling";
 import {
   addDoctorDetailsForPatientsDischargeData,
+  getAllDischargePatientsWithDoctorIdData,
   getAllIpdPatientsData,
 } from "../DoctorApi";
 import Snackbars from "../../SnackBar";
@@ -72,21 +73,11 @@ function DoctorDischargePatientsTable() {
       adviseDuringDischarge: "",
     });
   const getAllIpdPatientsDataHandle = async () => {
-    const result = await getAllIpdPatientsData();
-    console.log(result);
-    if (result) {
-      const data = result?.data?.filter((item) => {
-        console.log(item, adminUniqueId);
-        if (item?.ipdDoctorId === adminLoggedInData?.adminUniqueId) {
-          return (
-            item?.ipdPatientDoctorRequestForDischarge === true &&
-            item?.ipdPatientNurseRequestForDischarge === true
-          );
-        }
-      });
-      setAllDischargeData(data?.reverse());
-      console.log(data);
-    }
+    const result = await getAllDischargePatientsWithDoctorIdData(
+      adminLoggedInData?.adminUniqueId
+    );
+
+    setAllDischargeData(result && result?.data?.data?.reverse());
   };
   const addDoctorDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();

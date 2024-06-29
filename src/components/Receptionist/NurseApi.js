@@ -83,6 +83,20 @@ export const getAllEmergencyDischargePatientsListData = async () => {
     throw new Error(error);
   }
 };
+export const getAllEmergencyDischargePatientsDoctorListData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-emergency-discharge-patients-request-list-doctor/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const getAllEmergencyDischargePatientsNurseListData = async (Id) => {
   try {
     const response = await axios.get(
@@ -215,6 +229,20 @@ export const getAllEmergencyPatientsData = async () => {
       `${
         process.env.React_App_Base_url +
         "/get-each-doctor-with-patients-emergency"
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getAllEmergencyPatientsWithDoctorIdData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-each-doctor-with-patients-emergency-doctor/" +
+        Id
       }`
     );
     return response;

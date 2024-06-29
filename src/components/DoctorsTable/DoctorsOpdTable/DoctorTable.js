@@ -15,6 +15,7 @@ import {
   getAllOpdPatientsDoctorData,
   getAllOpdPatientsWithDoctorIdData,
   getOneOpdDoctorCheckData,
+  getSearchResultDoctorPanelData,
   updateOpdDoctorCheckData,
   updateOpdDoctorVisitCompletedStatusData,
 } from "../DoctorApi";
@@ -292,14 +293,13 @@ function DoctorTable() {
       </div>
     </div>
   );
-  const [searchTerm, setSearchTerm] = useState("fgfghfhfgh");
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  useEffect(() => {
-    console.log(debouncedSearchTerm, "debouncedSearchTerm");
-  }, [searchTerm]);
   const [search, setSearch] = useState("");
+  const [filteredData, setFilteredData] = React.useState([]);
+  const debouncedSearchTerm = useDebounce(search, 500);
+  const encodedSearchTerm = encodeURIComponent(debouncedSearchTerm);
   const [totalData, setTotalData] = useState(0);
   const [visitedPages, setVisitedPages] = useState([]);
+  const [searchVisitedPages, setSearchVisitedPages] = useState([]);
   const getAllOpdPatientsDataHandle = async () => {
     if (!visitedPages.includes(page)) {
       const data = await getAllOpdPatientsWithDoctorIdData(
@@ -308,7 +308,7 @@ function DoctorTable() {
         rowsPerPage
       );
 
-      setTotalData(data?.data?.totalDocuments);
+      setTotalData(data?.data?.totalPages);
       setOpdPatients(data && [...opdPatients, ...data?.data?.OPDPatientData]);
       setVisitedPages((prevVisitedPages) => [...prevVisitedPages, page]);
     }
@@ -385,12 +385,27 @@ function DoctorTable() {
   const updateOpdDoctorVisitCompletedStatusDataHandle = async (Id) => {
     const result = await updateOpdDoctorVisitCompletedStatusData(Id);
   };
+  const getSearchResultDoctorPanelDataHandle = async (Id) => {
+    const result = await getSearchResultDoctorPanelData(
+      Id,
+      page,
+      debouncedSearchTerm
+    );
+    // setFilteredData(result && [...filteredData, ...result?.data?.searchData]);
+    setOpdPatients(result && result?.data?.searchData);
+    setTotalData(result?.data?.totalPages);
+
+    console.log(result);
+  };
   useEffect(() => {
     getAllOpdPatientsDoctorDataHandle();
   }, []);
+  // useEffect(() => {
+  //   getAllOpdPatientsDataHandle();
+  // }, [page, rowsPerPage]);
   useEffect(() => {
-    getAllOpdPatientsDataHandle();
-  }, [page, rowsPerPage]);
+    getSearchResultDoctorPanelDataHandle(adminLoggedInData?.adminUniqueId);
+  }, [page, debouncedSearchTerm]);
   useEffect(() => {
     const result = convertValue(medicineData?.data);
     setMedicine(result);
@@ -427,6 +442,9 @@ function DoctorTable() {
     const result = convertValue(testData?.data);
     setTest(result);
   }, [testData]);
+  useEffect(() => {
+    console.log(searchVisitedPages, filteredData);
+  }, [searchVisitedPages, filteredData]);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -442,6 +460,17 @@ function DoctorTable() {
             placeholder="Search by patient id"
             onChange={(e) => setSearch(e.target.value)}
           />
+          <button
+            className="buttonFilled"
+            disabled={search?.length > 0 ? false : true}
+            onClick={() =>
+              getSearchResultDoctorPanelDataHandle(
+                adminLoggedInData?.adminUniqueId
+              )
+            }
+          >
+            Search
+          </button>
         </div>
       </div>
       <div className="w-full">
@@ -556,13 +585,9 @@ function DoctorTable() {
               ))}
           </tbody>
         </table>
-        <PaginationForApi
-          page={page}
-          rowsPerPage={rowsPerPage}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={totalData}
-        />
+        <div className="w-full py-4 flex items-center justify-center">
+          <PaginationForApi setPage={setPage} data={totalData} />
+        </div>
       </div>
       {printView}
       <Modal

@@ -183,6 +183,20 @@ export const getAllIpdPatientsData = async () => {
     throw new Error(error);
   }
 };
+export const getAllDischargePatientsWithDoctorIdData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-emergency-discharge-patients-request-list-doctor/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const getDoctorDashboardData = async (Id) => {
   try {
     const response = await axios.get(
@@ -207,6 +221,25 @@ export const updateOpdDoctorVisitCompletedStatusData = async (Id) => {
   try {
     const response = await axios.put(
       `${process.env.React_App_Base_url + "update-doctor-visited-status/" + Id}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getSearchResultDoctorPanelData = async (Id, page, search) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url + "OPDPatient-Search-with-doctorId/" + Id
+      }`,
+      {
+        params: {
+          page,
+
+          search,
+        },
+      }
     );
     return response;
   } catch (error) {

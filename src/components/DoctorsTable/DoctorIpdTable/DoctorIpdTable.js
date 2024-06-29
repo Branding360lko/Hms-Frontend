@@ -22,6 +22,7 @@ import {
   getOnePatientsDoctorVisitData,
 } from "../../Receptionist/NurseApi";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
+import { FaSearch } from "react-icons/fa";
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
   backgroundColor: "",
@@ -75,6 +76,8 @@ function DoctorIpdTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const [search, setSearch] = React.useState("");
+  const [filteredData, setFilteredData] = React.useState([]);
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const { medicineData } = useSelector((state) => state.MedicineData);
   const { testData } = useSelector((state) => state.TestData);
@@ -255,6 +258,7 @@ function DoctorIpdTable() {
   const getAllIPDPatientsDataByDoctorIdHandle = async (Id) => {
     const response = await getAllIPDPatientsDataByDoctorId(Id);
     setIpdPatientsListByDoctorId(response?.data?.data?.reverse());
+    setFilteredData(response?.data?.data?.reverse());
     console.log(response, "data");
   };
   const getAllIPDPatientsDoctorVisitDataHandle = async () => {
@@ -308,6 +312,18 @@ function DoctorIpdTable() {
     const result = await getIpdPatientsDetailsData(Id);
     setPatientData(result && result?.data?.data?.[0]);
   };
+  const searchHandle = () => {
+    const filter = ipdPatientsListByDoctorId?.filter((item) => {
+      if (search != "") {
+        return item?.patientName?.toLowerCase().includes(search.toLowerCase());
+      }
+      return item;
+    });
+    setFilteredData(filter && filter);
+  };
+  React.useEffect(() => {
+    searchHandle();
+  }, [search]);
   useEffect(() => {
     getAllIPDPatientsDataByDoctorIdHandle(adminLoggedInData?.adminUniqueId);
     getAllIPDPatientsDoctorVisitDataHandle();
@@ -359,6 +375,16 @@ function DoctorIpdTable() {
           IPD Patient Table Data
         </h2>
       </div>
+      <div className="flex justify-between">
+        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+          <FaSearch className="text-[#56585A]" />
+          <input
+            className="bg-transparent outline-none"
+            placeholder="Search by Patient Name"
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
           <thead>
@@ -366,10 +392,10 @@ function DoctorIpdTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>UHID</p>
+              <p>Patient Name</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Doctor Id</p>
+              <p>Doctor Name</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
               <p>Bed/Floor </p>
@@ -383,7 +409,7 @@ function DoctorIpdTable() {
             </th>
           </thead>
           <tbody>
-            {ipdPatientsListByDoctorId
+            {filteredData
               ?.filter((item) => item?.ipdPatientDischarged === false)
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
@@ -392,10 +418,10 @@ function DoctorIpdTable() {
                     {index + 1}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                    {"uhid" + item?.ipdPatientId}
+                    {item?.patientName}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                    {item?.ipdDoctorId}
+                    {item?.doctorName}
                   </td>{" "}
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
                     {item?.ipdBedNo}/{item?.ipdFloorNo}

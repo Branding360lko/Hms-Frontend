@@ -5,7 +5,10 @@ import { date, time } from "../../../utils/DateAndTimeConvertor";
 import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { addDoctorDetailsForEmergencyPatientsDischargeData } from "../DoctorApi";
-import { getAllEmergencyDischargePatientsListData } from "../../Receptionist/NurseApi";
+import {
+  getAllEmergencyDischargePatientsDoctorListData,
+  getAllEmergencyDischargePatientsListData,
+} from "../../Receptionist/NurseApi";
 import style from "../../../styling/styling";
 import { IoIosArrowForward } from "react-icons/io";
 import Snackbars from "../../SnackBar";
@@ -39,9 +42,7 @@ function DoctorEmergencyDischargeTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const { adminUniqueId, adminLoggedInData } = useSelector(
-    (state) => state.AdminState
-  );
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -62,7 +63,9 @@ function DoctorEmergencyDischargeTable() {
       adviseDuringDischarge: "",
     });
   const getAllEmergencyDischargePatientsListDataHandle = async () => {
-    const result = await getAllEmergencyDischargePatientsListData();
+    const result = await getAllEmergencyDischargePatientsDoctorListData(
+      adminLoggedInData?.adminUniqueId
+    );
 
     setAllDischargeData(result?.data?.data?.reverse());
   };

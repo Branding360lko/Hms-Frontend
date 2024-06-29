@@ -11,8 +11,11 @@ import img from "../../../assets/20180125_001_1_.jpg";
 import {
   getAllEmergencyPatientsData,
   getAllEmergencyPatientsListData,
+  getAllEmergencyPatientsWithDoctorIdData,
   getOneEmergencyPatientsDoctorVisitData,
 } from "../../Receptionist/NurseApi";
+import { FaSearch } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
@@ -213,13 +216,19 @@ function DoctorEmeregencyTable() {
       </div>
     </div>
   );
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
+  const [search, setSearch] = React.useState("");
+  const [filteredData, setFilteredData] = React.useState([]);
   const [viewPatientsData, setViewPatientsData] = useState([]);
   const [allEmergencyPatients, setAllEmergencyPatients] = useState([]);
   const [allEmergencyPatientsListData, setAllEmergencyPatientsListData] =
     useState([]);
   const getAllEmergencyPatientsDataHandle = async () => {
-    const result = await getAllEmergencyPatientsData();
+    const result = await getAllEmergencyPatientsWithDoctorIdData(
+      adminLoggedInData?.adminUniqueId
+    );
     setAllEmergencyPatients(result && result?.data?.data?.reverse());
+    setFilteredData(result && result?.data?.data?.reverse());
   };
   const getAllEmergencyPatientsListDataHandle = async () => {
     const result = await getAllEmergencyPatientsListData();
@@ -233,13 +242,37 @@ function DoctorEmeregencyTable() {
     getAllEmergencyPatientsDataHandle();
     getAllEmergencyPatientsListDataHandle();
   }, []);
-  console.log(allEmergencyPatients, "allEmergencyPatientsListData");
+  const searchHandle = () => {
+    const filter = allEmergencyPatients?.filter((item) => {
+      if (search != "") {
+        return item?.EmergencyPatientName?.toLowerCase().includes(
+          search.toLowerCase()
+        );
+      }
+      return item;
+    });
+    setFilteredData(filter && filter);
+  };
+  React.useEffect(() => {
+    searchHandle();
+  }, [search]);
+
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
         <h2 className="border-b-[4px] border-[#3497F9]">
           Emergency Patient Table Data
         </h2>
+      </div>
+      <div className="flex justify-between">
+        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+          <FaSearch className="text-[#56585A]" />
+          <input
+            className="bg-transparent outline-none"
+            placeholder="Search by Patient Name"
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
@@ -248,7 +281,7 @@ function DoctorEmeregencyTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Patient Uhid</p>
+              <p>Patient Name</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
               <p>Doctor Name</p>
@@ -263,20 +296,19 @@ function DoctorEmeregencyTable() {
           </thead>
 
           <tbody>
-            {allEmergencyPatients?.map((item, index) => (
+            {filteredData?.map((item, index) => (
               <tr key={index} className="border-b-[1px]">
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                   {index + 1}
                 </td>
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                  {"Uhid" + item?.patientsId}
+                  {item?.PatientName}
                 </td>
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                   {item?.doctorName}
                 </td>
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                  {date(item?.EmergencyPatientCreatedTime)}-
-                  {time(item?.EmergencyPatientCreatedTime)}
+                  {date(item?.updatedAt)}-{time(item?.updatedAt)}
                 </td>{" "}
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
                   <div className="flex gap-[10px] justify-center">
