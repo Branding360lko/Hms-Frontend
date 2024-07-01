@@ -14,6 +14,8 @@ import Snackbars from "../../SnackBar";
 import { useSelector } from "react-redux";
 import PaginationComponent from "../../Pagination";
 import { date } from "../../../utils/DateAndTimeConvertor";
+import { getAllDoctorDischargePatientsListData } from "../../Receptionist/NurseApi";
+import { FaSearch } from "react-icons/fa";
 function DoctorDischargePatientsTable() {
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
@@ -58,6 +60,8 @@ function DoctorDischargePatientsTable() {
   const handleClose1 = () => {
     setOpen1(false);
   };
+  const [search, setSearch] = React.useState("");
+  const [filteredData, setFilteredData] = React.useState([]);
   const [allDischargeData, setAllDischargeData] = useState([]);
   const [dischargePatientsFinalReport, setDischargePatientsFinalReport] =
     useState({
@@ -73,11 +77,11 @@ function DoctorDischargePatientsTable() {
       adviseDuringDischarge: "",
     });
   const getAllIpdPatientsDataHandle = async () => {
-    const result = await getAllDischargePatientsWithDoctorIdData(
+    const result = await getAllDoctorDischargePatientsListData(
       adminLoggedInData?.adminUniqueId
     );
-
     setAllDischargeData(result && result?.data?.data?.reverse());
+    setFilteredData(result && result?.data?.data?.reverse());
   };
   const addDoctorDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
@@ -124,6 +128,18 @@ function DoctorDischargePatientsTable() {
     }
     console.log(result);
   };
+  const searchHandle = () => {
+    const filter = allDischargeData?.filter((item) => {
+      if (search != "") {
+        return item?.patientName?.toLowerCase().includes(search.toLowerCase());
+      }
+      return item;
+    });
+    setFilteredData(filter && filter);
+  };
+  React.useEffect(() => {
+    searchHandle();
+  }, [search]);
   useEffect(() => {
     getAllIpdPatientsDataHandle();
   }, []);
@@ -132,6 +148,16 @@ function DoctorDischargePatientsTable() {
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
         <h2 className="border-b-[4px] border-[#3497F9]">Discharge Patient</h2>
+      </div>
+      <div className="flex justify-between">
+        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+          <FaSearch className="text-[#56585A]" />
+          <input
+            className="bg-transparent outline-none"
+            placeholder="Search by Patient Name"
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
@@ -155,7 +181,7 @@ function DoctorDischargePatientsTable() {
             </th>
           </thead>
           <tbody>
-            {allDischargeData
+            {filteredData
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
                 <tr key={index} className="border-b-[1px]">
@@ -163,7 +189,7 @@ function DoctorDischargePatientsTable() {
                     {index + 1}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    {"Uhid" + item?.ipdPatientId}
+                    {item?.patientName}
                   </td>
 
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
@@ -208,7 +234,7 @@ function DoctorDischargePatientsTable() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={allDischargeData}
+          data={filteredData}
         />
       </div>
       <Modal

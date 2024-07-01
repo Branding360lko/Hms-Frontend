@@ -127,6 +127,20 @@ export const getReferPatientsData = async () => {
     throw new Error(error);
   }
 };
+export const getReferPatientsByDoctorIdData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-all-refered-patients-by-doctorId/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const addDoctorDetailsForPatientsDischargeData = async (
   Id,
   formData

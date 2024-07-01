@@ -5,7 +5,10 @@ import { RiEdit2Fill } from "react-icons/ri";
 import style from "../../../styling/styling";
 import img from "../../../assets/20180125_001_1_.jpg";
 import { IoIosArrowForward } from "react-icons/io";
-import { getReferPatientsData } from "../DoctorApi";
+import {
+  getReferPatientsByDoctorIdData,
+  getReferPatientsData,
+} from "../DoctorApi";
 import { useSelector } from "react-redux";
 import PaginationComponent from "../../Pagination";
 import {
@@ -14,6 +17,7 @@ import {
   getOnePatientsDoctorVisitData,
 } from "../../Receptionist/NurseApi";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
+import { FaSearch } from "react-icons/fa";
 
 function DoctorReferTable() {
   const { adminUniqueId, adminLoggedInData } = useSelector(
@@ -56,6 +60,8 @@ function DoctorReferTable() {
     notes: "",
     visitDateTime: "",
   });
+  const [search, setSearch] = React.useState("");
+  const [filteredData, setFilteredData] = React.useState([]);
   const getAllDoctorVisitPatientsListDataHandle = async () => {
     const result = await getAllDoctorVisitPatientsListData();
     setAllIpdDoctorVisitList(result && result?.data?.data);
@@ -63,18 +69,12 @@ function DoctorReferTable() {
   };
 
   const getReferPatientsDataHandle = async () => {
-    const result = await getReferPatientsData();
-
-    if (result?.status === 200) {
-      const filter = result?.data?.data?.filter(
-        (item) =>
-          item?.ReferredDoctorDetails?.[0]?.doctorId ===
-          adminLoggedInData?.adminUniqueId
-      );
-
-      setAllReferPatients(filter?.reverse());
-      console.log(result);
-    }
+    const result = await getReferPatientsByDoctorIdData(
+      adminLoggedInData?.adminUniqueId
+    );
+    setAllReferPatients(result?.data?.data?.reverse());
+    setFilteredData(result && result?.data?.data?.reverse());
+    console.log(result, "gfhfg");
   };
   const getOnePatientsDoctorVisitDataHandle = async (Id) => {
     const result = await getOnePatientsDoctorVisitData(Id);
@@ -87,6 +87,20 @@ function DoctorReferTable() {
     setPatientData(result && result?.data?.data?.[0]);
   };
 
+  const searchHandle = () => {
+    const filter = allReferPatients?.filter((item) => {
+      if (search != "") {
+        return item?.PatientsDetails?.[0]?.patientName
+          ?.toLowerCase()
+          .includes(search.toLowerCase());
+      }
+      return item;
+    });
+    setFilteredData(filter && filter);
+  };
+  React.useEffect(() => {
+    searchHandle();
+  }, [search]);
   useEffect(() => {
     getReferPatientsDataHandle();
     getAllDoctorVisitPatientsListDataHandle();
@@ -95,6 +109,16 @@ function DoctorReferTable() {
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
         <h2 className="border-b-[4px] border-[#3497F9]">Refered Patient</h2>
+      </div>
+      <div className="flex justify-between">
+        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+          <FaSearch className="text-[#56585A]" />
+          <input
+            className="bg-transparent outline-none"
+            placeholder="Search by Patient Name"
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
@@ -121,11 +145,7 @@ function DoctorReferTable() {
             </th>
           </thead>
           <tbody>
-            {allReferPatients
-              ?.filter(
-                (item) =>
-                  item?.ipdPatientsDetails?.ipdPatientDischarged === false
-              )
+            {filteredData
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
                 <tr key={index}>
@@ -191,7 +211,7 @@ function DoctorReferTable() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={allReferPatients}
+          data={filteredData}
         />
       </div>
       <Modal

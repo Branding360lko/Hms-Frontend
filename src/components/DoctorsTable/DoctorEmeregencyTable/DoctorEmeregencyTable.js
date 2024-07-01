@@ -16,6 +16,7 @@ import {
 } from "../../Receptionist/NurseApi";
 import { FaSearch } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import PaginationComponent from "../../Pagination";
 
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
@@ -245,9 +246,7 @@ function DoctorEmeregencyTable() {
   const searchHandle = () => {
     const filter = allEmergencyPatients?.filter((item) => {
       if (search != "") {
-        return item?.EmergencyPatientName?.toLowerCase().includes(
-          search.toLowerCase()
-        );
+        return item?.PatientName?.toLowerCase().includes(search.toLowerCase());
       }
       return item;
     });
@@ -341,6 +340,13 @@ function DoctorEmeregencyTable() {
             ))}
           </tbody>
         </table>
+        <PaginationComponent
+          page={page}
+          rowsPerPage={rowsPerPage}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          data={filteredData}
+        />
       </div>
       {printView}
 

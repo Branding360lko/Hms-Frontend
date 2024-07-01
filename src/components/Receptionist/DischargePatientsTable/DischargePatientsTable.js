@@ -69,14 +69,6 @@ function DischargePatientsTable() {
     const result = await getAllNurseDischargePatientsListData(
       adminLoggedInData?.adminUniqueId
     );
-    // if (result) {
-    //   const data = result?.data?.filter((item) => {
-    //     return (
-    //       item?.ipdNurseId === adminLoggedInData?.adminUniqueId &&
-    //       item?.ipdPatientDoctorRequestForDischarge === true &&
-    //       item?.ipdPatientNurseRequestForDischarge === true
-    //     );
-    //   });
     setAllDischargeData(result?.data?.data?.reverse());
     setFilteredData(result?.data?.data);
     console.log(result);
@@ -153,7 +145,7 @@ function DischargePatientsTable() {
   const searchHandle = () => {
     const filter = allDischargeData?.filter((item) => {
       if (search != "") {
-        return item?.ipdPatientId?.toLowerCase().includes(search.toLowerCase());
+        return item?.patientName?.toLowerCase().includes(search.toLowerCase());
       }
       return item;
     });
@@ -180,13 +172,10 @@ function DischargePatientsTable() {
           <FaSearch className="text-[#56585A]" />
           <input
             className="bg-transparent outline-none"
-            placeholder="Search by patient id"
+            placeholder="Search by Patient Name"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <input type='date' className='bg-transparent outline-none' />
-          </div> */}
       </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
@@ -195,7 +184,7 @@ function DischargePatientsTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>UIHD</p>
+              <p>Patient Name</p>
             </th>
 
             <th className="border-[1px] p-1 font-semibold">
@@ -218,7 +207,7 @@ function DischargePatientsTable() {
                     {index + 1}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    {"Uhid" + item?.ipdPatientId}
+                    {item?.patientName}
                   </td>
 
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">

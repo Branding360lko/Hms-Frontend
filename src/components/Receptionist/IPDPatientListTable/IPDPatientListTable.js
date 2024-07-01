@@ -298,7 +298,7 @@ export default function IPDPatientList() {
   const searchHandle = () => {
     const filter = allIpdPatientsData?.filter((item) => {
       if (search != "") {
-        return item?.ipdPatientId?.toLowerCase().includes(search.toLowerCase());
+        return item?.patientName?.toLowerCase().includes(search.toLowerCase());
       }
       return item;
     });
@@ -328,7 +328,7 @@ export default function IPDPatientList() {
             <FaSearch className="text-[#56585A]" />
             <input
               className="bg-transparent outline-none"
-              placeholder="Search by patient id"
+              placeholder="Search by Patient Name"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -343,10 +343,10 @@ export default function IPDPatientList() {
                 <p>S_N</p>
               </th>
               <th className="border-[1px] p-1 font-semibold">
-                <p>Patient Uhid</p>
+                <p>Patient Name</p>
               </th>
               <th className="border-[1px] p-1 font-semibold">
-                <p>Doctor Id</p>
+                <p>Doctor Name</p>
               </th>
               <th className="border-[1px] p-1 font-semibold">
                 <p>Ipd Admiited Date/TIme </p>
@@ -359,7 +359,7 @@ export default function IPDPatientList() {
 
             <tbody>
               {filteredData
-                ?.filter((item) => item?.ipdPatientDischarged === false)
+
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 ?.map((item, index) => (
                   <tr key={index} className="border-b-[1px]">
@@ -367,10 +367,10 @@ export default function IPDPatientList() {
                       {index + 1}
                     </td>
                     <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                      {"Uhid" + item?.ipdPatientId}
+                      {item?.patientName}
                     </td>
                     <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                      {item?.ipdDoctorId}
+                      {item?.doctorName}
                     </td>
                     <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                       {date(item?.updatedAt)}-{time(item?.updatedAt)}
@@ -399,9 +399,7 @@ export default function IPDPatientList() {
             rowsPerPage={rowsPerPage}
             handleChangePage={handleChangePage}
             handleChangeRowsPerPage={handleChangeRowsPerPage}
-            data={filteredData?.filter(
-              (item) => item?.ipdPatientDischarged === false
-            )}
+            data={filteredData}
           />
         </div>
       </div>

@@ -70,6 +70,20 @@ export const getAllNurseDischargePatientsListData = async (Id) => {
     throw new Error(error);
   }
 };
+export const getAllDoctorDischargePatientsListData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-all-ipd-patients-discharge-doctor/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const getAllEmergencyDischargePatientsListData = async () => {
   try {
     const response = await axios.get(

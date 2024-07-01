@@ -264,7 +264,9 @@ function EmergencyPatientsTable() {
   const searchHandle = () => {
     const filter = allEmergencyPatients?.filter((item) => {
       if (search != "") {
-        return item?.patientsId?.toLowerCase().includes(search.toLowerCase());
+        return item?.EmergencyPatientName?.toLowerCase().includes(
+          search.toLowerCase()
+        );
       }
       return item;
     });
@@ -279,7 +281,7 @@ function EmergencyPatientsTable() {
     getAllEmergencyPatientsDataHandle();
     getAllEmergencyPatientsListDataHandle();
   }, []);
-  console.log(allEmergencyPatients, "allEmergencyPatients");
+
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -292,7 +294,7 @@ function EmergencyPatientsTable() {
           <FaSearch className="text-[#56585A]" />
           <input
             className="bg-transparent outline-none"
-            placeholder="Search by patient id"
+            placeholder="Search by Patient Name"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
@@ -307,7 +309,7 @@ function EmergencyPatientsTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Patient Uhid</p>
+              <p>Patient Name</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
               <p>Doctor Name</p>
@@ -330,7 +332,7 @@ function EmergencyPatientsTable() {
                     {index + 1}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    {"Uhid" + item?.patientsId}
+                    {item?.EmergencyPatientName}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                     {item?.doctorName}

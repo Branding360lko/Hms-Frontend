@@ -36,6 +36,17 @@ function EmegencyPatientsDischargeTable() {
     setOpenSnackBarWarning(true);
   };
   // ----------------------------
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const [filteredData, setFilteredData] = React.useState([]);
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [allDischargeData, setAllDischargeData] = useState([]);
@@ -58,7 +69,6 @@ function EmegencyPatientsDischargeTable() {
     const result = await getAllEmergencyDischargePatientsNurseListData(
       adminLoggedInData?.adminUniqueId
     );
-
     setAllDischargeData(result?.data?.data?.reverse());
     setFilteredData(result?.data?.data?.reverse());
   };
@@ -130,6 +140,19 @@ function EmegencyPatientsDischargeTable() {
       });
     }
   };
+  const [search, setSearch] = React.useState("");
+  const searchHandle = () => {
+    const filter = allDischargeData?.filter((item) => {
+      if (search != "") {
+        return item?.patientName?.toLowerCase().includes(search.toLowerCase());
+      }
+      return item;
+    });
+    setFilteredData(filter && filter);
+  };
+  React.useEffect(() => {
+    searchHandle();
+  }, [search]);
   useEffect(() => {
     getAllEmergencyDischargePatientsListDataHandle();
   }, []);
@@ -145,7 +168,8 @@ function EmegencyPatientsDischargeTable() {
           <FaSearch className="text-[#56585A]" />
           <input
             className="bg-transparent outline-none"
-            placeholder="Search by patient id"
+            placeholder="Search by Patient Name"
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
@@ -156,7 +180,7 @@ function EmegencyPatientsDischargeTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Emergency Id</p>
+              <p>Emergency Patient</p>
             </th>
 
             <th className="border-[1px] p-1 font-semibold">
@@ -177,7 +201,7 @@ function EmegencyPatientsDischargeTable() {
                   {index + 1}
                 </td>
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                  {item?.mainId}
+                  {item?.patientName}
                 </td>
 
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
@@ -218,13 +242,13 @@ function EmegencyPatientsDischargeTable() {
             ))}
           </tbody>
         </table>
-        {/* <PaginationComponent
+        <PaginationComponent
           page={page}
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           data={filteredData}
-        /> */}
+        />
       </div>
       <Modal
         aria-labelledby="transition-modal-title"

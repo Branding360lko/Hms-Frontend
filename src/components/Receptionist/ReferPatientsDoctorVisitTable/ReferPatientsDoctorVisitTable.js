@@ -307,13 +307,10 @@ function ReferPatientsDoctorVisitTable() {
           <FaSearch className="text-[#56585A]" />
           <input
             className="bg-transparent outline-none"
-            placeholder="Search by patient id"
+            placeholder="Search by Patient Name"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <input type='date' className='bg-transparent outline-none' />
-          </div> */}
       </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
@@ -322,7 +319,7 @@ function ReferPatientsDoctorVisitTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Patient Uhid</p>
+              <p>Patient Name</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
               <p>Referring Doctor Name</p>
@@ -352,7 +349,7 @@ function ReferPatientsDoctorVisitTable() {
                     {index + 1}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    {"Uhid" + item?.PatientsDetails?.[0]?.patientId}
+                    {item?.PatientsDetails?.[0]?.patientName}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                     {item?.ReferringDoctorDetails?.[0]?.doctorName}

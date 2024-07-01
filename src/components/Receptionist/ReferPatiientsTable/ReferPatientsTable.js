@@ -7,6 +7,7 @@ import Select from "react-select";
 import { IoIosArrowForward } from "react-icons/io";
 import {
   addNurseReferPatientsData,
+  getAllIpdPatientsAssignedNurseData,
   getAllNurseReferData,
   getOneReferPatientDataData,
 } from "../NurseApi";
@@ -59,12 +60,11 @@ function DischargePatientsTable() {
   const todayDate = new Date();
   const startOfDay = new Date(todayDate.setHours(0, 0, 0, 0));
   const endOfDay = new Date(todayDate.setHours(23, 59, 59, 999));
+  const [ipdPatient, setIpdPatient] = useState();
   const dispatch = useDispatch();
   const { ipdPatients } = useSelector((state) => state.IPDPatientState);
   const { doctors } = useSelector((state) => state.DoctorState);
-  const { adminUniqueId, adminLoggedInData } = useSelector(
-    (state) => state.AdminState
-  );
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [referPatientData, setReferPatientData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [addReferPatients, setAddReferPatients] = useState({
@@ -75,12 +75,19 @@ function DischargePatientsTable() {
     reasonForReferal: "",
     note: "",
   });
-  const renderedIpdPatientsForDropdown = ipdPatients
+  const allIpdPatientsAllotedWithNurseDataHandle = async () => {
+    const result = await getAllIpdPatientsAssignedNurseData(
+      adminLoggedInData?.adminUniqueId
+    );
+    setIpdPatient(result && result?.data?.data?.reverse());
+    console.log(result, "result");
+  };
+  const renderedIpdPatientsForDropdown = ipdPatient
     ?.filter((item) => item?.ipdPatientDischarged === false)
     ?.map((data) => {
       return {
         value: data._id,
-        label: `${"Uhid" + data.ipdPatientId}`,
+        label: `${"Uhid" + data.ipdPatientId} / ${data.patientName}`,
       };
     });
 
@@ -143,15 +150,13 @@ function DischargePatientsTable() {
   const searchHandle = () => {
     const filter = allReferedpatients?.filter((item) => {
       if (search != "") {
-        return item?.PatientsDetails?.[0]?.patientId
+        return item?.PatientsDetails?.[0]?.patientName
           ?.toLowerCase()
           .includes(search.toLowerCase());
       }
       return item;
     });
     setFilteredData(filter && filter);
-
-    console.log(filter);
   };
   React.useEffect(() => {
     searchHandle();
@@ -160,12 +165,9 @@ function DischargePatientsTable() {
     getAllNurseReferDataHandle();
   }, []);
   useEffect(() => {
-    dispatch(GetIpdPatientsHandle());
     dispatch(GetAllDoctorsHandle());
+    allIpdPatientsAllotedWithNurseDataHandle();
   }, []);
-  useEffect(() => {
-    console.log(addReferPatients);
-  }, [addReferPatients]);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -182,13 +184,10 @@ function DischargePatientsTable() {
           <FaSearch className="text-[#56585A]" />
           <input
             className="bg-transparent outline-none"
-            placeholder="Search by patient id"
+            placeholder="Search by Patient Name"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <input type='date' className='bg-transparent outline-none' />
-          </div> */}
       </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
@@ -227,7 +226,7 @@ function DischargePatientsTable() {
                     {index + 1}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    {"UHID" + item?.PatientsDetails?.[0]?.patientId}
+                    {item?.PatientsDetails?.[0]?.patientName}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                     {item?.ReferringDoctorDetails?.[0]?.doctorName}

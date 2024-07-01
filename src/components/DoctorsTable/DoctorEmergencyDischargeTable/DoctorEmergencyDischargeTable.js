@@ -12,6 +12,7 @@ import {
 import style from "../../../styling/styling";
 import { IoIosArrowForward } from "react-icons/io";
 import Snackbars from "../../SnackBar";
+import { FaSearch } from "react-icons/fa";
 
 function DoctorEmergencyDischargeTable() {
   // Snackbar--------------------
@@ -68,6 +69,7 @@ function DoctorEmergencyDischargeTable() {
     );
 
     setAllDischargeData(result?.data?.data?.reverse());
+    setFilteredData(result?.data?.data?.reverse());
   };
   const addDoctorDetailsForEmergencyPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
@@ -113,6 +115,20 @@ function DoctorEmergencyDischargeTable() {
     }
     console.log(result);
   };
+  const [search, setSearch] = React.useState("");
+  const [filteredData, setFilteredData] = React.useState([]);
+  const searchHandle = () => {
+    const filter = allDischargeData?.filter((item) => {
+      if (search != "") {
+        return item?.PatientName?.toLowerCase().includes(search.toLowerCase());
+      }
+      return item;
+    });
+    setFilteredData(filter && filter);
+  };
+  React.useEffect(() => {
+    searchHandle();
+  }, [search]);
   useEffect(() => {
     getAllEmergencyDischargePatientsListDataHandle();
   }, []);
@@ -124,6 +140,16 @@ function DoctorEmergencyDischargeTable() {
           Emergency Discharge Patient
         </h2>
       </div>
+      <div className="flex justify-between">
+        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+          <FaSearch className="text-[#56585A]" />
+          <input
+            className="bg-transparent outline-none"
+            placeholder="Search by Patient Name"
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
       <div className="w-full">
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
           <thead>
@@ -131,7 +157,7 @@ function DoctorEmergencyDischargeTable() {
               <p>S_N</p>
             </th>
             <th className="border-[1px] p-1 font-semibold">
-              <p>Emergency Patient Id</p>
+              <p>Emergency Patient Name</p>
             </th>
 
             <th className="border-[1px] p-1 font-semibold">
@@ -146,7 +172,7 @@ function DoctorEmergencyDischargeTable() {
             </th>
           </thead>
           <tbody>
-            {allDischargeData
+            {filteredData
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((item, index) => (
                 <tr key={index} className="border-b-[1px]">
@@ -154,7 +180,7 @@ function DoctorEmergencyDischargeTable() {
                     {index + 1}
                   </td>
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                    {item?.mainId}
+                    {item?.PatientName}
                   </td>
 
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
