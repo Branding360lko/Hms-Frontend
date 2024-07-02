@@ -32,7 +32,19 @@ export default function IPDDoctorVisitTable() {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+
+    setDailyDoctorVisitData({
+      doctorId: "",
+      doctorName: "",
+      patientsId: "",
+      ipdPatientId: "",
+      symtoms: "",
+      notes: "",
+      visitDateTime: "",
+    });
+  };
   const [open1, setOpen1] = React.useState(false);
   const handleOpen1 = () => setOpen1(true);
   const handleClose1 = () => setOpen1(false);
@@ -41,7 +53,25 @@ export default function IPDDoctorVisitTable() {
   const handleClose2 = () => setOpen2(false);
   const [open3, setOpen3] = React.useState(false);
   const handleOpen3 = () => setOpen3(true);
-  const handleClose3 = () => setOpen3(false);
+  const handleClose3 = () => {
+    setOpen3(false);
+    setAdditionalDoctor({
+      doctorName: "",
+      doctorId: "",
+      doctorMainId: "",
+    });
+    setDailyDoctorVisitData({
+      doctorId: "",
+      doctorName: "",
+      patientsId: "",
+      ipdPatientId: "",
+      symtoms: "",
+      notes: "",
+      visitDateTime: "",
+    });
+    setSelectedTest([]);
+    setSelectedMedicine([]);
+  };
   const [patientData, setPatientData] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -96,6 +126,11 @@ export default function IPDDoctorVisitTable() {
   const [searchTest, setSearchTest] = useState([]);
   const [searchDoctor, setSearchDoctor] = useState([]);
   const [selectedTest, setSelectedTest] = useState([]);
+  const [additionalDoctor, setAdditionalDoctor] = useState({
+    doctorName: "",
+    doctorId: "",
+    doctorMainId: "",
+  });
   const [allIpdDoctorVisitList, setAllIpdDoctorVisitList] = useState([]);
   const [dailyDoctorVisitData, setDailyDoctorVisitData] = useState({
     doctorId: "",
@@ -190,6 +225,7 @@ export default function IPDDoctorVisitTable() {
     };
     setSelectedTest(oldValue && oldValue);
   };
+
   const addSelectedMedicineDataHandle = (index, item) => {
     let oldValue = [...selectedMedicine];
     console.log(item);
@@ -255,13 +291,84 @@ export default function IPDDoctorVisitTable() {
       handleClickSnackbarSuccess();
       setSnackBarSuccessMessage(result?.data?.message);
       handleClose();
+      setDailyDoctorVisitData({
+        doctorId: "",
+        doctorName: "",
+        patientsId: "",
+        ipdPatientId: "",
+        symtoms: "",
+        notes: "",
+        visitDateTime: "",
+      });
     }
     if (result?.status !== 201) {
       handleClickSnackbarWarning();
       setSnackBarSuccessWarning(result?.data?.message);
       handleClose();
+      setDailyDoctorVisitData({
+        doctorId: "",
+        doctorName: "",
+        patientsId: "",
+        ipdPatientId: "",
+        symtoms: "",
+        notes: "",
+        visitDateTime: "",
+      });
     }
     console.log(result);
+  };
+  const addDailyAdditionalDoctorVisitIpdDataHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("Symptoms", dailyDoctorVisitData?.symtoms);
+    formData.append("Note", dailyDoctorVisitData?.notes);
+    formData.append("ipdPatientData", dailyDoctorVisitData?.ipdPatientId);
+    formData.append("ipdPatientMainId", dailyDoctorVisitData?.mainId);
+    formData.append("isPatientsChecked", true);
+    formData.append("doctorId", additionalDoctor?.doctorId);
+    formData.append("submittedBy", "Additional Doctor");
+    formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
+    formData.append("medicine", JSON.stringify(selectedMedicine));
+    formData.append("test", JSON.stringify(selectedTest));
+    const result = await addDailyDoctorVisitIpdData(formData);
+    if (result?.status === 201) {
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(result?.data?.message);
+      handleClose3();
+      setAdditionalDoctor({
+        doctorName: "",
+        doctorId: "",
+        doctorMainId: "",
+      });
+      setDailyDoctorVisitData({
+        doctorId: "",
+        doctorName: "",
+        patientsId: "",
+        ipdPatientId: "",
+        symtoms: "",
+        notes: "",
+        visitDateTime: "",
+      });
+    }
+    if (result?.status !== 201) {
+      handleClickSnackbarWarning();
+      setSnackBarSuccessWarning(result?.data?.message);
+      handleClose3();
+      setAdditionalDoctor({
+        doctorName: "",
+        doctorId: "",
+        doctorMainId: "",
+      });
+      setDailyDoctorVisitData({
+        doctorId: "",
+        doctorName: "",
+        patientsId: "",
+        ipdPatientId: "",
+        symtoms: "",
+        notes: "",
+        visitDateTime: "",
+      });
+    }
   };
   const getOnePatientsDoctorVisitDataHandle = async (Id) => {
     const result = await getOnePatientsDoctorVisitData(Id);
@@ -302,7 +409,7 @@ export default function IPDDoctorVisitTable() {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
         setActiveIndex(null);
         setActiveTestIndex(null);
-        setActiveIndex(false);
+        setActiveDoctor(false);
         setSearchMedicine([]);
         setSearchTest([]);
       }
@@ -321,7 +428,9 @@ export default function IPDDoctorVisitTable() {
     getDoctorVisitListWithIpdPatientsDataHandle();
     getAllDoctorVisitPatientsListDataHandle();
   }, []);
-
+  useEffect(() => {
+    console.log(additionalDoctor, "fghg", dailyDoctorVisitData);
+  }, [additionalDoctor, dailyDoctorVisitData]);
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -425,13 +534,23 @@ export default function IPDDoctorVisitTable() {
                               ipdPatientId: item?.Ipdpatient_id,
                               mainId: item?.IpdPatientMainId,
                             }),
+                            console.log(item),
                           ]}
                         >
                           <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
                         </div>
                         <div
                           className="p-[4px] h-fit w-fit border-[2px] border-[#0ba46f] rounded-[12px] cursor-pointer"
-                          onClick={handleOpen3}
+                          onClick={() => [
+                            handleOpen3(),
+                            setDailyDoctorVisitData({
+                              ...dailyDoctorVisitData,
+                              patientsId: item?.IpdpatientId,
+                              ipdPatientId: item?.Ipdpatient_id,
+                              mainId: item?.IpdPatientMainId,
+                            }),
+                            console.log(item),
+                          ]}
                         >
                           <IoMdPersonAdd className="text-[20px] text-[#0ba46f]" />
                         </div>
@@ -1104,28 +1223,40 @@ export default function IPDDoctorVisitTable() {
             </Typography>
             <form
               className="w-full flex flex-col gap-3"
-              onSubmit={addDailyDoctorVisitIpdDataHandle}
+              onSubmit={addDailyAdditionalDoctorVisitIpdDataHandle}
             >
               <div className="w-full grid grid-cols-2 gap-3 pt-3">
                 <div className="w-full flex items-start justify-start flex-col gap-1">
-                  <p>Additional Doctor Name</p>
-                  <div className="w-full border-[1px] rounded border-[#ccc] p-1 justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                  <p>Search Additional Doctor Name</p>
+                  <div className="w-full border-[1px] h-[1rem] rounded border-[#ccc] justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
                     <input
                       type="text"
                       placeholder="Doctor Name"
-                      className="w-full border-none outline-none "
-                      onChange={(e) => selectDoctorHandle(e)}
+                      className="w-full border-none outline-none  pl-1"
+                      onChange={(e) => [
+                        selectDoctorHandle(e),
+                        setActiveDoctor(true),
+                      ]}
+                      autocomplete="off"
                     />
+
                     {activeDoctor === true && (
                       <span
                         ref={selectRef}
-                        className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                        className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[2.15rem]"
                       >
                         {searchDoctor?.length > 0 ? (
                           searchDoctor?.map((item, index) => (
                             <p
                               key={index}
                               className="w-full  hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                              onClick={() =>
+                                setAdditionalDoctor({
+                                  ...additionalDoctor,
+                                  doctorName: item?.doctorName,
+                                  doctorId: item?._id,
+                                })
+                              }
                             >
                               {item?.doctorName}
                             </p>
@@ -1141,6 +1272,18 @@ export default function IPDDoctorVisitTable() {
                     )}
                   </div>
                 </div>{" "}
+                <div className="w-full flex items-start justify-start flex-col gap-1">
+                  <p>Selected Additional Doctor Name</p>
+                  <span className="w-full border-[1px] rounded border-[#ccc] p-1">
+                    <input
+                      type="text"
+                      placeholder="Doctor Name"
+                      className="w-full border-none outline-none"
+                      value={additionalDoctor?.doctorName}
+                      required
+                    />
+                  </span>
+                </div>
                 <div className="w-full flex items-start justify-start flex-col gap-1">
                   <p>Doctor Visti Time</p>
                   <span className="w-full border-[1px] rounded border-[#ccc] p-1">
