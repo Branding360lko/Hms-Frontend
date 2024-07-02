@@ -1186,19 +1186,19 @@ export default function IPD_PatientTable() {
       </form>
       <br />
       <div className=" flex flex-col justify-center items-start gap-5">
-        <h2>Add Medical Charges </h2>
+        <h2>Add Extra Charges </h2>
         <AddOtherCharges
           handleAddMedicalCharges={handleAddMedicalCharges}
           mainId={mainId}
         />
         <br />
 
-        <h2>Add Lab Test Charges</h2>
+        {/* <h2>Add Lab Test Charges</h2>
 
         <AddOtherCharges
           handleAddMedicalCharges={handleAddLabCharges}
           mainId={mainId}
-        />
+        /> */}
       </div>
     </div>
   );

@@ -9,16 +9,20 @@ import logoImage from "../../../../assets/logo.png";
 
 import { useReactToPrint } from "react-to-print";
 
-import { useGetIPDPatientByIdQuery } from "../../../../Store/Services/IPDPatientService";
+// import { useGetIPDPatientByIdQuery } from "../../../../Store/Services/IPDPatientService";
 import { useGetDoctorByIdQuery } from "../../../../Store/Services/DoctorService";
 import { useGetPatientByIdQuery } from "../../../../Store/Services/PatientService";
 
 import { ToWords } from "to-words";
-import { useGetIPDPatientBalanceByIdQuery } from "../../../../Store/Services/IPDPatientBalanceService";
+// import { useGetIPDPatientBalanceByIdQuery } from "../../../../Store/Services/IPDPatientBalanceService";
+import {
+  useGetEmergencyPatientBalanceByIdQuery,
+  useGetEmergencyPatientByIdQuery,
+} from "../../../../Store/Services/EmergencyPatientService";
 
 export default function EmergencyPatientPaymentReciept() {
   const toWords = new ToWords();
-  const { ipdPatientId } = useParams();
+  const { emergencyPatientId } = useParams();
 
   const { dateTime } = useParams();
 
@@ -27,23 +31,23 @@ export default function EmergencyPatientPaymentReciept() {
 
   const [selectedDateDeposit, setSelectedDateDeposit] = useState(null);
 
-  const responseGetIPDPatientById = useGetIPDPatientByIdQuery(ipdPatientId);
+  const responseGetPatientDetailsById =
+    useGetEmergencyPatientByIdQuery(emergencyPatientId);
   const responseGetDoctorById = useGetDoctorByIdQuery(doctorId);
   const responseGetPatientById = useGetPatientByIdQuery(patientId);
 
-  const responseGetIpdPatientDeposits =
-    useGetIPDPatientBalanceByIdQuery(ipdPatientId);
+  const responseGetPatientDeposits =
+    useGetEmergencyPatientBalanceByIdQuery(emergencyPatientId);
 
   useEffect(() => {
-    if (responseGetIPDPatientById.isSuccess) {
-      setDoctorId(responseGetIPDPatientById?.currentData?.ipdDoctorId);
-      setPatientId(responseGetIPDPatientById?.currentData?.ipdPatientId);
+    if (responseGetPatientDetailsById.isSuccess) {
+      setDoctorId(responseGetPatientDetailsById?.currentData?.doctorId);
+      setPatientId(responseGetPatientDetailsById?.currentData?.patientId);
     }
-  }, [responseGetIPDPatientById.isSuccess]);
+  }, [responseGetPatientDetailsById.isSuccess]);
 
   useEffect(() => {
-    const allDeposits =
-      responseGetIpdPatientDeposits?.currentData?.data?.balance;
+    const allDeposits = responseGetPatientDeposits?.currentData?.data?.balance;
     console.log("allDeposits:", allDeposits);
     if (allDeposits) {
       const requiredDeposit = allDeposits.find(
@@ -53,11 +57,15 @@ export default function EmergencyPatientPaymentReciept() {
         setSelectedDateDeposit(requiredDeposit);
       }
     }
-  }, [responseGetIpdPatientDeposits?.isSuccess]);
+  }, [responseGetPatientDeposits?.isSuccess]);
 
   console.log("selectedDateDeposit:", selectedDateDeposit);
 
-  console.log("responseGetIpdPatientDeposits:", responseGetIpdPatientDeposits);
+  console.log("responseGetPatientDeposits:", responseGetPatientDeposits);
+
+  console.log("responseGetPatientDetailsById:", responseGetPatientDetailsById);
+
+  console.log("responseGetPatientById:", responseGetPatientById);
 
   const date = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -94,13 +102,13 @@ export default function EmergencyPatientPaymentReciept() {
 
   return (
     <>
-      {responseGetIPDPatientById.isLoading &&
+      {responseGetPatientDetailsById.isLoading &&
       responseGetDoctorById.isLoading &&
       responseGetPatientById.isLoading ? (
         "Loading..."
       ) : (
         <Fragment>
-          {responseGetIPDPatientById.isSuccess &&
+          {responseGetPatientDetailsById.isSuccess &&
           responseGetDoctorById.isSuccess &&
           responseGetPatientById.isSuccess ? (
             <div className="w-full">
@@ -140,14 +148,14 @@ export default function EmergencyPatientPaymentReciept() {
                     borderBottom: "2px solid #373737",
                   }}
                 >
-                  IPD Payment Receipt
+                  Emergency Payment Receipt
                 </h3>
 
                 <div className="grid grid-cols-2 gap-[10px] text-[14px]">
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">UHID</p>
                     <p>
-                      {responseGetIPDPatientById?.currentData?.ipdPatientId}
+                      {responseGetPatientDetailsById?.currentData?.patientId}
                     </p>
                   </div>
                   <div className="flex">
@@ -211,7 +219,7 @@ export default function EmergencyPatientPaymentReciept() {
                     <p className="font-[500] w-[130px] text-start">
                       IPD Patient ID:
                     </p>
-                    <p>{ipdPatientId}</p>
+                    <p>{emergencyPatientId}</p>
                   </div>
 
                   <div className="flex">

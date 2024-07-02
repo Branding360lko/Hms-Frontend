@@ -98,6 +98,24 @@ export const emergencyPatientService = createApi({
         };
       },
     }),
+    emergencyPatientDischargeRequest: builder.mutation({
+      query: (id) => {
+        return {
+          url: `EmergencyPatientDischargeRequest-PUT/${id}`,
+          method: "PUT",
+          // body: updateData.data,
+        };
+      },
+    }),
+    emergencyPatientFinalDischarge: builder.mutation({
+      query: (id) => {
+        return {
+          url: `EmergencyPatient-PUT-DISCHARGE/${id}`,
+          method: "PUT",
+          // body: updateData.data,
+        };
+      },
+    }),
   }),
 });
 
@@ -113,4 +131,6 @@ export const {
   useGetEmergencyPatientMedDocLabTotalByIdQuery,
   useAddEmergencyPatientExtraChargesByIdMutation,
   useAddEmergencyPatientBalanceByIdMutation,
+  useEmergencyPatientDischargeRequestMutation,
+  useEmergencyPatientFinalDischargeMutation,
 } = emergencyPatientService;

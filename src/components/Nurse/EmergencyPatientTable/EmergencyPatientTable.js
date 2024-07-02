@@ -4,7 +4,7 @@ import "./EmergencyPatientTable.css";
 import Table from "../../Table";
 
 import { FaSearch } from "react-icons/fa";
-import { MdViewKanban } from "react-icons/md";
+import { MdOutlineReceiptLong, MdViewKanban } from "react-icons/md";
 import { RiEdit2Fill } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { LuHardDriveDownload } from "react-icons/lu";
@@ -41,6 +41,8 @@ import {
   useAddEmergencyPatientExtraChargesByIdMutation,
   useCreateEmergencyPatientMutation,
   useDeleteEmergencyPatientByIdMutation,
+  useEmergencyPatientDischargeRequestMutation,
+  useEmergencyPatientFinalDischargeMutation,
   useGetAllEmergencyPatientBalanceQuery,
   useGetEmergencyPatientBalanceByIdQuery,
   useGetEmergencyPatientMedDocLabDetailsByIdQuery,
@@ -701,15 +703,25 @@ export default function EmergencyPatientTable() {
   //     (patient) => patient._id === currentPatientId
   //   );
 
+  const [negativeBalanceAlert, setNegativeBalaneAlert] = React.useState(false);
+
   const handleOpenViewModal = (patientData) => {
     setCurrentEmergencyPatient(patientData);
+    if (patientData?.balanceData?.remainingBalance < 0) {
+      setNegativeBalaneAlert(true);
+    } else {
+      setNegativeBalaneAlert(false);
+    }
     setCurrentPatientId(patientData?.data?.mainId);
     setOpenViewModal(true);
   };
 
   console.log("currentPatientId:", currentPatientId);
   console.log("currentEmergencyPatient:", currentEmergencyPatient);
-  const handleCloseViewModal = () => setOpenViewModal(false);
+  const handleCloseViewModal = () => {
+    setOpenViewModal(false);
+    setSelectedPayment(null);
+  };
 
   const modalViewEmergencyPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -1213,6 +1225,122 @@ export default function EmergencyPatientTable() {
     }
   };
 
+  // Discharge Function and Logic
+
+  const [patientDischargeState, setPatientDischargeState] = React.useState({
+    dischargeNurseRequestSent:
+      currentEmergencyPatient?.data?.emergencyPatientNurseRequestForDischarge,
+    dischargeDoctorRequestSent:
+      currentEmergencyPatient?.data?.emergencyPatientDoctorRequestForDischarge,
+
+    nurseUpdate:
+      currentEmergencyPatient?.data?.emergencyPatientNurseConfirmation,
+    doctorUpdate:
+      currentEmergencyPatient?.data?.emergencyPatientDoctorConfirmation,
+
+    discharged: currentEmergencyPatient?.data?.emergencyPatientDischarged,
+  });
+  const [patientDischargeReq, responsePatientDischargeReq] =
+    useEmergencyPatientDischargeRequestMutation();
+
+  React.useEffect(() => {
+    if (responsePatientDischargeReq.isSuccess) {
+      dispatch(createEmergencyPatientChange(Math.random()));
+      updatePatientDischargeState({
+        dischargeNurseRequestSent: true,
+        dischargeDoctorRequestSent: true,
+      });
+      setSnackBarSuccessMessage(responsePatientDischargeReq?.data?.message);
+      handleClickSnackbarSuccess();
+    } else if (responsePatientDischargeReq.isError) {
+      setSnackBarSuccessWarning(responsePatientDischargeReq?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responsePatientDischargeReq.isSuccess,
+    responsePatientDischargeReq.isError,
+  ]);
+
+  const updatePatientDischargeState = (updatedState) => {
+    setPatientDischargeState((prevState) => ({
+      ...prevState,
+      ...updatedState,
+    }));
+  };
+
+  React.useEffect(() => {
+    updatePatientDischargeState({
+      dischargeNurseRequestSent:
+        currentEmergencyPatient?.data?.emergencyPatientNurseRequestForDischarge,
+      dischargeDoctorRequestSent:
+        currentEmergencyPatient?.data
+          ?.emergencyPatientDoctorRequestForDischarge,
+
+      nurseUpdate:
+        currentEmergencyPatient?.data?.emergencyPatientNurseConfirmation,
+      doctorUpdate:
+        currentEmergencyPatient?.data?.emergencyPatientDoctorConfirmation,
+
+      discharged: currentEmergencyPatient?.data?.emergencyPatientDischarged,
+    });
+  }, [currentEmergencyPatient]);
+
+  const handleDischargeButtonClick = (e) => {
+    e.preventDefault();
+    patientDischargeReq(currentEmergencyPatient?.data?.mainId);
+
+    patientDischargeLoaderToggle();
+    // updatePatientDischargeState({ dischargeRequestSent: true });
+  };
+
+  const [patientDischargeLoader, setPatientDischargeLoader] =
+    React.useState(false);
+
+  const patientDischargeLoaderToggle = () => {
+    setPatientDischargeLoader(true);
+
+    setTimeout(() => {
+      setPatientDischargeLoader(false);
+    }, 2000);
+  };
+
+  // console.log("ipdPatientDischargeState:", ipdPatientDischargeState);
+
+  // Final Discharge
+
+  const [patientFinalDischargeReq, responsePatientFinalDischargeReq] =
+    useEmergencyPatientFinalDischargeMutation();
+
+  const handleFinalIpdDischarge = () => {
+    patientFinalDischargeReq(currentEmergencyPatient.data.mainId);
+    patientDischargeLoaderToggle();
+  };
+
+  React.useEffect(() => {
+    if (responsePatientFinalDischargeReq.isSuccess) {
+      dispatch(createEmergencyPatientChange(Math.random()));
+      updatePatientDischargeState({
+        discharged: true,
+      });
+
+      console.log(
+        "Ipd Patient Discharge successful:",
+        responsePatientFinalDischargeReq
+      );
+
+      setSnackBarSuccessMessage(
+        responsePatientFinalDischargeReq?.data?.message
+      );
+      handleClickSnackbarSuccess();
+    } else if (responsePatientFinalDischargeReq.isError) {
+      setSnackBarSuccessWarning(responsePatientFinalDischargeReq?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responsePatientFinalDischargeReq.isSuccess,
+    responsePatientFinalDischargeReq.isError,
+  ]);
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1311,7 +1439,7 @@ export default function EmergencyPatientTable() {
                     target="_blank"
                     to={`${
                       browserLinks?.nurse.category
-                    }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
+                    }/${browserLinks?.nurse?.internalPages?.emergencyPatientPaymentReceipt
                       .split(" ")
                       .join("")}/${currentPatientId}/${selectedPayment}`}
                     className={`buttonFilled flex items-center gap-[10px] text-sm no-underline ${
@@ -1329,17 +1457,130 @@ export default function EmergencyPatientTable() {
                   )}
                 </div>
               </div>
-              <Link
-                // onClick={handleGeneratePdf}
-                target="_blank"
-                to={"01"}
-                // to={opdPatientData?.data?.mainId}
-                // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
-                className="buttonFilled flex items-center gap-[10px]"
-              >
-                <LuHardDriveDownload />
-                <p>Download</p>
-              </Link>
+              {patientDischargeLoader ? (
+                <div>Loading...</div>
+              ) : negativeBalanceAlert ? (
+                <button
+                  onClick={(e) => e.preventDefault()}
+                  disabled={true}
+                  className=" bg-red-500 text-white px-2 py-1 rounded-md"
+                >
+                  Negative Balance
+                </button>
+              ) : patientDischargeState.discharged === true ? (
+                <div>
+                  {" "}
+                  <Link
+                    // onClick={handleGeneratePdf}
+                    target="_blank"
+                    to={currentEmergencyPatient?.data?.mainId}
+                    // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
+                    className="buttonFilled flex items-center gap-[10px]"
+                  >
+                    <LuHardDriveDownload />
+                    <p>Download</p>
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {patientDischargeState.dischargeDoctorRequestSent &&
+                  (!patientDischargeState.doctorUpdate ||
+                    !patientDischargeState.nurseUpdate) ? (
+                    <div className=" flex flex-col justify-start items-start gap-2">
+                      <button
+                        className=" bg-gray-500 text-white px-2 py-1 rounded-md"
+                        disabled
+                      >
+                        Request Pending
+                      </button>
+                      <div className=" flex flex-col justify-center items-start text-base ">
+                        <div>
+                          Doctor's Approval:{" "}
+                          <span
+                            className={`${
+                              patientDischargeState.doctorUpdate
+                                ? " text-green-500 "
+                                : " text-red-500"
+                            }`}
+                          >
+                            {patientDischargeState.doctorUpdate
+                              ? "Approved"
+                              : "Pending"}
+                          </span>
+                        </div>
+
+                        <div>
+                          Nurse's Approval:{" "}
+                          <span
+                            className={`${
+                              patientDischargeState.nurseUpdate
+                                ? " text-green-500 "
+                                : " text-red-500"
+                            }`}
+                          >
+                            {patientDischargeState.nurseUpdate
+                              ? "Approved"
+                              : "Pending"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : patientDischargeState.dischargeDoctorRequestSent &&
+                    patientDischargeState.doctorUpdate &&
+                    patientDischargeState.nurseUpdate ? (
+                    <div className=" flex flex-col justify-start items-start gap-2">
+                      <button
+                        onClick={handleFinalIpdDischarge}
+                        className=" bg-blue-500 text-white px-2 py-1 rounded-md"
+                      >
+                        Final Discharge
+                      </button>
+                      <div className=" flex flex-col justify-center items-start text-base ">
+                        <div>
+                          Doctor's Approval:{" "}
+                          <span
+                            className={`${
+                              patientDischargeState.doctorUpdate
+                                ? " text-green-500 "
+                                : " text-red-500"
+                            }`}
+                          >
+                            {patientDischargeState.doctorUpdate
+                              ? "Approved"
+                              : "Pending"}
+                          </span>
+                        </div>
+
+                        <div>
+                          Nurse's Approval:{" "}
+                          <span
+                            className={`${
+                              patientDischargeState.nurseUpdate
+                                ? " text-green-500 "
+                                : " text-red-500"
+                            }`}
+                          >
+                            {patientDischargeState.nurseUpdate
+                              ? "Approved"
+                              : "Pending"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      onClick={(e) => handleDischargeButtonClick(e)}
+                      // target="_blank"
+                      // to={currentEmergencyPatient?.data?.mainId}
+                      // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
+                      className="buttonFilled flex items-center gap-[10px]"
+                    >
+                      <MdOutlineReceiptLong />
+                      <p>Discharge Request</p>
+                    </Link>
+                  )}
+                </>
+              )}
             </div>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
