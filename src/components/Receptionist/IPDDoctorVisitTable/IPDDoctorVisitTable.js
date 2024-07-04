@@ -137,6 +137,7 @@ export default function IPDDoctorVisitTable() {
     doctorName: "",
     patientsId: "",
     ipdPatientId: "",
+    ipdPatientsCurrentBed: "",
     symtoms: "",
     notes: "",
     visitDateTime: "",
@@ -281,6 +282,10 @@ export default function IPDDoctorVisitTable() {
     formData.append("ipdPatientData", dailyDoctorVisitData?.ipdPatientId);
     formData.append("ipdPatientMainId", dailyDoctorVisitData?.mainId);
     formData.append("isPatientsChecked", true);
+    formData.append(
+      "ipdPatientCurrentBed",
+      dailyDoctorVisitData?.ipdPatientsCurrentBed
+    );
     formData.append("doctorId", dailyDoctorVisitData?.doctorId);
     formData.append("submittedBy", "Assigned Doctor");
     formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
@@ -325,7 +330,12 @@ export default function IPDDoctorVisitTable() {
     formData.append("ipdPatientData", dailyDoctorVisitData?.ipdPatientId);
     formData.append("ipdPatientMainId", dailyDoctorVisitData?.mainId);
     formData.append("isPatientsChecked", true);
-    formData.append("doctorId", additionalDoctor?.doctorId);
+    formData.append(
+      "ipdPatientCurrentBed",
+      dailyDoctorVisitData?.ipdPatientsCurrentBed
+    );
+    formData.append("doctorId", dailyDoctorVisitData?.doctorId);
+    formData.append("AdditionalDoctorId", additionalDoctor?.doctorId);
     formData.append("submittedBy", "Additional Doctor");
     formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
     formData.append("medicine", JSON.stringify(selectedMedicine));
@@ -533,8 +543,8 @@ export default function IPDDoctorVisitTable() {
                               patientsId: item?.IpdpatientId,
                               ipdPatientId: item?.Ipdpatient_id,
                               mainId: item?.IpdPatientMainId,
+                              ipdPatientsCurrentBed: item?.IpdPatietnBed,
                             }),
-                            console.log(item),
                           ]}
                         >
                           <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
@@ -545,11 +555,12 @@ export default function IPDDoctorVisitTable() {
                             handleOpen3(),
                             setDailyDoctorVisitData({
                               ...dailyDoctorVisitData,
+                              doctorId: item?._id,
                               patientsId: item?.IpdpatientId,
                               ipdPatientId: item?.Ipdpatient_id,
                               mainId: item?.IpdPatientMainId,
+                              ipdPatientsCurrentBed: item?.IpdPatietnBed,
                             }),
-                            console.log(item),
                           ]}
                         >
                           <IoMdPersonAdd className="text-[20px] text-[#0ba46f]" />

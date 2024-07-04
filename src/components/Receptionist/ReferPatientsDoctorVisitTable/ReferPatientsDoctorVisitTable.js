@@ -51,6 +51,7 @@ function ReferPatientsDoctorVisitTable() {
     symtoms: "",
     notes: "",
     visitDateTime: "",
+    ipdPatientsCurrentBed: "",
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -241,6 +242,10 @@ function ReferPatientsDoctorVisitTable() {
     formData.append("ipdPatientData", dailyDoctorVisitData?.ipdPatientId);
     formData.append("ipdPatientMainId", dailyDoctorVisitData?.mainId);
     formData.append("isPatientsChecked", true);
+    formData.append(
+      "ipdPatientCurrentBed",
+      dailyDoctorVisitData?.ipdPatientsCurrentBed
+    );
     formData.append("doctorId", dailyDoctorVisitData?.referringDoctorId);
     formData.append("ReferedDoctorId", dailyDoctorVisitData?.referDoctorId);
     formData.append("submittedBy", "Refered Doctor");
@@ -410,6 +415,7 @@ function ReferPatientsDoctorVisitTable() {
                             ipdPatientId: item?.ipdPatient,
                             patientsId: item?.ipdPatientsDetails?.ipdDoctorId,
                             mainId: item?.ipdPatientsDetails?.mainId,
+                            ipdPatientsCurrentBed: item?.IpdPatietnBed,
                           }),
                         ]}
                       >
