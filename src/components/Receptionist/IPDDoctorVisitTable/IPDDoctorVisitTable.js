@@ -153,7 +153,6 @@ export default function IPDDoctorVisitTable() {
           );
         }
       });
-      console.log(filter);
       setSearchMedicine(filter && filter);
     }, 100);
     setIsLoading(false);
@@ -183,7 +182,6 @@ export default function IPDDoctorVisitTable() {
             ?.includes(e.target.value?.toLowerCase());
         }
       });
-      console.log(filter);
       setSearchDoctor(filter && filter);
     }, 100);
     setIsLoading(false);
@@ -430,17 +428,20 @@ export default function IPDDoctorVisitTable() {
     };
   }, []);
   useEffect(() => {
-    dispatch(GetAllDoctorsHandle());
-    dispatch(getMedicineDataHandle());
-    dispatch(getTestDataHandle());
+    if (doctors?.length === 0) {
+      dispatch(GetAllDoctorsHandle());
+    }
+    if (medicineData?.data?.length === 0) {
+      dispatch(getMedicineDataHandle());
+    }
+    if (testData?.data?.length === 0) {
+      dispatch(getTestDataHandle());
+    }
   }, []);
   useEffect(() => {
     getDoctorVisitListWithIpdPatientsDataHandle();
     getAllDoctorVisitPatientsListDataHandle();
   }, []);
-  useEffect(() => {
-    console.log(additionalDoctor, "fghg", dailyDoctorVisitData);
-  }, [additionalDoctor, dailyDoctorVisitData]);
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -981,7 +982,8 @@ export default function IPDDoctorVisitTable() {
                 <div>
                   <div className="w-full flex items-center">
                     <p className="text-[1.1rem] font-semibold pr-1">Date: </p>
-                    {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)}
+                    {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)}{" "}
+                    <p className="text-[#3497f9] pl-2">({item?.submittedBy})</p>
                   </div>
                   <div className="w-full ">
                     <div className="w-full flex justify-between items-center pt-1 pb-3">
