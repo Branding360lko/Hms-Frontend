@@ -1,0 +1,1 @@
+change done in emergency patient check schema,created function for add Additional doctor in frontend
