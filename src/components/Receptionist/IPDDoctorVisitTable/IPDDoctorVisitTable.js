@@ -13,6 +13,7 @@ import {
   getAllDoctorVisitPatientsListData,
   getDoctorVisitListWithIpdPatientsData,
   getDoctorVisitListWithIpdPatientsNurseData,
+  getIPDPatientDoctorVisitData,
   getIpdPatientsDetailsData,
   getOnePatientsDoctorVisitData,
 } from "../NurseApi";
@@ -142,7 +143,10 @@ export default function IPDDoctorVisitTable() {
     notes: "",
     visitDateTime: "",
   });
-  const [viewPatientsData, setViewPatientsData] = useState([]);
+  const [viewPatientsData, setViewPatientsData] = useState({
+    patientData: [],
+    visitRecords: [],
+  });
   const selectMedicineHandle = (e) => {
     setIsLoading(true);
     setTimeout(() => {
@@ -383,14 +387,21 @@ export default function IPDDoctorVisitTable() {
     setViewPatientsData(result && result?.data);
     console.log(result);
   };
-  const getAllDoctorVisitPatientsListDataHandle = async () => {
-    const result = await getAllDoctorVisitPatientsListData();
-    setAllIpdDoctorVisitList(result && result?.data?.data);
-    console.log(result, "all");
-  };
+  // const getAllDoctorVisitPatientsListDataHandle = async () => {
+  //   const result = await getAllDoctorVisitPatientsListData();
+  //   setAllIpdDoctorVisitList(result && result?.data?.data);
+  //   console.log(result, "all");
+  // };
   const getIpdPatientsDetailsDataHandle = async (Id) => {
     const result = await getIpdPatientsDetailsData(Id);
     setPatientData(result && result?.data?.data?.[0]);
+  };
+  const getIPDPatientDoctorVisitDataHandle = async (Id) => {
+    const result = await getIPDPatientDoctorVisitData(Id);
+    setViewPatientsData({
+      visitRecords: result?.data?.data,
+      patientData: result?.data?.patientData,
+    });
   };
   const [activeDoctor, setActiveDoctor] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
@@ -440,8 +451,9 @@ export default function IPDDoctorVisitTable() {
   }, []);
   useEffect(() => {
     getDoctorVisitListWithIpdPatientsDataHandle();
-    getAllDoctorVisitPatientsListDataHandle();
+    // getAllDoctorVisitPatientsListDataHandle();
   }, []);
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -506,33 +518,17 @@ export default function IPDDoctorVisitTable() {
                     </td>{" "}
                     <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
                       <div className="flex gap-[10px] justify-center">
-                        {allIpdDoctorVisitList?.find(
-                          (val) => val.ipdPatientData === item?.Ipdpatient_id
-                        ) ? (
-                          <div
-                            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                            onClick={() => [
-                              getOnePatientsDoctorVisitDataHandle(
-                                item?.IpdPatientMainId
-                              ),
-                              handleOpen1(),
-                            ]}
-                          >
-                            <CiViewList className="text-[20px] text-[#96999C]" />
-                          </div>
-                        ) : (
-                          <div
-                            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                            onClick={() => [
-                              handleOpen2(),
-                              getIpdPatientsDetailsDataHandle(
-                                item?.IpdpatientId
-                              ),
-                            ]}
-                          >
-                            <CiViewList className="text-[20px] text-[#96999C]" />
-                          </div>
-                        )}
+                        <div
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                          onClick={() => [
+                            handleOpen1(),
+                            getIPDPatientDoctorVisitDataHandle(
+                              item?.IpdPatientMainId
+                            ),
+                          ]}
+                        >
+                          <CiViewList className="text-[20px] text-[#96999C]" />
+                        </div>
                         <div
                           className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                           onClick={() => [
@@ -945,272 +941,240 @@ export default function IPDDoctorVisitTable() {
                   <span>Patients Uhid</span>:
                   <p>
                     {"Uhid" +
-                      viewPatientsData?.[0]?.patientsData?.[0]?.patientId}
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientId}
                   </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Admission Date / Time</span>:
                   <p>
-                    {date(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}-
-                    {time(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}
+                    {date(
+                      viewPatientsData?.patientData?.[0]?.patientData?.createdAt
+                    )}
+                    -
+                    {time(
+                      viewPatientsData?.patientData?.[0]?.patientData?.createdAt
+                    )}
                   </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Name</span>:
-                  <p>{viewPatientsData?.[0]?.patientsData?.[0]?.patientName}</p>
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientName
+                    }
+                  </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Gender</span>:
                   <p>
-                    {viewPatientsData?.[0]?.patientsData?.[0]?.patientGender}
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientGender
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Patient Age</span>:
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientAge
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Patient Blood Group</span>:
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientBloodGroup
+                    }
                   </p>
                 </div>
 
                 <div className="flex gap-[10px]">
-                  <span>IPD NO</span>:
-                  <p>{viewPatientsData?.[0]?.IpdPatientData?.ipdPatientId}</p>
+                  <span>Emergency NO</span>:
+                  <p>{viewPatientsData?.patientData?.[0]?.mainId}</p>
                 </div>
 
                 <div className="flex gap-[10px]">
                   <span>Admitting Doctor</span>:
-                  <p>{viewPatientsData?.[0]?.doctorData?.[0]?.doctorName}</p>
+                  <p>
+                    {viewPatientsData?.patientData?.[0]?.doctorData?.doctorName}
+                  </p>
                 </div>
               </div>
             </div>
             <form className="w-full flex flex-col gap-3">
-              {viewPatientsData?.map((item) => (
-                <div>
-                  <div className="w-full flex items-center">
-                    <p className="text-[1.1rem] font-semibold pr-1">Date: </p>
-                    {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)}{" "}
-                    <p className="text-[#3497f9] pl-2">({item?.submittedBy})</p>
-                  </div>
-                  <div className="w-full ">
-                    <div className="w-full flex justify-between items-center pt-1 pb-3">
-                      <p className="text-[1rem] font-normal">Medicine</p>
+              {viewPatientsData?.visitRecords?.length > 0 ? (
+                viewPatientsData?.visitRecords?.map((item) => (
+                  <div>
+                    <div className="w-full flex items-center">
+                      <p className="text-[1.1rem] font-semibold pr-1">Date: </p>
+                      {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)}{" "}
+                      <p className="text-[#3497f9] pl-2">
+                        ({item?.submittedBy})
+                      </p>
                     </div>
-                    <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
-                      <thead>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>S_N</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Medicine</p>
-                        </th>
+                    <div className="w-full ">
+                      <div className="w-full flex justify-between items-center pt-1 pb-3">
+                        <p className="text-[1rem] font-normal">Medicine</p>
+                      </div>
+                      <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                        <thead>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>S_N</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Medicine</p>
+                          </th>
 
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Quantity</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Total</p>
-                        </th>
-                      </thead>
-                      <tbody>
-                        {item?.medicine?.map((item, index) => (
-                          <tr key={index} className="border-b-[1px]">
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              {index + 1}
-                            </td>
-                            <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
-                              <input
-                                type="text"
-                                className="w-full  outline-none px-4"
-                                placeholder="Medicine"
-                                name="name"
-                                value={item?.Name}
-                                autocomplete="off"
-                                disabled
-                              />
-                            </td>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Quantity</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Total</p>
+                          </th>
+                        </thead>
+                        <tbody>
+                          {item?.medicine?.map((item, index) => (
+                            <tr key={index} className="border-b-[1px]">
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                {index + 1}
+                              </td>
+                              <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                                <input
+                                  type="text"
+                                  className="w-full  outline-none px-4"
+                                  placeholder="Medicine"
+                                  name="name"
+                                  value={item?.Name}
+                                  autocomplete="off"
+                                  disabled
+                                />
+                              </td>
 
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="quantity"
-                                name="quantity"
-                                value={item?.Quantity}
-                                disabled
-                              />
-                            </td>
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="price"
-                                name="price"
-                                value={item?.Price}
-                                disabled
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="w-full ">
-                    <div className="w-full flex justify-between items-center pt-1 pb-3">
-                      <p className="text-[1rem] font-normal">Test</p>
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="quantity"
+                                  name="quantity"
+                                  value={item?.Quantity}
+                                  disabled
+                                />
+                              </td>
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="price"
+                                  name="price"
+                                  value={item?.Price}
+                                  disabled
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
-                      <thead>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>S_N</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Test</p>
-                        </th>
+                    <div className="w-full ">
+                      <div className="w-full flex justify-between items-center pt-1 pb-3">
+                        <p className="text-[1rem] font-normal">Test</p>
+                      </div>
+                      <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                        <thead>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>S_N</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Test</p>
+                          </th>
 
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Quantity</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Total</p>
-                        </th>
-                      </thead>
-                      <tbody>
-                        {item?.test?.map((item, index) => (
-                          <tr key={index} className="border-b-[1px]">
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              {index + 1}
-                            </td>
-                            <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
-                              <input
-                                type="text"
-                                className="w-full  outline-none px-4"
-                                placeholder="Test"
-                                name="name"
-                                value={item?.Name}
-                                disabled
-                              />
-                            </td>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Quantity</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Total</p>
+                          </th>
+                        </thead>
+                        <tbody>
+                          {item?.test?.map((item, index) => (
+                            <tr key={index} className="border-b-[1px]">
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                {index + 1}
+                              </td>
+                              <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                                <input
+                                  type="text"
+                                  className="w-full  outline-none px-4"
+                                  placeholder="Test"
+                                  name="name"
+                                  value={item?.Name}
+                                  disabled
+                                />
+                              </td>
 
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="quantity"
-                                name="quantity"
-                                value={item?.Quantity}
-                                disabled
-                              />
-                            </td>
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="quantity"
-                                name="quantity"
-                                value={item?.Price}
-                                disabled
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="w-full gap-3 py-2 grid grid-cols-2">
-                    <div className="w-full flex flex-col items-start justify-start gap-2">
-                      <p>Symptoms</p>
-                      <textarea
-                        rows={3}
-                        className="w-full border outline-none pl-1 pt-1"
-                        placeholder="Symptoms"
-                        value={item?.Symptoms}
-                        disabled
-                      />{" "}
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="quantity"
+                                  name="quantity"
+                                  value={item?.Quantity}
+                                  disabled
+                                />
+                              </td>
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="quantity"
+                                  name="quantity"
+                                  value={item?.Price}
+                                  disabled
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    <div className="w-full flex flex-col items-start justify-start gap-2">
-                      <p>Notes</p>
-                      <textarea
-                        rows={3}
-                        className="w-full border outline-none pl-1 pt-1"
-                        placeholder="Note's"
-                        value={item?.Note}
-                        disabled
-                      />{" "}
+                    <div className="w-full gap-3 py-2 grid grid-cols-2">
+                      <div className="w-full flex flex-col items-start justify-start gap-2">
+                        <p>Symptoms</p>
+                        <textarea
+                          rows={3}
+                          className="w-full border outline-none pl-1 pt-1"
+                          placeholder="Symptoms"
+                          value={item?.Symptoms}
+                          disabled
+                        />{" "}
+                      </div>
+                      <div className="w-full flex flex-col items-start justify-start gap-2">
+                        <p>Notes</p>
+                        <textarea
+                          rows={3}
+                          className="w-full border outline-none pl-1 pt-1"
+                          placeholder="Note's"
+                          value={item?.Note}
+                          disabled
+                        />{" "}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p>No Doctor Visit Done Yet</p>
+              )}
             </form>
           </Box>
         </Fade>
       </Modal>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={open2}
-        onClose={handleClose2}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={open2}>
-          <Box sx={style}>
-            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              <div className="flex pt-[10px] pb-[10px] gap-[10%]">
-                <span>
-                  <img src={img} alt="patients " className="w-[15rem] " />
-                </span>
-                <div class="grid grid-cols-2 gap-4">
-                  <div className="flex gap-[10px]">
-                    <span>Patients Reg ID</span>:
-                    <p>{"Uhid" + patientData?.ipdPatientId}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Admission Date / Time</span>:
-                    <p>
-                      {date(patientData?.updatedAt)}-
-                      {time(patientData?.updatedAt)}
-                    </p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Name</span>:
-                    <p>{patientData?.PatientData?.[0]?.patientName}</p>
-                  </div>
 
-                  <div className="flex gap-[10px]">
-                    <span>Gender</span>:
-                    <p>{patientData?.PatientData?.[0]?.patientGender}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Categ</span>:<p>IPD</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Age</span>:
-                    <p>{patientData?.PatientData?.[0]?.patientAge}</p>
-                  </div>
-
-                  <div className="flex gap-[10px]">
-                    <span>IPD NO</span>:<p>{patientData?.ipdPatientId}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Mobile</span>:
-                    <p>{patientData?.PatientData?.[0]?.patientPhone}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Bed/Floor </span>:
-                    <p>
-                      {patientData?.ipdBedNo}/{patientData?.ipdFloorNo}
-                    </p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Admitting Doctor Id</span>:
-                    <p>{patientData?.ipdDoctorId}</p>
-                  </div>
-                </div>
-              </div>
-            </Typography>
-            <Typography>No Doctor Visit one Yet!</Typography>
-          </Box>
-        </Fade>
-      </Modal>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

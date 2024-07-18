@@ -13,6 +13,7 @@ import {
   addDailyDoctorVisitIpdData,
   getAllDoctorVisitPatientsListData,
   getAllNurseReferData,
+  getIPDPatientDoctorVisitData,
   getOnePatientsDoctorVisitData,
 } from "../NurseApi";
 import Snackbars from "../../SnackBar";
@@ -217,7 +218,10 @@ function ReferPatientsDoctorVisitTable() {
     setSelectedTest(oldValue && oldValue);
   };
 
-  const [viewPatientsData, setViewPatientsData] = useState([]);
+  const [viewPatientsData, setViewPatientsData] = useState({
+    patientData: [],
+    visitRecords: [],
+  });
   const [activeDoctor, setActiveDoctor] = useState();
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeTestIndex, setActiveTestIndex] = useState(null);
@@ -320,6 +324,13 @@ function ReferPatientsDoctorVisitTable() {
 
     setViewPatientsData(result && result?.data);
     console.log(result);
+  };
+  const getIPDPatientDoctorVisitDataHandle = async (Id) => {
+    const result = await getIPDPatientDoctorVisitData(Id);
+    setViewPatientsData({
+      visitRecords: result?.data?.data,
+      patientData: result?.data?.patientData,
+    });
   };
   const [search, setSearch] = React.useState("");
   const [filteredData, setFilteredData] = React.useState([]);

@@ -332,3 +332,29 @@ export const getOneReferPatientDataData = async (Id) => {
     throw new Error(error);
   }
 };
+export const getEmergencyPatientDoctorVisitData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "check-emergency-patients-doctor-visit-data/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getIPDPatientDoctorVisitData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url + "check-ipd-patients-doctor-visit/" + Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};

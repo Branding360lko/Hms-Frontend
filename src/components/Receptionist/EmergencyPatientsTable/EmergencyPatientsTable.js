@@ -6,6 +6,7 @@ import {
   getAllEmergencyPatientsData,
   getAllEmergencyPatientsListData,
   getAllEmergencyPatientsNurseData,
+  getEmergencyPatientDoctorVisitData,
   getOneEmergencyPatientsDoctorVisitData,
 } from "../NurseApi";
 import img from "../../../assets/20180125_001_1_.jpg";
@@ -37,7 +38,10 @@ function EmergencyPatientsTable() {
   const [open3, setOpen3] = React.useState(false);
   const handleOpen3 = () => setOpen3(true);
   const handleClose3 = () => setOpen3(false);
-  const [viewPatientsData, setViewPatientsData] = useState([]);
+  const [viewPatientsData, setViewPatientsData] = useState({
+    patientData: [],
+    visitRecords: [],
+  });
   const [allEmergencyPatientsListData, setAllEmergencyPatientsListData] =
     useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +69,7 @@ function EmergencyPatientsTable() {
     notes: "",
     visitDateTime: "",
     mainId: "",
+    EmergencyPatientsCurrentBed: "",
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -225,7 +230,10 @@ function EmergencyPatientsTable() {
     formData.append("isPatientsChecked", true);
     formData.append("doctorId", dailyDoctorVisitData?.doctorId);
     formData.append("mainId", dailyDoctorVisitData?.mainId);
-    formData.append("emergencyPatientCurrentBed", "Assigned Doctor");
+    formData.append(
+      "emergencyPatientCurrentBed",
+      dailyDoctorVisitData?.EmergencyPatientsCurrentBed
+    );
     formData.append("submittedBy", "Assigned Doctor");
     formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
     formData.append("medicine", JSON.stringify(selectedMedicine));
@@ -250,8 +258,12 @@ function EmergencyPatientsTable() {
     formData.append("EmergencyPatientData", dailyDoctorVisitData?.ipdPatientId);
     formData.append("isPatientsChecked", true);
     formData.append("doctorId", dailyDoctorVisitData?.doctorId);
-    formData.append("additionalDoctorId", dailyDoctorVisitData?.doctorId);
+    formData.append("additionalDoctorId", additionalDoctor?.doctorId);
     formData.append("mainId", dailyDoctorVisitData?.mainId);
+    formData.append(
+      "emergencyPatientCurrentBed",
+      dailyDoctorVisitData?.EmergencyPatientsCurrentBed
+    );
     formData.append("submittedBy", "Additional Doctor");
     formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
     formData.append("medicine", JSON.stringify(selectedMedicine));
@@ -260,18 +272,26 @@ function EmergencyPatientsTable() {
     if (result?.status === 201) {
       handleClickSnackbarSuccess();
       setSnackBarSuccessMessage(result?.data?.message);
-      handleClose();
+      handleClose3();
     }
     if (result?.status !== 201) {
       handleClickSnackbarWarning();
       setSnackBarSuccessWarning(result?.data?.message);
-      handleClose();
+      handleClose3();
     }
   };
   const getOneEmergencyPatientsDoctorVisitDataHandle = async (Id) => {
     const result = await getOneEmergencyPatientsDoctorVisitData(Id);
     setViewPatientsData(result && result?.data?.data);
   };
+  const getEmergencyPatientDoctorVisitDataHandle = async (Id) => {
+    const result = await getEmergencyPatientDoctorVisitData(Id);
+    setViewPatientsData({
+      visitRecords: result?.data?.data,
+      patientData: result?.data?.patientPersonalData,
+    });
+  };
+
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [allEmergencyPatients, setAllEmergencyPatients] = useState([]);
   const [activeDoctor, setActiveDoctor] = useState(false);
@@ -304,10 +324,10 @@ function EmergencyPatientsTable() {
     setAllEmergencyPatients(result && result?.data?.data);
     setFilteredData(result && result?.data?.data?.reverse());
   };
-  const getAllEmergencyPatientsListDataHandle = async () => {
-    const result = await getAllEmergencyPatientsListData();
-    setAllEmergencyPatientsListData(result && result?.data?.data);
-  };
+  // const getAllEmergencyPatientsListDataHandle = async () => {
+  //   const result = await getAllEmergencyPatientsListData();
+  //   setAllEmergencyPatientsListData(result && result?.data?.data);
+  // };
   const searchHandle = () => {
     const filter = allEmergencyPatients?.filter((item) => {
       if (search != "") {
@@ -324,7 +344,6 @@ function EmergencyPatientsTable() {
   }, [search]);
   useEffect(() => {
     getAllEmergencyPatientsDataHandle();
-    getAllEmergencyPatientsListDataHandle();
   }, []);
   useEffect(() => {
     if (doctors?.length === 0) {
@@ -399,30 +418,17 @@ function EmergencyPatientsTable() {
                   </td>{" "}
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
                     <div className="flex gap-[10px] justify-center">
-                      {allEmergencyPatientsListData?.find(
-                        (val) =>
-                          val?.EmergencyPatientData ===
-                          item?.Emergencypatient_id
-                      ) ? (
-                        <div
-                          onClick={() => [
-                            getOneEmergencyPatientsDoctorVisitDataHandle(
-                              item?.Emergencypatient_id
-                            ),
-                            handleOpen1(),
-                          ]}
-                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                        >
-                          <CiViewList className="text-[20px] text-[#96999C]" />
-                        </div>
-                      ) : (
-                        <div
-                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                          onClick={handleOpen2}
-                        >
-                          <CiViewList className="text-[20px] text-[#96999C]" />
-                        </div>
-                      )}
+                      <div
+                        onClick={() => [
+                          handleOpen1(),
+                          getEmergencyPatientDoctorVisitDataHandle(
+                            item?.EmergencyPatientMainId
+                          ),
+                        ]}
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                      >
+                        <CiViewList className="text-[20px] text-[#96999C]" />
+                      </div>
 
                       <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
@@ -430,11 +436,13 @@ function EmergencyPatientsTable() {
                           handleOpen(),
                           setDailyDoctorVisitData({
                             ...dailyDoctorVisitData,
-                            doctorId: item?._id,
+                            doctorId: item?.doctor_Id,
                             doctorName: item?.doctorName,
                             patientsId: item?.patientsId,
                             ipdPatientId: item?.Emergencypatient_id,
                             mainId: item?.EmergencyPatientMainId,
+                            EmergencyPatientsCurrentBed:
+                              item?.EmergencyPatientsCurrentBed,
                           }),
                         ]}
                       >
@@ -442,7 +450,19 @@ function EmergencyPatientsTable() {
                       </div>
                       <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#0ba46f] rounded-[12px] cursor-pointer"
-                        onClick={handleOpen3}
+                        onClick={() => [
+                          handleOpen3(),
+                          setDailyDoctorVisitData({
+                            ...dailyDoctorVisitData,
+                            doctorId: item?.doctor_Id,
+                            doctorName: item?.doctorName,
+                            patientsId: item?.patientsId,
+                            ipdPatientId: item?.Emergencypatient_id,
+                            mainId: item?.EmergencyPatientMainId,
+                            EmergencyPatientsCurrentBed:
+                              item?.EmergencyPatientsCurrentBed,
+                          }),
+                        ]}
                       >
                         <IoMdPersonAdd className="text-[20px] text-[#0ba46f]" />
                       </div>
@@ -824,219 +844,240 @@ function EmergencyPatientsTable() {
                   <span>Patients Uhid</span>:
                   <p>
                     {"Uhid" +
-                      viewPatientsData?.[0]?.patientsData?.[0]?.patientId}
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientId}
                   </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Admission Date / Time</span>:
                   <p>
-                    {date(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}-
-                    {time(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}
+                    {date(
+                      viewPatientsData?.patientData?.[0]?.patientData?.createdAt
+                    )}
+                    -
+                    {time(
+                      viewPatientsData?.patientData?.[0]?.patientData?.createdAt
+                    )}
                   </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Name</span>:
-                  <p>{viewPatientsData?.[0]?.patientsData?.[0]?.patientName}</p>
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientName
+                    }
+                  </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Gender</span>:
                   <p>
-                    {viewPatientsData?.[0]?.patientsData?.[0]?.patientGender}
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientGender
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Patient Age</span>:
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientAge
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Patient Blood Group</span>:
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientBloodGroup
+                    }
                   </p>
                 </div>
 
                 <div className="flex gap-[10px]">
                   <span>Emergency NO</span>:
-                  <p>{viewPatientsData?.[0]?.EmergencyPatientData?.mainId}</p>
+                  <p>{viewPatientsData?.patientData?.[0]?.mainId}</p>
                 </div>
 
                 <div className="flex gap-[10px]">
                   <span>Admitting Doctor</span>:
-                  <p>{viewPatientsData?.[0]?.doctorData?.[0]?.doctorName}</p>
+                  <p>
+                    {viewPatientsData?.patientData?.[0]?.doctorData?.doctorName}
+                  </p>
                 </div>
               </div>
             </div>
             <form className="w-full flex flex-col gap-3">
-              {viewPatientsData?.map((item) => (
-                <div>
-                  <div className="w-full flex items-center">
-                    <p className="text-[1.1rem] font-semibold pr-1">Date: </p>
-                    {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)}
-                  </div>
-                  <div className="w-full ">
-                    <div className="w-full flex justify-between items-center pt-1 pb-3">
-                      <p className="text-[1rem] font-normal">Medicine</p>
+              {viewPatientsData?.visitRecords?.length > 0 ? (
+                viewPatientsData?.visitRecords?.map((item) => (
+                  <div>
+                    <div className="w-full flex items-center">
+                      <p className="text-[1.1rem] font-semibold pr-1">Date: </p>
+                      {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)} -
+                      <p className="text-[#3497f9] pl-2">
+                        ({item?.submittedBy})
+                      </p>
                     </div>
-                    <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
-                      <thead>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>S_N</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Medicine</p>
-                        </th>
+                    <div className="w-full ">
+                      <div className="w-full flex justify-between items-center pt-1 pb-3">
+                        <p className="text-[1rem] font-normal">Medicine</p>
+                      </div>
+                      <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                        <thead>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>S_N</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Medicine</p>
+                          </th>
 
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Quantity</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Total</p>
-                        </th>
-                      </thead>
-                      <tbody>
-                        {item?.medicine?.map((item, index) => (
-                          <tr key={index} className="border-b-[1px]">
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              {index + 1}
-                            </td>
-                            <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
-                              <input
-                                type="text"
-                                className="w-full  outline-none px-4"
-                                placeholder="Medicine"
-                                name="name"
-                                value={item?.Name}
-                                autocomplete="off"
-                                disabled
-                              />
-                            </td>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Quantity</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Total</p>
+                          </th>
+                        </thead>
+                        <tbody>
+                          {item?.medicine?.map((item, index) => (
+                            <tr key={index} className="border-b-[1px]">
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                {index + 1}
+                              </td>
+                              <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                                <input
+                                  type="text"
+                                  className="w-full  outline-none px-4"
+                                  placeholder="Medicine"
+                                  name="name"
+                                  value={item?.Name}
+                                  autocomplete="off"
+                                  disabled
+                                />
+                              </td>
 
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="quantity"
-                                name="quantity"
-                                value={item?.Quantity}
-                                disabled
-                              />
-                            </td>
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="price"
-                                name="price"
-                                value={item?.Price}
-                                disabled
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="w-full ">
-                    <div className="w-full flex justify-between items-center pt-1 pb-3">
-                      <p className="text-[1rem] font-normal">Test</p>
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="quantity"
+                                  name="quantity"
+                                  value={item?.Quantity}
+                                  disabled
+                                />
+                              </td>
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="price"
+                                  name="price"
+                                  value={item?.Price}
+                                  disabled
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
-                      <thead>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>S_N</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Test</p>
-                        </th>
+                    <div className="w-full ">
+                      <div className="w-full flex justify-between items-center pt-1 pb-3">
+                        <p className="text-[1rem] font-normal">Test</p>
+                      </div>
+                      <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                        <thead>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>S_N</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Test</p>
+                          </th>
 
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Quantity</p>
-                        </th>
-                        <th className="border-[1px] p-1 font-semibold">
-                          <p>Total</p>
-                        </th>
-                      </thead>
-                      <tbody>
-                        {item?.test?.map((item, index) => (
-                          <tr key={index} className="border-b-[1px]">
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              {index + 1}
-                            </td>
-                            <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
-                              <input
-                                type="text"
-                                className="w-full  outline-none px-4"
-                                placeholder="Test"
-                                name="name"
-                                value={item?.Name}
-                                disabled
-                              />
-                            </td>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Quantity</p>
+                          </th>
+                          <th className="border-[1px] p-1 font-semibold">
+                            <p>Total</p>
+                          </th>
+                        </thead>
+                        <tbody>
+                          {item?.test?.map((item, index) => (
+                            <tr key={index} className="border-b-[1px]">
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                {index + 1}
+                              </td>
+                              <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                                <input
+                                  type="text"
+                                  className="w-full  outline-none px-4"
+                                  placeholder="Test"
+                                  name="name"
+                                  value={item?.Name}
+                                  disabled
+                                />
+                              </td>
 
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="quantity"
-                                name="quantity"
-                                value={item?.Quantity}
-                                disabled
-                              />
-                            </td>
-                            <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                              <input
-                                type="text"
-                                className="w-[5rem]  outline-none"
-                                placeholder="quantity"
-                                name="quantity"
-                                value={item?.Price}
-                                disabled
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="w-full gap-3 py-2 grid grid-cols-2">
-                    <div className="w-full flex flex-col items-start justify-start gap-2">
-                      <p>Symptoms</p>
-                      <textarea
-                        rows={3}
-                        className="w-full border outline-none pl-1 pt-1"
-                        placeholder="Symptoms"
-                        value={item?.Symptoms}
-                        disabled
-                      />{" "}
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="quantity"
+                                  name="quantity"
+                                  value={item?.Quantity}
+                                  disabled
+                                />
+                              </td>
+                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                <input
+                                  type="text"
+                                  className="w-[5rem]  outline-none"
+                                  placeholder="quantity"
+                                  name="quantity"
+                                  value={item?.Price}
+                                  disabled
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    <div className="w-full flex flex-col items-start justify-start gap-2">
-                      <p>Notes</p>
-                      <textarea
-                        rows={3}
-                        className="w-full border outline-none pl-1 pt-1"
-                        placeholder="Note's"
-                        value={item?.Note}
-                        disabled
-                      />{" "}
+                    <div className="w-full gap-3 py-2 grid grid-cols-2">
+                      <div className="w-full flex flex-col items-start justify-start gap-2">
+                        <p>Symptoms</p>
+                        <textarea
+                          rows={3}
+                          className="w-full border outline-none pl-1 pt-1"
+                          placeholder="Symptoms"
+                          value={item?.Symptoms}
+                          disabled
+                        />{" "}
+                      </div>
+                      <div className="w-full flex flex-col items-start justify-start gap-2">
+                        <p>Notes</p>
+                        <textarea
+                          rows={3}
+                          className="w-full border outline-none pl-1 pt-1"
+                          placeholder="Note's"
+                          value={item?.Note}
+                          disabled
+                        />{" "}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p>No Doctor Visit Done Yet!</p>
+              )}
             </form>
           </Box>
         </Fade>
       </Modal>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={open2}
-        onClose={handleClose2}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={open2}>
-          <Box sx={style}>
-            <Typography className="flex items-center justify-center">
-              NO Doctor Visit done
-            </Typography>
-          </Box>
-        </Fade>
-      </Modal>
+
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -1062,7 +1103,7 @@ function EmergencyPatientsTable() {
             </Typography>
             <form
               className="w-full flex flex-col gap-3"
-              onSubmit={addDailyDoctorVisitEmergencyDataHandle}
+              onSubmit={addAdditionalDailyDoctorVisitEmergencyDataHandle}
             >
               <div className="w-full grid grid-cols-2 gap-3 pt-3">
                 <div className="w-full flex items-start justify-start flex-col gap-1">
@@ -1118,7 +1159,7 @@ function EmergencyPatientsTable() {
                       type="text"
                       placeholder="Doctor Name"
                       className="w-full border-none outline-none"
-                      value={dailyDoctorVisitData?.doctorName}
+                      value={additionalDoctor?.doctorName}
                       disabled
                     />
                   </span>
@@ -1391,7 +1432,6 @@ function EmergencyPatientsTable() {
                       symtoms: e.target.value,
                     })
                   }
-                  required
                 />{" "}
               </div>
               <div className="w-full flex flex-col items-start justify-start gap-2">
