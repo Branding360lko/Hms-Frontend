@@ -109,7 +109,7 @@ function EmergencyPatientsTable() {
           );
         }
       });
-      console.log(filter);
+
       setSearchMedicine(filter && filter);
     }, 100);
     setIsLoading(false);
@@ -124,7 +124,7 @@ function EmergencyPatientsTable() {
           );
         }
       });
-      console.log(filter);
+
       setSearchTest(filter && filter);
     }, 100);
     setIsLoading(false);
@@ -183,7 +183,7 @@ function EmergencyPatientsTable() {
   };
   const addSelectedMedicineDataHandle = (index, item) => {
     let oldValue = [...selectedMedicine];
-    console.log(item, "addSelectedMedicineDataHandle");
+
     oldValue[index] = {
       ...oldValue[index],
       name: item?.Name,
@@ -195,7 +195,7 @@ function EmergencyPatientsTable() {
   };
   const addSelectedTestDataHandle = (index, item) => {
     let oldValue = [...selectedTest];
-    console.log(item);
+
     oldValue[index] = {
       ...oldValue[index],
       name: item?.Name,
@@ -208,9 +208,9 @@ function EmergencyPatientsTable() {
   const deleteMedicineHandle = (e, index) => {
     e.preventDefault();
     let oldValue = [...selectedMedicine];
-    console.log(oldValue);
+
     oldValue.splice(index, 1);
-    console.log(oldValue);
+
     setSelectedMedicine(oldValue && oldValue);
   };
   const deleteTestHandle = (e, index) => {

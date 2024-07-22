@@ -8,6 +8,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import {
   addNurseReferPatientsData,
   getAllIpdPatientsAssignedNurseData,
+  getAllNurseReferByNurseIdData,
   getAllNurseReferData,
   getOneReferPatientDataData,
 } from "../NurseApi";
@@ -108,16 +109,18 @@ function DischargePatientsTable() {
     outline: "none",
   };
   const getAllNurseReferDataHandle = async () => {
-    const result = await getAllNurseReferData();
+    const result = await getAllNurseReferByNurseIdData(
+      adminLoggedInData?.adminUniqueId
+    );
     if (result?.status === 200) {
       const filter = result?.data?.data?.filter(
         (item) =>
           item?.ipdPatientsDetails?.ipdNurseId ===
           adminLoggedInData?.adminUniqueId
       );
-      setAllReferedpatients(filter);
-      setFilteredData(filter?.reverse());
-      console.log(filter, "filter");
+      setAllReferedpatients(result?.data?.data);
+      setFilteredData(result?.data?.data?.reverse());
+      console.log(result?.data?.data, "filter");
     }
   };
   const addNurseReferPatientsDataHandle = async (e) => {
@@ -269,9 +272,7 @@ function DischargePatientsTable() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={filteredData?.filter(
-            (item) => item?.ipdPatientsDetails?.ipdPatientDischarged === false
-          )}
+          data={filteredData}
         />
       </div>
       <Modal

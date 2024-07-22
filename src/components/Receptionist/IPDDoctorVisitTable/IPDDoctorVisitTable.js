@@ -995,7 +995,7 @@ export default function IPDDoctorVisitTable() {
                 </div>
 
                 <div className="flex gap-[10px]">
-                  <span>Emergency NO</span>:
+                  <span>IPD NO</span>:
                   <p>{viewPatientsData?.patientData?.[0]?.mainId}</p>
                 </div>
 

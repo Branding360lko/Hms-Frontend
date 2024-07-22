@@ -10,6 +10,20 @@ export const getAllNurseReferData = async () => {
     throw new Error(error);
   }
 };
+export const getAllNurseReferByNurseIdData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-all-refered-patients-by-nurseId/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const addNurseReferPatientsData = async (formData) => {
   try {
     const response = await axios.post(

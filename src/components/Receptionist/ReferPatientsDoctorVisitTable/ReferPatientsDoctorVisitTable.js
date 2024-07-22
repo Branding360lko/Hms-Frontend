@@ -12,6 +12,7 @@ import img from "../../../assets/20180125_001_1_.jpg";
 import {
   addDailyDoctorVisitIpdData,
   getAllDoctorVisitPatientsListData,
+  getAllNurseReferByNurseIdData,
   getAllNurseReferData,
   getIPDPatientDoctorVisitData,
   getOnePatientsDoctorVisitData,
@@ -219,8 +220,8 @@ function ReferPatientsDoctorVisitTable() {
   };
 
   const [viewPatientsData, setViewPatientsData] = useState({
-    patientData: [],
     visitRecords: [],
+    patientData: [],
   });
   const [activeDoctor, setActiveDoctor] = useState();
   const [activeIndex, setActiveIndex] = useState(null);
@@ -245,20 +246,17 @@ function ReferPatientsDoctorVisitTable() {
   }, []);
 
   const getAllNurseReferDataHandle = async () => {
-    const result = await getAllNurseReferData();
-    const filter = result?.data?.data?.filter(
-      (item) =>
-        item?.ipdPatientsDetails?.ipdNurseId ===
-        adminLoggedInData?.adminUniqueId
+    const result = await getAllNurseReferByNurseIdData(
+      adminLoggedInData?.adminUniqueId
     );
-    setAllReferedPatients(filter);
-    setFilteredData(filter?.reverse());
+    setAllReferedPatients(result?.data?.data);
+    setFilteredData(result?.data?.data?.reverse());
   };
-  const getAllDoctorVisitPatientsListDataHandle = async () => {
-    const result = await getAllDoctorVisitPatientsListData();
-    setAllIpdDoctorVisitList(result && result?.data?.data);
-    console.log(result);
-  };
+  // const getAllDoctorVisitPatientsListDataHandle = async () => {
+  //   const result = await getAllDoctorVisitPatientsListData();
+  //   setAllIpdDoctorVisitList(result && result?.data?.data);
+  //   console.log(result, "allIpdDoctorVisitList");
+  // };
   const addDailyDoctorVisitIpdDataHandle = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -319,12 +317,10 @@ function ReferPatientsDoctorVisitTable() {
       handleClose3();
     }
   };
-  const getOnePatientsDoctorVisitDataHandle = async (Id) => {
-    const result = await getOnePatientsDoctorVisitData(Id);
-
-    setViewPatientsData(result && result?.data);
-    console.log(result);
-  };
+  // const getOnePatientsDoctorVisitDataHandle = async (Id) => {
+  //   const result = await getOnePatientsDoctorVisitData(Id);
+  //   setViewPatientsData(result && result?.data);
+  // };
   const getIPDPatientDoctorVisitDataHandle = async (Id) => {
     const result = await getIPDPatientDoctorVisitData(Id);
     setViewPatientsData({
@@ -337,15 +333,13 @@ function ReferPatientsDoctorVisitTable() {
   const searchHandle = () => {
     const filter = allReferedPatients?.filter((item) => {
       if (search != "") {
-        return item?.PatientsDetails?.[0]?.patientId
+        return item?.PatientsDetails?.[0]?.patientName
           ?.toLowerCase()
           .includes(search.toLowerCase());
       }
       return item;
     });
     setFilteredData(filter && filter);
-
-    console.log(filter);
   };
   React.useEffect(() => {
     searchHandle();
@@ -363,7 +357,7 @@ function ReferPatientsDoctorVisitTable() {
   }, []);
   useEffect(() => {
     getAllNurseReferDataHandle();
-    getAllDoctorVisitPatientsListDataHandle();
+    // getAllDoctorVisitPatientsListDataHandle();
   }, []);
 
   return (
@@ -433,37 +427,26 @@ function ReferPatientsDoctorVisitTable() {
                   </td>{" "}
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
                     <div className="flex gap-[10px] justify-center">
-                      {allIpdDoctorVisitList?.find(
-                        (val) =>
-                          val.ipdPatientData ===
-                            item?.ipdPatientsDetails?._id &&
-                          val?.ReferedDoctorId ===
-                            item?.ReferredDoctorDetails?.[0]?._id
-                      ) ? (
-                        <div
-                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                          onClick={() => [
-                            handleOpen1(),
-                            getOnePatientsDoctorVisitDataHandle(
-                              item?.ipdPatientsDetails?.mainId
-                            ),
-                            setDailyDoctorVisitData({
-                              ...dailyDoctorVisitData,
-                              referDoctorId:
-                                item?.ReferredDoctorDetails?.[0]?._id,
-                            }),
-                          ]}
-                        >
-                          <CiViewList className="text-[20px] text-[#96999C]" />
-                        </div>
-                      ) : (
-                        <div
-                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                          onClick={handleOpen2}
-                        >
-                          <CiViewList className="text-[20px] text-[#96999C]" />
-                        </div>
-                      )}
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen1(),
+                          // getOnePatientsDoctorVisitDataHandle(
+                          //   item?.ipdPatientsDetails?.mainId
+                          // ),
+                          setDailyDoctorVisitData({
+                            ...dailyDoctorVisitData,
+                            referDoctorId:
+                              item?.ReferredDoctorDetails?.[0]?._id,
+                          }),
+                          getIPDPatientDoctorVisitDataHandle(
+                            item?.ipdPatientsDetails?.mainId
+                          ),
+                        ]}
+                      >
+                        <CiViewList className="text-[20px] text-[#96999C]" />
+                      </div>
+
                       <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         onClick={() => [
@@ -521,9 +504,7 @@ function ReferPatientsDoctorVisitTable() {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={filteredData?.filter(
-            (item) => item?.ipdPatientsDetails?.ipdPatientDischarged === false
-          )}
+          data={filteredData}
         />
       </div>
       <Modal
@@ -902,200 +883,239 @@ function ReferPatientsDoctorVisitTable() {
                   <span>Patients Uhid</span>:
                   <p>
                     {"Uhid" +
-                      viewPatientsData?.[0]?.patientsData?.[0]?.patientId}
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientId}
                   </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Admission Date / Time</span>:
                   <p>
-                    {date(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}-
-                    {time(viewPatientsData?.[0]?.patientsData?.[0]?.createdAt)}
+                    {date(
+                      viewPatientsData?.patientData?.[0]?.patientData?.createdAt
+                    )}
+                    -
+                    {time(
+                      viewPatientsData?.patientData?.[0]?.patientData?.createdAt
+                    )}
                   </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Name</span>:
-                  <p>{viewPatientsData?.[0]?.patientsData?.[0]?.patientName}</p>
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientName
+                    }
+                  </p>
                 </div>
                 <div className="flex gap-[10px]">
                   <span>Gender</span>:
                   <p>
-                    {viewPatientsData?.[0]?.patientsData?.[0]?.patientGender}
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientGender
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Patient Age</span>:
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientAge
+                    }
+                  </p>
+                </div>
+                <div className="flex gap-[10px]">
+                  <span>Patient Blood Group</span>:
+                  <p>
+                    {
+                      viewPatientsData?.patientData?.[0]?.patientData
+                        ?.patientBloodGroup
+                    }
                   </p>
                 </div>
 
                 <div className="flex gap-[10px]">
                   <span>IPD NO</span>:
-                  <p>{viewPatientsData?.[0]?.IpdPatientData?.ipdPatientId}</p>
+                  <p>{viewPatientsData?.patientData?.[0]?.mainId}</p>
                 </div>
 
                 <div className="flex gap-[10px]">
                   <span>Admitting Doctor</span>:
-                  <p>{viewPatientsData?.[0]?.doctorData?.[0]?.doctorName}</p>
+                  <p>
+                    {viewPatientsData?.patientData?.[0]?.doctorData?.doctorName}
+                  </p>
                 </div>
               </div>
             </div>
             <form className="w-full flex flex-col gap-3">
-              {viewPatientsData
-                ?.filter(
-                  (item) =>
-                    item?.ReferedDoctor?.[0]?._id ===
-                    dailyDoctorVisitData?.referDoctorId
-                )
-                ?.map((item) => (
-                  <div>
-                    <div className="w-full flex items-center">
-                      <p className="text-[1.1rem] font-semibold pr-1">Date: </p>
-                      {date(item?.VisitDateTime)}-{time(item?.VisitDateTime)}
-                    </div>
-                    <div className="w-full ">
-                      <div className="w-full flex justify-between items-center pt-1 pb-3">
-                        <p className="text-[1rem] font-normal">Medicine</p>
-                      </div>
-                      <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
-                        <thead>
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>S_N</p>
-                          </th>
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>Medicine</p>
-                          </th>
+              {viewPatientsData?.visitRecords?.length > 0
+                ? viewPatientsData?.visitRecords
+                    ?.filter((val) => val?.submittedBy === "Refered Doctor")
+                    ?.map((item) => (
+                      <div>
+                        <div className="w-full flex items-center">
+                          <p className="text-[1.1rem] font-semibold pr-1">
+                            Date:{" "}
+                          </p>
+                          {date(item?.VisitDateTime)}-
+                          {time(item?.VisitDateTime)} - (
+                          <p className="text-[#3497f9] pl-2">
+                            {item?.submittedBy}
+                          </p>
+                          )
+                        </div>
+                        <div className="w-full ">
+                          <div className="w-full flex justify-between items-center pt-1 pb-3">
+                            <p className="text-[1rem] font-normal">Medicine</p>
+                          </div>
+                          <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                            <thead>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>S_N</p>
+                              </th>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>Medicine</p>
+                              </th>
 
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>Quantity</p>
-                          </th>
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>Total</p>
-                          </th>
-                        </thead>
-                        <tbody>
-                          {item?.medicine?.map((item, index) => (
-                            <tr key={index} className="border-b-[1px]">
-                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                                {index + 1}
-                              </td>
-                              <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
-                                <input
-                                  type="text"
-                                  className="w-full  outline-none px-4"
-                                  placeholder="Medicine"
-                                  name="name"
-                                  value={item?.Name}
-                                  autocomplete="off"
-                                  disabled
-                                />
-                              </td>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>Quantity</p>
+                              </th>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>Total</p>
+                              </th>
+                            </thead>
+                            <tbody>
+                              {item?.medicine?.map((item, index) => (
+                                <tr key={index} className="border-b-[1px]">
+                                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                    {index + 1}
+                                  </td>
+                                  <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                                    <input
+                                      type="text"
+                                      className="w-full  outline-none px-4"
+                                      placeholder="Medicine"
+                                      name="name"
+                                      value={item?.Name}
+                                      autocomplete="off"
+                                      disabled
+                                    />
+                                  </td>
 
-                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                                <input
-                                  type="text"
-                                  className="w-[5rem]  outline-none"
-                                  placeholder="quantity"
-                                  name="quantity"
-                                  value={item?.Quantity}
-                                  disabled
-                                />
-                              </td>
-                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                                <input
-                                  type="text"
-                                  className="w-[5rem]  outline-none"
-                                  placeholder="price"
-                                  name="price"
-                                  value={item?.Price}
-                                  disabled
-                                />
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <div className="w-full ">
-                      <div className="w-full flex justify-between items-center pt-1 pb-3">
-                        <p className="text-[1rem] font-normal">Test</p>
-                      </div>
-                      <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
-                        <thead>
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>S_N</p>
-                          </th>
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>Test</p>
-                          </th>
+                                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                    <input
+                                      type="text"
+                                      className="w-[5rem]  outline-none"
+                                      placeholder="quantity"
+                                      name="quantity"
+                                      value={item?.Quantity}
+                                      disabled
+                                    />
+                                  </td>
+                                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                    <input
+                                      type="text"
+                                      className="w-[5rem]  outline-none"
+                                      placeholder="price"
+                                      name="price"
+                                      value={item?.Price}
+                                      disabled
+                                    />
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div className="w-full ">
+                          <div className="w-full flex justify-between items-center pt-1 pb-3">
+                            <p className="text-[1rem] font-normal">Test</p>
+                          </div>
+                          <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                            <thead>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>S_N</p>
+                              </th>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>Test</p>
+                              </th>
 
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>Quantity</p>
-                          </th>
-                          <th className="border-[1px] p-1 font-semibold">
-                            <p>Total</p>
-                          </th>
-                        </thead>
-                        <tbody>
-                          {item?.test?.map((item, index) => (
-                            <tr key={index} className="border-b-[1px]">
-                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                                {index + 1}
-                              </td>
-                              <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
-                                <input
-                                  type="text"
-                                  className="w-full  outline-none px-4"
-                                  placeholder="Test"
-                                  name="name"
-                                  value={item?.Name}
-                                  disabled
-                                />
-                              </td>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>Quantity</p>
+                              </th>
+                              <th className="border-[1px] p-1 font-semibold">
+                                <p>Total</p>
+                              </th>
+                            </thead>
+                            <tbody>
+                              {item?.test?.map((item, index) => (
+                                <tr key={index} className="border-b-[1px]">
+                                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                    {index + 1}
+                                  </td>
+                                  <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                                    <input
+                                      type="text"
+                                      className="w-full  outline-none px-4"
+                                      placeholder="Test"
+                                      name="name"
+                                      value={item?.Name}
+                                      disabled
+                                    />
+                                  </td>
 
-                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                                <input
-                                  type="text"
-                                  className="w-[5rem]  outline-none"
-                                  placeholder="quantity"
-                                  name="quantity"
-                                  value={item?.Quantity}
-                                  disabled
-                                />
-                              </td>
-                              <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
-                                <input
-                                  type="text"
-                                  className="w-[5rem]  outline-none"
-                                  placeholder="quantity"
-                                  name="quantity"
-                                  value={item?.Price}
-                                  disabled
-                                />
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <div className="w-full gap-3 py-2 grid grid-cols-2">
-                      <div className="w-full flex flex-col items-start justify-start gap-2">
-                        <p>Symptoms</p>
-                        <textarea
-                          rows={3}
-                          className="w-full border outline-none pl-1 pt-1"
-                          placeholder="Symptoms"
-                          value={item?.Symptoms}
-                          disabled
-                        />{" "}
+                                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                    <input
+                                      type="text"
+                                      className="w-[5rem]  outline-none"
+                                      placeholder="quantity"
+                                      name="quantity"
+                                      value={item?.Quantity}
+                                      disabled
+                                    />
+                                  </td>
+                                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                                    <input
+                                      type="text"
+                                      className="w-[5rem]  outline-none"
+                                      placeholder="quantity"
+                                      name="quantity"
+                                      value={item?.Price}
+                                      disabled
+                                    />
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div className="w-full gap-3 py-2 grid grid-cols-2">
+                          <div className="w-full flex flex-col items-start justify-start gap-2">
+                            <p>Symptoms</p>
+                            <textarea
+                              rows={3}
+                              className="w-full border outline-none pl-1 pt-1"
+                              placeholder="Symptoms"
+                              value={item?.Symptoms}
+                              disabled
+                            />{" "}
+                          </div>
+                          <div className="w-full flex flex-col items-start justify-start gap-2">
+                            <p>Notes</p>
+                            <textarea
+                              rows={3}
+                              className="w-full border outline-none pl-1 pt-1"
+                              placeholder="Note's"
+                              value={item?.Note}
+                              disabled
+                            />{" "}
+                          </div>
+                        </div>
                       </div>
-                      <div className="w-full flex flex-col items-start justify-start gap-2">
-                        <p>Notes</p>
-                        <textarea
-                          rows={3}
-                          className="w-full border outline-none pl-1 pt-1"
-                          placeholder="Note's"
-                          value={item?.Note}
-                          disabled
-                        />{" "}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    ))
+                : "No Doctor Visit Done Yet"}
             </form>
           </Box>
         </Fade>
