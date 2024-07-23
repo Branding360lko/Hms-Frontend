@@ -1,5 +1,5 @@
 import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import img from "../../../assets/20180125_001_1_.jpg";
 import { CiViewList } from "react-icons/ci";
 import { RiEdit2Fill } from "react-icons/ri";
@@ -48,9 +48,7 @@ function DoctorTable() {
   const [snackBarMessageWarning, setSnackBarSuccessWarning] =
     React.useState("");
   const label = { inputProps: { "aria-label": "Switch demo" } };
-  const { adminUniqueId, adminLoggedInData } = useSelector(
-    (state) => state.AdminState
-  );
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -386,16 +384,19 @@ function DoctorTable() {
     const result = await updateOpdDoctorVisitCompletedStatusData(Id);
   };
   const getSearchResultDoctorPanelDataHandle = async (Id) => {
-    const result = await getSearchResultDoctorPanelData(
-      Id,
-      page,
-      debouncedSearchTerm
-    );
-    // setFilteredData(result && [...filteredData, ...result?.data?.searchData]);
-    setOpdPatients(result && result?.data?.searchData);
-    setTotalData(result?.data?.totalPages);
-
-    console.log(result);
+    if (!visitedPages.includes(page)) {
+      const result = await getSearchResultDoctorPanelData(
+        Id,
+        page,
+        rowsPerPage,
+        debouncedSearchTerm
+      );
+      // setFilteredData(result && [...filteredData, ...result?.data?.searchData]);
+      setOpdPatients(result && [...opdPatients, ...result?.data?.searchData]);
+      setTotalData(result && result?.data?.totalDocuments);
+      setVisitedPages((prevVisitedPages) => [...prevVisitedPages, page]);
+      // setOpdPatients(result && result?.data?.searchData);
+    }
   };
   useEffect(() => {
     getAllOpdPatientsDoctorDataHandle();
@@ -403,9 +404,13 @@ function DoctorTable() {
   // useEffect(() => {
   //   getAllOpdPatientsDataHandle();
   // }, [page, rowsPerPage]);
+  const emptyVisitedPageRecord = useMemo(() => {
+    setVisitedPages([]);
+    setOpdPatients([]);
+  }, [rowsPerPage, debouncedSearchTerm]);
   useEffect(() => {
     getSearchResultDoctorPanelDataHandle(adminLoggedInData?.adminUniqueId);
-  }, [page, debouncedSearchTerm]);
+  }, [page, rowsPerPage, debouncedSearchTerm]);
   useEffect(() => {
     const result = convertValue(medicineData?.data);
     setMedicine(result);
@@ -442,9 +447,7 @@ function DoctorTable() {
     const result = convertValue(testData?.data);
     setTest(result);
   }, [testData]);
-  useEffect(() => {
-    console.log(searchVisitedPages, filteredData);
-  }, [searchVisitedPages, filteredData]);
+
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -460,7 +463,7 @@ function DoctorTable() {
             placeholder="Search by patient id"
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button
+          {/* <button
             className="buttonFilled"
             disabled={search?.length > 0 ? false : true}
             onClick={() =>
@@ -470,7 +473,7 @@ function DoctorTable() {
             }
           >
             Search
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="w-full">
@@ -511,9 +514,8 @@ function DoctorTable() {
                     <Switch
                       {...label}
                       checked={
-                        previousPatientsList?.find(
-                          (value) => value?.OpdPatientData === item?._id
-                        )
+                        item?.opdPatientCheckData?.[0]?.isPatientsChecked ===
+                        true
                           ? true
                           : false
                       }
@@ -585,9 +587,14 @@ function DoctorTable() {
               ))}
           </tbody>
         </table>
-        <div className="w-full py-4 flex items-center justify-center">
-          <PaginationForApi setPage={setPage} data={totalData} />
-        </div>
+
+        <PaginationForApi
+          page={page}
+          rowsPerPage={rowsPerPage}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          data={totalData ? totalData : 0}
+        />
       </div>
       {printView}
       <Modal

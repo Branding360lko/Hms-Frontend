@@ -241,7 +241,12 @@ export const updateOpdDoctorVisitCompletedStatusData = async (Id) => {
     throw new Error(error);
   }
 };
-export const getSearchResultDoctorPanelData = async (Id, page, search) => {
+export const getSearchResultDoctorPanelData = async (
+  Id,
+  page,
+  limit,
+  search
+) => {
   try {
     const response = await axios.get(
       `${
@@ -250,7 +255,7 @@ export const getSearchResultDoctorPanelData = async (Id, page, search) => {
       {
         params: {
           page,
-
+          limit,
           search,
         },
       }
