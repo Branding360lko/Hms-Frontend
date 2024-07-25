@@ -15,6 +15,7 @@ import {
   getAllOpdPatientsDoctorData,
   getAllOpdPatientsWithDoctorIdData,
   getOneOpdDoctorCheckData,
+  getOneOpdDoctorCheckWithOpdPatientIdData,
   getSearchResultDoctorPanelData,
   updateOpdDoctorCheckData,
   updateOpdDoctorVisitCompletedStatusData,
@@ -50,7 +51,10 @@ function DoctorTable() {
   const label = { inputProps: { "aria-label": "Switch demo" } };
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    setOpen(true);
+    setOpdPatientAlreadyExist(false);
+  };
   const handleClose = () => {
     setOpen(false);
     setSelectedPatient([]);
@@ -297,6 +301,8 @@ function DoctorTable() {
   const encodedSearchTerm = encodeURIComponent(debouncedSearchTerm);
   const [totalData, setTotalData] = useState(0);
   const [visitedPages, setVisitedPages] = useState([]);
+  const [opdPatientAlreadyExist, setOpdPatientAlreadyExist] = useState(false);
+  const [opdpatientId, setOpdpatientId] = useState("");
   const [searchVisitedPages, setSearchVisitedPages] = useState([]);
   const getAllOpdPatientsDataHandle = async () => {
     if (!visitedPages.includes(page)) {
@@ -312,17 +318,17 @@ function DoctorTable() {
     }
   };
 
-  const getAllOpdPatientsDoctorDataHandle = async () => {
-    const data = await getAllOpdPatientsDoctorData();
-    setoldPreviousPatientsList(data?.data?.data);
-  };
+  // const getAllOpdPatientsDoctorDataHandle = async () => {
+  //   const data = await getAllOpdPatientsDoctorData();
+  //   setoldPreviousPatientsList(data?.data?.data);
+  // };
   const addOpdDoctorCheckDataHandle = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("Note", selectedPatient?.Note);
     formData.append("Symptoms", selectedPatient?.Symptoms);
     formData.append("isPatientsChecked", true);
-    formData.append("OpdPatientData", selectedPatient?.opdPatientId);
+    formData.append("OpdPatientData", opdpatientId);
     formData.append("NextAppoiment", selectedPatient?.NextAppoiment);
     selectedPatient?.test?.forEach((testData) => {
       formData.append("test", testData?.value);
@@ -332,7 +338,8 @@ function DoctorTable() {
     });
     const result = await addOpdDoctorCheckData(formData);
     if (result) {
-      getAllOpdPatientsDoctorDataHandle();
+      // getAllOpdPatientsDoctorDataHandle();
+      getSearchResultDoctorPanelDataHandle(adminLoggedInData?.adminUniqueId);
       handleClose();
       setSnackBarSuccessMessage(result?.data?.message);
       setOpenSnackBarSuccess(true);
@@ -342,6 +349,7 @@ function DoctorTable() {
     const result = await getOneOpdDoctorCheckData(Id?.[0]?._id);
 
     setPatientData(result?.data?.[0]?.patientsData?.[0]);
+
     setSelectedPatient({
       ...selectedPatient,
       Note: result?.data?.[0]?.Note,
@@ -351,9 +359,28 @@ function DoctorTable() {
       _id: result?.data?.[0]?._id,
       opdPatientId: result?.data?.[0]?.OpdPatientData?._id,
       appoiment: result?.data?.[0]?.OpdPatientData?.opdDoctorVisitDate,
-      patientId: result?.data?.[0]?.OpdPatientData?.opdPatientId,
+      patientId: result?.data?.[0]?.OpdPatientData?.[0]?.opdPatientId,
       NextAppoiment: result?.data?.[0]?.NextAppoiment,
     });
+  };
+  const getOneOpdDoctorCheckWithOpdPatientIdDataHandle = async (Id) => {
+    const result = await getOneOpdDoctorCheckWithOpdPatientIdData(Id);
+
+    setPatientData(result?.data?.patientData?.[0]?.patientsData);
+    setOpdPatientAlreadyExist(result?.data?.data?.length > 0 ? true : false);
+    setSelectedPatient({
+      ...selectedPatient,
+      Note: result?.data?.data?.[0]?.Note,
+      Symptoms: result?.data?.data?.[0]?.Symptoms,
+      medicine: result?.data?.data?.[0]?.medicineData,
+      test: result?.data?.data?.[0]?.testData,
+      _id: result?.data?.data?.[0]?._id,
+      opdPatientId: result?.data?.data?.[0]?.OpdPatientData?._id,
+      appoiment: result?.data?.data?.[0]?.OpdPatientData?.opdDoctorVisitDate,
+      patientId: result?.data?.data?.[0]?.OpdPatientData?.opdPatientId,
+      NextAppoiment: result?.data?.data?.[0]?.NextAppoiment,
+    });
+    console.log(result, "result");
   };
   const updateOpdDoctorCheckDataHandle = async (e, Id) => {
     e.preventDefault();
@@ -374,7 +401,7 @@ function DoctorTable() {
 
     const result = await updateOpdDoctorCheckData(Id, formData);
     if (result) {
-      getAllOpdPatientsDoctorDataHandle();
+      // getAllOpdPatientsDoctorDataHandle();
       handleClose();
       setSnackBarSuccessMessage(result?.data?.message);
       setOpenSnackBarSuccess(true);
@@ -398,15 +425,16 @@ function DoctorTable() {
       // setOpdPatients(result && result?.data?.searchData);
     }
   };
-  useEffect(() => {
-    getAllOpdPatientsDoctorDataHandle();
-  }, []);
+  // useEffect(() => {
+  //   getAllOpdPatientsDoctorDataHandle();
+  // }, []);
   // useEffect(() => {
   //   getAllOpdPatientsDataHandle();
   // }, [page, rowsPerPage]);
   const emptyVisitedPageRecord = useMemo(() => {
     setVisitedPages([]);
     setOpdPatients([]);
+    setPage(0);
   }, [rowsPerPage, debouncedSearchTerm]);
   useEffect(() => {
     getSearchResultDoctorPanelDataHandle(adminLoggedInData?.adminUniqueId);
@@ -524,63 +552,36 @@ function DoctorTable() {
 
                   <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px] flex-row">
                     <div className="flex gap-[10px] justify-center">
-                      {previousPatientsList?.find(
-                        (value) => value?.OpdPatientData === item?._id
-                      ) ? (
-                        <div
-                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                          onClick={() => [
-                            handleOpen1(),
-                            getOneOpdDoctorCheckDataHandle(
-                              previousPatientsList?.filter(
-                                (val) => val?.OpdPatientData == item?._id
-                              )
-                            ),
-                          ]}
-                        >
-                          <CiViewList className="text-[20px] text-[#96999C]" />
-                        </div>
-                      ) : (
-                        <div className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px]  cursor-not-allowed">
-                          <CiViewList className="text-[20px] text-[#96999C]" />
-                        </div>
-                      )}
-                      {previousPatientsList?.find(
-                        (value) => value?.OpdPatientData === item?._id
-                      ) ? (
-                        <div
-                          className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
-                          onClick={() => [
-                            handleOpen(),
-                            setSelectedPatient({
-                              ...selectedPatient,
-                              opdPatientId: item?._id,
-                              patientId: item?.opdPatientId,
-                            }),
-                            getOneOpdDoctorCheckDataHandle(
-                              previousPatientsList?.filter(
-                                (val) => val?.OpdPatientData == item?._id
-                              )
-                            ),
-                          ]}
-                        >
-                          <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
-                        </div>
-                      ) : (
-                        <div
-                          className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
-                          onClick={() => [
-                            handleOpen(),
-                            setSelectedPatient({
-                              ...selectedPatient,
-                              opdPatientId: item?._id,
-                              patientId: item?.opdPatientId,
-                            }),
-                          ]}
-                        >
-                          <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
-                        </div>
-                      )}
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen1(),
+
+                          getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
+                            item?._id
+                          ),
+                        ]}
+                      >
+                        <CiViewList className="text-[20px] text-[#96999C]" />
+                      </div>
+
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen(),
+                          setSelectedPatient({
+                            ...selectedPatient,
+                            opdPatientId: item?._id,
+                            patientId: item?.opdPatientId,
+                          }),
+                          setOpdpatientId(item?._id),
+                          getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
+                            item?._id
+                          ),
+                        ]}
+                      >
+                        <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -679,7 +680,7 @@ function DoctorTable() {
                   <input
                     type="text"
                     placeholder="Patient Uhid"
-                    value={"UHID" + selectedPatient?.patientId}
+                    value={"UHID" + patientData?.patientId}
                     className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] cursor-not-allowed"
                     disabled
                   />
@@ -764,10 +765,7 @@ function DoctorTable() {
                     className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
                   />
                 </span>
-                {previousPatientsList?.find(
-                  (item) =>
-                    item?.OpdPatientData == selectedPatient?.opdPatientId
-                ) ? (
+                {opdPatientAlreadyExist ? (
                   <button
                     className="buttonFilled"
                     onClick={(e) =>
@@ -836,108 +834,119 @@ function DoctorTable() {
                     <span>Gender</span>:<p>{patientData?.patientGender}</p>
                   </div>
 
-                  {/* <div className="flex gap-[10px]">
-                    <span>IPD NO</span>:
-                    <p>{patientData?.IpdPatientData?.ipdPatientId}</p>
+                  <div className="flex gap-[10px]">
+                    <span>Patient Phone NO</span>:
+                    <p>{patientData?.patientPhone}</p>
                   </div>
 
                   <div className="flex gap-[10px]">
-                    <span>Admitting Doctor</span>:
-                    <p>{patientData?.doctorData?.[0]?.doctorName}</p>
-                  </div> */}
+                    <span>Patient Blood Group</span>:
+                    <p>{patientData?.patientBloodGroup}</p>
+                  </div>
+                  <div className="flex gap-[10px]">
+                    <span>Patient Gender</span>:
+                    <p>{patientData?.patientGender}</p>
+                  </div>
+                  <div className="flex gap-[10px]">
+                    <span>Patient Age</span>:<p>{patientData?.patientAge}</p>
+                  </div>
                 </div>
               </div>
-              <div className="w-full flex flex-col justify-start gap-2">
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Patient Uhid</p>
-                  <input
-                    type="text"
-                    placeholder="Patient Uhid"
-                    value={"UHID" + selectedPatient?.patientId}
-                    className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] cursor-not-allowed"
-                    disabled
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Medicine</p>
+              {opdPatientAlreadyExist ? (
+                <div className="w-full flex flex-col justify-start gap-2">
+                  <span className="flex flex-col justify-start gap-1">
+                    <p>Patient Uhid</p>
+                    <input
+                      type="text"
+                      placeholder="Patient Uhid"
+                      value={"UHID" + patientData?.patientId}
+                      className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] cursor-not-allowed"
+                      disabled
+                    />
+                  </span>
+                  <span className="flex flex-col justify-start gap-1">
+                    <p>Select Medicine</p>
 
-                  {!isMedicineLoading && (
-                    <Select
-                      closeMenuOnSelect={false}
-                      components={{ IndicatorSeparator }}
-                      isMulti
-                      defaultValue={previousMedicine}
-                      options={medicine}
-                      onChange={(e) =>
-                        setSelectedPatient({
-                          ...selectedPatient,
-                          medicine: e,
-                        })
-                      }
-                      isDisabled
-                      className="border-[2px] w-full rounded"
+                    {!isMedicineLoading && (
+                      <Select
+                        closeMenuOnSelect={false}
+                        components={{ IndicatorSeparator }}
+                        isMulti
+                        defaultValue={previousMedicine}
+                        options={medicine}
+                        onChange={(e) =>
+                          setSelectedPatient({
+                            ...selectedPatient,
+                            medicine: e,
+                          })
+                        }
+                        isDisabled
+                        className="border-[2px] w-full rounded"
+                      />
+                    )}
+                  </span>
+                  <span className="flex flex-col justify-start gap-1">
+                    <p>Select Test</p>
+                    {!isTestLoading && (
+                      <Select
+                        closeMenuOnSelect={false}
+                        components={{ IndicatorSeparator }}
+                        isMulti
+                        defaultValue={previousTest}
+                        options={test}
+                        onChange={(e) =>
+                          setSelectedPatient({ ...selectedPatient, test: e })
+                        }
+                        isDisabled
+                        className="border-[2px] w-full rounded"
+                      />
+                    )}
+                  </span>
+                  <span className="flex flex-col justify-start gap-1">
+                    <p>Symptoms</p>
+                    <input
+                      type="text"
+                      placeholder="Symptoms"
+                      value={selectedPatient?.Symptoms}
+                      className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] "
+                      disabled
                     />
-                  )}
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Test</p>
-                  {!isTestLoading && (
-                    <Select
-                      closeMenuOnSelect={false}
-                      components={{ IndicatorSeparator }}
-                      isMulti
-                      defaultValue={previousTest}
-                      options={test}
-                      onChange={(e) =>
-                        setSelectedPatient({ ...selectedPatient, test: e })
-                      }
-                      isDisabled
-                      className="border-[2px] w-full rounded"
+                  </span>
+                  <span className="flex flex-col justify-start gap-1">
+                    <p>Note's</p>
+                    <textarea
+                      rows={5}
+                      placeholder="Note"
+                      value={selectedPatient?.Note}
+                      className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
+                      disabled
                     />
-                  )}
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Symptoms</p>
-                  <input
-                    type="text"
-                    placeholder="Symptoms"
-                    value={selectedPatient?.Symptoms}
-                    className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] "
-                    disabled
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Note's</p>
-                  <textarea
-                    rows={5}
-                    placeholder="Note"
-                    value={selectedPatient?.Note}
-                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                    disabled
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Next Appoiment</p>
-                  <input
-                    type="text"
-                    placeholder="Next Appoiment"
-                    value={selectedPatient?.NextAppoiment}
-                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                    disabled
-                  />
-                </span>
-                <button
-                  className="buttonFilled"
-                  onClick={() => [
-                    handlePrint(),
-                    updateOpdDoctorVisitCompletedStatusDataHandle(
-                      selectedPatient?._id
-                    ),
-                  ]}
-                >
-                  Print
-                </button>
-              </div>
+                  </span>
+                  <span className="flex flex-col justify-start gap-1">
+                    <p>Next Appoiment</p>
+                    <input
+                      type="text"
+                      placeholder="Next Appoiment"
+                      value={selectedPatient?.NextAppoiment}
+                      className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
+                      disabled
+                    />
+                  </span>
+                  <button
+                    className="buttonFilled"
+                    onClick={() => [
+                      handlePrint(),
+                      updateOpdDoctorVisitCompletedStatusDataHandle(
+                        selectedPatient?._id
+                      ),
+                    ]}
+                  >
+                    Print
+                  </button>
+                </div>
+              ) : (
+                "Patient Not Checked Yet"
+              )}
             </Typography>
           </Box>
         </Fade>

@@ -64,6 +64,19 @@ export const getOneOpdDoctorCheckData = async (Id) => {
     throw new Error();
   }
 };
+export const getOneOpdDoctorCheckWithOpdPatientIdData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url + "get-one-opd-data-opdPatientId/" + Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw new Error();
+  }
+};
 export const updateOpdDoctorCheckData = async (Id, formData) => {
   try {
     const response = await axios.put(
