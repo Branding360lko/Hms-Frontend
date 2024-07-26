@@ -556,7 +556,6 @@ function DoctorTable() {
                         className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
                         onClick={() => [
                           handleOpen1(),
-
                           getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
                             item?._id
                           ),

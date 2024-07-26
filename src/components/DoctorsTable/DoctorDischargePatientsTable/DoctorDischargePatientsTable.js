@@ -5,17 +5,14 @@ import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
 import img from "../../../assets/20180125_001_1_.jpg";
 import { IoIosArrowForward } from "react-icons/io";
 import style from "../../../styling/styling";
-import {
-  addDoctorDetailsForPatientsDischargeData,
-  getAllDischargePatientsWithDoctorIdData,
-  getAllIpdPatientsData,
-} from "../DoctorApi";
+import { addDoctorDetailsForPatientsDischargeData } from "../DoctorApi";
 import Snackbars from "../../SnackBar";
 import { useSelector } from "react-redux";
 import PaginationComponent from "../../Pagination";
 import { date } from "../../../utils/DateAndTimeConvertor";
 import { getAllDoctorDischargePatientsListData } from "../../Receptionist/NurseApi";
 import { FaSearch } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 function DoctorDischargePatientsTable() {
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
@@ -47,9 +44,7 @@ function DoctorDischargePatientsTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const { adminUniqueId, adminLoggedInData } = useSelector(
-    (state) => state.AdminState
-  );
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [open, setOpen] = React.useState(false);
   const [open1, setOpen1] = React.useState(false);
   const handleOpen = () => setOpen(true);
@@ -76,6 +71,49 @@ function DoctorDischargePatientsTable() {
       disease_Diagnose: "",
       adviseDuringDischarge: "",
     });
+  const [adviseDuringDischarge, setAdviseDuringDischarge] = useState([]);
+  const [medicineDuringDischarge, setMedicineAdviseDuringDischarge] = useState(
+    []
+  );
+  const addMedicineTableHandle = (e) => {
+    e.preventDefault();
+    setMedicineAdviseDuringDischarge([
+      ...medicineDuringDischarge,
+      { medicine: "", schedule: "" },
+    ]);
+  };
+  const deleteMedicineHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...medicineDuringDischarge];
+    oldValue.splice(index, 1);
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const getMedicineData = (e, index) => {
+    let oldValue = [...medicineDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const addAdviceTableHandle = (e) => {
+    e.preventDefault();
+    setAdviseDuringDischarge([...adviseDuringDischarge, { advice: "" }]);
+  };
+  const deleteAdviceHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...adviseDuringDischarge];
+    oldValue.splice(index, 1);
+    setAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const getAdviceData = (e, index) => {
+    let oldValue = [...adviseDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+    setAdviseDuringDischarge(oldValue && oldValue);
+  };
   const getAllIpdPatientsDataHandle = async () => {
     const result = await getAllDoctorDischargePatientsListData(
       adminLoggedInData?.adminUniqueId
@@ -347,7 +385,7 @@ function DoctorDischargePatientsTable() {
                   />
                 </span>
                 <span className="flex flex-col justify-start gap-1">
-                  <p>Result : :</p>
+                  <p>Result :</p>
                   <select
                     onChange={(e) =>
                       setDischargePatientsFinalReport({
@@ -384,24 +422,131 @@ function DoctorDischargePatientsTable() {
                   />
                 </span>
                 <span className="flex flex-col justify-start gap-1">
-                  <p> Advise During Discharge</p>
-                  <textarea
-                    rows={5}
-                    placeholder="Note"
-                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                    value={dischargePatientsFinalReport?.adviseDuringDischarge}
-                    onChange={(e) =>
-                      setDischargePatientsFinalReport({
-                        ...dischargePatientsFinalReport,
-                        adviseDuringDischarge: e.target.value,
-                      })
-                    }
-                    required
-                  />
+                  <p> Advise & Medicine During Discharge</p>
+                  <div className="flex items-center justify-between w-full py-1">
+                    <p>Medicine During Discharge</p>
+                    <button
+                      onClick={(e) => addMedicineTableHandle(e)}
+                      className="buttonFilled"
+                    >
+                      Add +
+                    </button>
+                  </div>
+                  <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                    <thead>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>S_N</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Medicine Name</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Schedule</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Action</p>
+                      </th>
+                    </thead>
+
+                    <tbody>
+                      {medicineDuringDischarge?.map((item, index) => (
+                        <tr className="border-b-[1px]" key={index}>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            {index + 1}
+                          </td>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            <input
+                              type="text"
+                              name="medicine"
+                              placeholder="medicine"
+                              value={item?.medicine}
+                              onChange={(e) => [getMedicineData(e, index)]}
+                              className="w-full h-full border-none outline-none"
+                              required
+                            />
+                          </td>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            <input
+                              type="text"
+                              name="schedule"
+                              placeholder="schedule"
+                              value={item?.schedule}
+                              onChange={(e) => [getMedicineData(e, index)]}
+                              className="w-full h-full border-none outline-none"
+                            />
+                          </td>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                            <div className="flex gap-[10px] justify-center">
+                              <div
+                                className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                                onClick={(e) => deleteMedicineHandle(e, index)}
+                              >
+                                <MdDelete className="text-[20px] text-[#96999C]" />
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="flex items-center justify-between w-full py-1">
+                    <p>Advise During Discharge</p>
+                    <button
+                      onClick={(e) => addAdviceTableHandle(e)}
+                      className="buttonFilled"
+                    >
+                      Add +
+                    </button>
+                  </div>
+                  <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                    <thead>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>S_N</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Medicine Name</p>
+                      </th>
+
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Action</p>
+                      </th>
+                    </thead>
+
+                    <tbody>
+                      {adviseDuringDischarge?.map((item, index) => (
+                        <tr className="border-b-[1px]" key={index}>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            {index + 1}
+                          </td>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            <input
+                              type="text"
+                              name="advice"
+                              placeholder="Advice"
+                              value={item?.advice}
+                              onChange={(e) => [getAdviceData(e, index)]}
+                              className="w-full h-full border-none outline-none"
+                              required
+                            />
+                          </td>
+
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                            <div className="flex gap-[10px] justify-center">
+                              <div
+                                className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                                onClick={(e) => deleteAdviceHandle(e, index)}
+                              >
+                                <MdDelete className="text-[20px] text-[#96999C]" />
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </span>
 
                 <button className="buttonFilled w-fit flex items-center">
-                  {" "}
                   Save <IoIosArrowForward />
                 </button>
               </form>

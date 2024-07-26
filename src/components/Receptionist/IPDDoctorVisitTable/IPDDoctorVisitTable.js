@@ -255,9 +255,9 @@ export default function IPDDoctorVisitTable() {
   const deleteMedicineHandle = (e, index) => {
     e.preventDefault();
     let oldValue = [...selectedMedicine];
-    console.log(oldValue);
+
     oldValue.splice(index, 1);
-    console.log(oldValue);
+
     setSelectedMedicine(oldValue && oldValue);
   };
   const deleteTestHandle = (e, index) => {
