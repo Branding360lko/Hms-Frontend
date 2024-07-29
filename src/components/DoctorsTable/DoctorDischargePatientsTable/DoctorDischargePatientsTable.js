@@ -166,6 +166,7 @@ function DoctorDischargePatientsTable() {
     }
     console.log(result);
   };
+
   const searchHandle = () => {
     const filter = allDischargeData?.filter((item) => {
       if (search != "") {
@@ -504,7 +505,7 @@ function DoctorDischargePatientsTable() {
                         <p>S_N</p>
                       </th>
                       <th className="border-[1px] p-1 font-semibold">
-                        <p>Medicine Name</p>
+                        <p>Advice</p>
                       </th>
 
                       <th className="border-[1px] p-1 font-semibold">

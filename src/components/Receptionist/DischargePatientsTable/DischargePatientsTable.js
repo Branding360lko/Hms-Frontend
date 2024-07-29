@@ -1,6 +1,5 @@
 import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { CiViewList } from "react-icons/ci";
 import { RiEdit2Fill } from "react-icons/ri";
 import style from "../../../styling/styling";
 import { IoIosArrowForward } from "react-icons/io";
@@ -8,6 +7,7 @@ import {
   addNurseDetailsForPatientsDischargeData,
   getAllDischargePatientsListData,
   getAllNurseDischargePatientsListData,
+  getInvestigationORProcedureData,
 } from "../NurseApi";
 import Snackbars from "../../SnackBar";
 import PaginationComponent from "../../Pagination";
@@ -72,6 +72,14 @@ function DischargePatientsTable() {
     setAllDischargeData(result?.data?.data?.reverse());
     setFilteredData(result?.data?.data);
     console.log(result);
+  };
+  const getInvestigationORProcedureDataHandle = async (Id) => {
+    const result = await getInvestigationORProcedureData(Id);
+    setPatientsDischargeData({
+      ...patientsDischargeData,
+      investigationORProcedure: String(result?.data?.data?.[0]?.tests),
+    });
+    console.log(result?.data?.data?.[0]?.tests, "result");
   };
   const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
@@ -159,7 +167,6 @@ function DischargePatientsTable() {
   useEffect(() => {
     getAllDischargePatientsListDataHandle();
   }, []);
-
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -234,6 +241,7 @@ function DischargePatientsTable() {
                               ...patientsDischargeData,
                               ipdPatientId: item?.mainId,
                             }),
+                            getInvestigationORProcedureDataHandle(item?.mainId),
                           ]}
                         >
                           <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
