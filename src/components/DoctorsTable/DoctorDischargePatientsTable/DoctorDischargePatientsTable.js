@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RiEdit2Fill } from "react-icons/ri";
 import { CiViewList } from "react-icons/ci";
 import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
@@ -7,12 +7,13 @@ import { IoIosArrowForward } from "react-icons/io";
 import style from "../../../styling/styling";
 import { addDoctorDetailsForPatientsDischargeData } from "../DoctorApi";
 import Snackbars from "../../SnackBar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PaginationComponent from "../../Pagination";
 import { date } from "../../../utils/DateAndTimeConvertor";
 import { getAllDoctorDischargePatientsListData } from "../../Receptionist/NurseApi";
 import { FaSearch } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { getMedicineDataHandle } from "../../../Store/Slices/Medicine";
 function DoctorDischargePatientsTable() {
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
@@ -55,7 +56,14 @@ function DoctorDischargePatientsTable() {
   const handleClose1 = () => {
     setOpen1(false);
   };
+  const { medicineData } = useSelector((state) => state.MedicineData);
+  const dispatch = useDispatch();
+  const [activeIndex, setActiveIndex] = useState(null);
+  const selectRef = useRef(null);
+  const [selectedMedicine, setSelectedMedicine] = useState([]);
   const [search, setSearch] = React.useState("");
+  const [searchMedicine, setSearchMedicine] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [filteredData, setFilteredData] = React.useState([]);
   const [allDischargeData, setAllDischargeData] = useState([]);
   const [dischargePatientsFinalReport, setDischargePatientsFinalReport] =
@@ -75,6 +83,30 @@ function DoctorDischargePatientsTable() {
   const [medicineDuringDischarge, setMedicineAdviseDuringDischarge] = useState(
     []
   );
+  const selectMedicineHandle = (e) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      const filter = medicineData?.data?.filter((item) => {
+        if (e.target.value !== "") {
+          return item?.Name?.toLowerCase()?.includes(
+            e.target.value?.toLowerCase()
+          );
+        }
+      });
+      setSearchMedicine(filter && filter);
+    }, 100);
+    setIsLoading(false);
+  };
+  const addSelectedMedicineDataHandle = (index, item) => {
+    let oldValue = [...medicineDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      medicine: item?.Name,
+    };
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+    setSearchMedicine([]);
+    setActiveIndex(null);
+  };
   const addMedicineTableHandle = (e) => {
     e.preventDefault();
     setMedicineAdviseDuringDischarge([
@@ -89,6 +121,14 @@ function DoctorDischargePatientsTable() {
     setMedicineAdviseDuringDischarge(oldValue && oldValue);
   };
   const getMedicineData = (e, index) => {
+    let oldValue = [...medicineDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const getScheduleData = (e, index) => {
     let oldValue = [...medicineDuringDischarge];
     oldValue[index] = {
       ...oldValue[index],
@@ -146,7 +186,11 @@ function DoctorDischargePatientsTable() {
     );
     formData.append(
       "adviseDuringDischarge",
-      dischargePatientsFinalReport?.adviseDuringDischarge
+      JSON.stringify(adviseDuringDischarge)
+    );
+    formData.append(
+      "medicineAdviseDuringDischarge",
+      JSON.stringify(medicineDuringDischarge)
     );
     const result = await addDoctorDetailsForPatientsDischargeData(
       dischargePatientsFinalReport?.ipdPatientsId,
@@ -176,13 +220,29 @@ function DoctorDischargePatientsTable() {
     });
     setFilteredData(filter && filter);
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setActiveIndex(null);
+        setSearchMedicine([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+    if (medicineData?.data?.length === 0) {
+      dispatch(getMedicineDataHandle());
+    }
+  }, []);
   React.useEffect(() => {
     searchHandle();
   }, [search]);
   useEffect(() => {
     getAllIpdPatientsDataHandle();
   }, []);
-
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -451,20 +511,55 @@ function DoctorDischargePatientsTable() {
 
                     <tbody>
                       {medicineDuringDischarge?.map((item, index) => (
-                        <tr className="border-b-[1px]" key={index}>
+                        <tr className="border-b-[1px]" key={"med" + index}>
                           <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                             {index + 1}
                           </td>
-                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
                             <input
                               type="text"
                               name="medicine"
                               placeholder="medicine"
                               value={item?.medicine}
-                              onChange={(e) => [getMedicineData(e, index)]}
-                              className="w-full h-full border-none outline-none"
+                              className="w-full h-full border-none outline-none pl-1"
+                              onFocus={() => setActiveIndex(index)}
+                              onChange={(e) => [
+                                getMedicineData(e, index),
+                                selectMedicineHandle(e),
+                              ]}
+                              autocomplete="off"
                               required
                             />
+                            {activeIndex === index && (
+                              <span
+                                ref={selectRef}
+                                className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                              >
+                                {searchMedicine?.length > 0 ? (
+                                  searchMedicine?.map((item) => (
+                                    <p
+                                      key={index}
+                                      className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                                      onClick={() => [
+                                        addSelectedMedicineDataHandle(
+                                          index,
+                                          item
+                                        ),
+                                        setActiveIndex(null),
+                                      ]}
+                                    >
+                                      {item?.Name}
+                                    </p>
+                                  ))
+                                ) : (
+                                  <p className="w-full flex items-center justify-center">
+                                    {isLoading === true
+                                      ? "Loading...."
+                                      : "No Result Found"}
+                                  </p>
+                                )}
+                              </span>
+                            )}
                           </td>
                           <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                             <input
@@ -472,7 +567,7 @@ function DoctorDischargePatientsTable() {
                               name="schedule"
                               placeholder="schedule"
                               value={item?.schedule}
-                              onChange={(e) => [getMedicineData(e, index)]}
+                              onChange={(e) => [getScheduleData(e, index)]}
                               className="w-full h-full border-none outline-none"
                             />
                           </td>
@@ -515,7 +610,7 @@ function DoctorDischargePatientsTable() {
 
                     <tbody>
                       {adviseDuringDischarge?.map((item, index) => (
-                        <tr className="border-b-[1px]" key={index}>
+                        <tr className="border-b-[1px]" key={"advice" + index}>
                           <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
                             {index + 1}
                           </td>

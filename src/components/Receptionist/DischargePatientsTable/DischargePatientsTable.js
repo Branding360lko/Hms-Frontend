@@ -78,8 +78,8 @@ function DischargePatientsTable() {
     setPatientsDischargeData({
       ...patientsDischargeData,
       investigationORProcedure: String(result?.data?.data?.[0]?.tests),
+      nurse: String(result?.data?.nurse?.nurseData),
     });
-    console.log(result?.data?.data?.[0]?.tests, "result");
   };
   const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
