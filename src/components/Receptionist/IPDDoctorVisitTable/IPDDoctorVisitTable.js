@@ -385,7 +385,6 @@ export default function IPDDoctorVisitTable() {
   const getOnePatientsDoctorVisitDataHandle = async (Id) => {
     const result = await getOnePatientsDoctorVisitData(Id);
     setViewPatientsData(result && result?.data);
-    console.log(result);
   };
   // const getAllDoctorVisitPatientsListDataHandle = async () => {
   //   const result = await getAllDoctorVisitPatientsListData();

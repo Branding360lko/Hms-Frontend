@@ -384,3 +384,17 @@ export const getInvestigationORProcedureData = async (Id) => {
     throw new Error(error);
   }
 };
+export const getInvestigationORProcedureEmergencyData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-Emergency-patient-lab-test-record/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};

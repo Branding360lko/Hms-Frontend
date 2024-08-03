@@ -10,6 +10,7 @@ import {
   addNurseDetailsForEmergencyPatientsDischargeData,
   getAllEmergencyDischargePatientsListData,
   getAllEmergencyDischargePatientsNurseListData,
+  getInvestigationORProcedureEmergencyData,
 } from "../NurseApi";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
 import Snackbars from "../../SnackBar";
@@ -140,6 +141,14 @@ function EmegencyPatientsDischargeTable() {
       });
     }
   };
+  const getInvestigationORProcedureEmergencyDataHandle = async (Id) => {
+    const result = await getInvestigationORProcedureEmergencyData(Id);
+    setPatientsDischargeData({
+      ...patientsDischargeData,
+      investigationORProcedure: String(result?.data?.data?.[0]?.tests),
+      nurse: String(result?.data?.nurse?.nurseData),
+    });
+  };
   const [search, setSearch] = React.useState("");
   const searchHandle = () => {
     const filter = allDischargeData?.filter((item) => {
@@ -218,7 +227,7 @@ function EmegencyPatientsDischargeTable() {
                 </td>
                 <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row">
                   <div className="flex gap-[10px] justify-center">
-                    {item?.emergencyPatientNurseConfirmation === false ? (
+                    {item?.emergencyPatientNurseConfirmation === true ? (
                       <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         onClick={() => [
@@ -227,6 +236,9 @@ function EmegencyPatientsDischargeTable() {
                             ...patientsDischargeData,
                             emergencyPatientId: item?.mainId,
                           }),
+                          getInvestigationORProcedureEmergencyDataHandle(
+                            item?.mainId
+                          ),
                         ]}
                       >
                         <RiEdit2Fill className="text-[20px] text-[#3497F9]" />

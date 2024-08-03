@@ -278,3 +278,13 @@ export const getSearchResultDoctorPanelData = async (
     throw new Error(error);
   }
 };
+export const getDoctorNameData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "get-doctor-name/" + Id}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};

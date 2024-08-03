@@ -5,7 +5,10 @@ import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
 import img from "../../../assets/20180125_001_1_.jpg";
 import { IoIosArrowForward } from "react-icons/io";
 import style from "../../../styling/styling";
-import { addDoctorDetailsForPatientsDischargeData } from "../DoctorApi";
+import {
+  addDoctorDetailsForPatientsDischargeData,
+  getDoctorNameData,
+} from "../DoctorApi";
 import Snackbars from "../../SnackBar";
 import { useDispatch, useSelector } from "react-redux";
 import PaginationComponent from "../../Pagination";
@@ -210,7 +213,13 @@ function DoctorDischargePatientsTable() {
     }
     console.log(result);
   };
-
+  const getDoctorNameDataHandle = async () => {
+    const result = await getDoctorNameData(adminLoggedInData?.adminUniqueId);
+    setDischargePatientsFinalReport({
+      ...dischargePatientsFinalReport,
+      name: result?.data?.data,
+    });
+  };
   const searchHandle = () => {
     const filter = allDischargeData?.filter((item) => {
       if (search != "") {
@@ -318,6 +327,7 @@ function DoctorDischargePatientsTable() {
                             doctorId: item?.ipdDoctorId,
                             ipdPatientsId: item?.mainId,
                           }),
+                          getDoctorNameDataHandle(),
                         ]}
                       >
                         <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
@@ -433,7 +443,7 @@ function DoctorDischargePatientsTable() {
                   <p>ICD :</p>
                   <input
                     type="text"
-                    placeholder="Add Symptoms"
+                    placeholder="ICD"
                     className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] "
                     value={dischargePatientsFinalReport?.ICD}
                     onChange={(e) =>

@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RiEdit2Fill } from "react-icons/ri";
 import PaginationComponent from "../../Pagination";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
 import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
-import { useSelector } from "react-redux";
-import { addDoctorDetailsForEmergencyPatientsDischargeData } from "../DoctorApi";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addDoctorDetailsForEmergencyPatientsDischargeData,
+  getDoctorNameData,
+} from "../DoctorApi";
 import {
   getAllEmergencyDischargePatientsDoctorListData,
   getAllEmergencyDischargePatientsListData,
@@ -13,6 +16,7 @@ import style from "../../../styling/styling";
 import { IoIosArrowForward } from "react-icons/io";
 import Snackbars from "../../SnackBar";
 import { FaSearch } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 
 function DoctorEmergencyDischargeTable() {
   // Snackbar--------------------
@@ -63,6 +67,87 @@ function DoctorEmergencyDischargeTable() {
       disease_Diagnose: "",
       adviseDuringDischarge: "",
     });
+  const { medicineData } = useSelector((state) => state.MedicineData);
+  const dispatch = useDispatch();
+  const [activeIndex, setActiveIndex] = useState(null);
+  const selectRef = useRef(null);
+  const [searchMedicine, setSearchMedicine] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [adviseDuringDischarge, setAdviseDuringDischarge] = useState([]);
+  const [medicineDuringDischarge, setMedicineAdviseDuringDischarge] = useState(
+    []
+  );
+  const selectMedicineHandle = (e) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      const filter = medicineData?.data?.filter((item) => {
+        if (e.target.value !== "") {
+          return item?.Name?.toLowerCase()?.includes(
+            e.target.value?.toLowerCase()
+          );
+        }
+      });
+      setSearchMedicine(filter && filter);
+    }, 100);
+    setIsLoading(false);
+  };
+  const addSelectedMedicineDataHandle = (index, item) => {
+    let oldValue = [...medicineDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      medicine: item?.Name,
+    };
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+    setSearchMedicine([]);
+    setActiveIndex(null);
+  };
+  const addMedicineTableHandle = (e) => {
+    e.preventDefault();
+    setMedicineAdviseDuringDischarge([
+      ...medicineDuringDischarge,
+      { medicine: "", schedule: "" },
+    ]);
+  };
+  const deleteMedicineHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...medicineDuringDischarge];
+    oldValue.splice(index, 1);
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const getMedicineData = (e, index) => {
+    let oldValue = [...medicineDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const getScheduleData = (e, index) => {
+    let oldValue = [...medicineDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+    setMedicineAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const addAdviceTableHandle = (e) => {
+    e.preventDefault();
+    setAdviseDuringDischarge([...adviseDuringDischarge, { advice: "" }]);
+  };
+  const deleteAdviceHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...adviseDuringDischarge];
+    oldValue.splice(index, 1);
+    setAdviseDuringDischarge(oldValue && oldValue);
+  };
+  const getAdviceData = (e, index) => {
+    let oldValue = [...adviseDuringDischarge];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+    setAdviseDuringDischarge(oldValue && oldValue);
+  };
   const getAllEmergencyDischargePatientsListDataHandle = async () => {
     const result = await getAllEmergencyDischargePatientsDoctorListData(
       adminLoggedInData?.adminUniqueId
@@ -96,7 +181,11 @@ function DoctorEmergencyDischargeTable() {
     );
     formData.append(
       "adviseDuringDischarge",
-      dischargePatientsFinalReport?.adviseDuringDischarge
+      JSON.stringify(adviseDuringDischarge)
+    );
+    formData.append(
+      "medicineAdviseDuringDischarge",
+      JSON.stringify(medicineDuringDischarge)
     );
     const result = await addDoctorDetailsForEmergencyPatientsDischargeData(
       dischargePatientsFinalReport?.emergencyPatientsId,
@@ -117,6 +206,13 @@ function DoctorEmergencyDischargeTable() {
   };
   const [search, setSearch] = React.useState("");
   const [filteredData, setFilteredData] = React.useState([]);
+  const getDoctorNameDataHandle = async () => {
+    const result = await getDoctorNameData(adminLoggedInData?.adminUniqueId);
+    setDischargePatientsFinalReport({
+      ...dischargePatientsFinalReport,
+      name: result?.data?.data,
+    });
+  };
   const searchHandle = () => {
     const filter = allDischargeData?.filter((item) => {
       if (search != "") {
@@ -126,6 +222,18 @@ function DoctorEmergencyDischargeTable() {
     });
     setFilteredData(filter && filter);
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setActiveIndex(null);
+        setSearchMedicine([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   React.useEffect(() => {
     searchHandle();
   }, [search]);
@@ -209,6 +317,7 @@ function DoctorEmergencyDischargeTable() {
                             doctorId: item?.doctorId,
                             emergencyPatientsId: item?.mainId,
                           }),
+                          getDoctorNameDataHandle(),
                         ]}
                       >
                         <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
@@ -384,19 +493,162 @@ function DoctorEmergencyDischargeTable() {
                 </span>
                 <span className="flex flex-col justify-start gap-1">
                   <p> Advise During Discharge</p>
-                  <textarea
-                    rows={5}
-                    placeholder="Note"
-                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                    value={dischargePatientsFinalReport?.adviseDuringDischarge}
-                    onChange={(e) =>
-                      setDischargePatientsFinalReport({
-                        ...dischargePatientsFinalReport,
-                        adviseDuringDischarge: e.target.value,
-                      })
-                    }
-                    required
-                  />
+                  <div className="flex items-center justify-between w-full py-1">
+                    <p>Medicine During Discharge</p>
+                    <button
+                      onClick={(e) => addMedicineTableHandle(e)}
+                      className="buttonFilled"
+                    >
+                      Add +
+                    </button>
+                  </div>
+                  <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                    <thead>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>S_N</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Medicine Name</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Schedule</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Action</p>
+                      </th>
+                    </thead>
+
+                    <tbody>
+                      {medicineDuringDischarge?.map((item, index) => (
+                        <tr className="border-b-[1px]" key={"med" + index}>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            {index + 1}
+                          </td>
+                          <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                            <input
+                              type="text"
+                              name="medicine"
+                              placeholder="medicine"
+                              value={item?.medicine}
+                              className="w-full h-full border-none outline-none pl-1"
+                              onFocus={() => setActiveIndex(index)}
+                              onChange={(e) => [
+                                getMedicineData(e, index),
+                                selectMedicineHandle(e),
+                              ]}
+                              autocomplete="off"
+                              required
+                            />
+                            {activeIndex === index && (
+                              <span
+                                ref={selectRef}
+                                className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                              >
+                                {searchMedicine?.length > 0 ? (
+                                  searchMedicine?.map((item) => (
+                                    <p
+                                      key={index}
+                                      className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                                      onClick={() => [
+                                        addSelectedMedicineDataHandle(
+                                          index,
+                                          item
+                                        ),
+                                        setActiveIndex(null),
+                                      ]}
+                                    >
+                                      {item?.Name}
+                                    </p>
+                                  ))
+                                ) : (
+                                  <p className="w-full flex items-center justify-center">
+                                    {isLoading === true
+                                      ? "Loading...."
+                                      : "No Result Found"}
+                                  </p>
+                                )}
+                              </span>
+                            )}
+                          </td>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            <input
+                              type="text"
+                              name="schedule"
+                              placeholder="schedule"
+                              value={item?.schedule}
+                              onChange={(e) => [getScheduleData(e, index)]}
+                              className="w-full h-full border-none outline-none"
+                            />
+                          </td>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                            <div className="flex gap-[10px] justify-center">
+                              <div
+                                className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                                onClick={(e) => deleteMedicineHandle(e, index)}
+                              >
+                                <MdDelete className="text-[20px] text-[#96999C]" />
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="flex items-center justify-between w-full py-1">
+                    <p>Advise During Discharge</p>
+                    <button
+                      onClick={(e) => addAdviceTableHandle(e)}
+                      className="buttonFilled"
+                    >
+                      Add +
+                    </button>
+                  </div>
+                  <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                    <thead>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>S_N</p>
+                      </th>
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Advice</p>
+                      </th>
+
+                      <th className="border-[1px] p-1 font-semibold">
+                        <p>Action</p>
+                      </th>
+                    </thead>
+
+                    <tbody>
+                      {adviseDuringDischarge?.map((item, index) => (
+                        <tr className="border-b-[1px]" key={"advice" + index}>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            {index + 1}
+                          </td>
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                            <input
+                              type="text"
+                              name="advice"
+                              placeholder="Advice"
+                              value={item?.advice}
+                              onChange={(e) => [getAdviceData(e, index)]}
+                              className="w-full h-full border-none outline-none"
+                              required
+                            />
+                          </td>
+
+                          <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                            <div className="flex gap-[10px] justify-center">
+                              <div
+                                className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                                onClick={(e) => deleteAdviceHandle(e, index)}
+                              >
+                                <MdDelete className="text-[20px] text-[#96999C]" />
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </span>
 
                 <button className="buttonFilled w-fit flex items-center">
