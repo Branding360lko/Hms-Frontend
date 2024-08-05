@@ -212,7 +212,9 @@ function DoctorTable() {
           <div>
             <div className="flex gap-1 flex-col">
               <span>Appointment Date:</span>
-              <p>{date(selectedPatient?.appoiment)}</p>
+              <p>
+                {date(patientData?.createdAt)}-{time(patientData?.createdAt)}
+              </p>
             </div>
           </div>
         </div>
@@ -285,10 +287,13 @@ function DoctorTable() {
             <h6 className="text-[18px] font-semibold">Note :</h6>
             <p className="w-11/12 text-start">{selectedPatient?.Note}</p>
           </div>
-          <div className="flex items-start justify-start w-full gap-1">
-            <h6 className="text-[18px] font-semibold">Next Appoiment :</h6>
+          <div className="flex items-start justify-start w-full gap-4">
+            <h6 className="text-[18px] font-semibold text-start w-[13rem]">
+              Next Appoiment :
+            </h6>
             <p className="w-11/12 text-start">
-              {selectedPatient?.NextAppoiment}
+              {/* {selectedPatient?.NextAppoiment} */}
+              <p>20/08/2024</p>
             </p>
           </div>
         </div>
@@ -313,7 +318,9 @@ function DoctorTable() {
       );
 
       setTotalData(data?.data?.totalPages);
-      setOpdPatients(data && [...opdPatients, ...data?.data?.OPDPatientData]);
+      setOpdPatients(
+        data && [...opdPatients, ...data?.data?.OPDPatientData?.reverse()]
+      );
       setVisitedPages((prevVisitedPages) => [...prevVisitedPages, page]);
     }
   };
@@ -380,7 +387,6 @@ function DoctorTable() {
       patientId: result?.data?.data?.[0]?.OpdPatientData?.opdPatientId,
       NextAppoiment: result?.data?.data?.[0]?.NextAppoiment,
     });
-    console.log(result, "result");
   };
   const updateOpdDoctorCheckDataHandle = async (e, Id) => {
     e.preventDefault();
@@ -388,6 +394,7 @@ function DoctorTable() {
     formData.append("Note", selectedPatient?.Note);
     formData.append("Symptoms", selectedPatient?.Symptoms);
     formData.append("isPatientsChecked", true);
+    formData.append("NextAppoiment", selectedPatient?.NextAppoiment);
     selectedPatient?.test?.forEach((testData) => {
       formData.append("test", testData?._id ? testData?._id : testData?.value);
     });
@@ -475,7 +482,9 @@ function DoctorTable() {
     const result = convertValue(testData?.data);
     setTest(result);
   }, [testData]);
-
+  useEffect(() => {
+    console.log(patientData, "patientData");
+  }, [patientData]);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -488,7 +497,7 @@ function DoctorTable() {
           <FaSearch className="text-[#56585A]" />
           <input
             className="bg-transparent outline-none"
-            placeholder="Search by patient id"
+            placeholder="Search by Patient Name"
             onChange={(e) => setSearch(e.target.value)}
           />
           {/* <button

@@ -145,7 +145,9 @@ function EmegencyPatientsDischargeTable() {
     const result = await getInvestigationORProcedureEmergencyData(Id);
     setPatientsDischargeData({
       ...patientsDischargeData,
-      investigationORProcedure: String(result?.data?.data?.[0]?.tests),
+      investigationORProcedure: String(
+        result?.data?.data?.[0]?.tests ? result?.data?.data?.[0]?.tests : ""
+      ),
       nurse: String(result?.data?.nurse?.nurseData),
     });
   };

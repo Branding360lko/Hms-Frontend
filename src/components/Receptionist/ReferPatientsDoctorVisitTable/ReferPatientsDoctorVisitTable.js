@@ -1,5 +1,5 @@
 import { Backdrop, Box, Fade, Modal, Typography } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CiViewList } from "react-icons/ci";
 import { RiEdit2Fill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
@@ -345,16 +345,17 @@ function ReferPatientsDoctorVisitTable() {
     searchHandle();
   }, [search]);
   useEffect(() => {
-    if (doctors?.length === 0) {
+    if (!doctors || doctors.length === 0) {
       dispatch(GetAllDoctorsHandle());
     }
-    if (medicineData?.data?.length === 0) {
+    if (!medicineData || !medicineData.data || medicineData.data.length === 0) {
       dispatch(getMedicineDataHandle());
     }
-    if (testData?.data?.length === 0) {
+    if (!testData || !testData.data || testData.data.length === 0) {
       dispatch(getTestDataHandle());
     }
-  }, []);
+  }, [doctors, medicineData, testData]);
+
   useEffect(() => {
     getAllNurseReferDataHandle();
     // getAllDoctorVisitPatientsListDataHandle();

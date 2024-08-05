@@ -346,16 +346,16 @@ function EmergencyPatientsTable() {
     getAllEmergencyPatientsDataHandle();
   }, []);
   useEffect(() => {
-    if (doctors?.length === 0) {
+    if (!doctors || doctors.length === 0) {
       dispatch(GetAllDoctorsHandle());
     }
-    if (medicineData?.data?.length === 0) {
+    if (!medicineData || !medicineData.data || medicineData.data.length === 0) {
       dispatch(getMedicineDataHandle());
     }
-    if (testData?.data?.length === 0) {
+    if (!testData || !testData.data || testData.data.length === 0) {
       dispatch(getTestDataHandle());
     }
-  }, []);
+  }, [doctors, medicineData, testData]);
 
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
