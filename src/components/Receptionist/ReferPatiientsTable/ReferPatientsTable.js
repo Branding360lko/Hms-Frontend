@@ -112,16 +112,9 @@ function DischargePatientsTable() {
     const result = await getAllNurseReferByNurseIdData(
       adminLoggedInData?.adminUniqueId
     );
-    if (result?.status === 200) {
-      const filter = result?.data?.data?.filter(
-        (item) =>
-          item?.ipdPatientsDetails?.ipdNurseId ===
-          adminLoggedInData?.adminUniqueId
-      );
-      setAllReferedpatients(result?.data?.data);
-      setFilteredData(result?.data?.data?.reverse());
-      console.log(result?.data?.data, "filter");
-    }
+
+    setAllReferedpatients(result?.data?.data);
+    setFilteredData(result?.data?.data?.reverse());
   };
   const addNurseReferPatientsDataHandle = async (e) => {
     e.preventDefault();
