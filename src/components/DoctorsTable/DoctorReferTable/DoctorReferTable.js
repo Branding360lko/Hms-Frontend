@@ -98,9 +98,20 @@ function DoctorReferTable() {
   const searchHandle = () => {
     const filter = allReferPatients?.filter((item) => {
       if (search != "") {
-        return item?.PatientsDetails?.[0]?.patientName
-          ?.toLowerCase()
-          .includes(search.toLowerCase());
+        return (
+          item?.PatientsDetails?.[0]?.patientName
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          item?.PatientsDetails?.[0]?.patientPhone
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          item?.PatientsDetails?.[0]?.patientPhone2
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          item?.PatientsDetails?.[0]?.patientId
+            ?.toLowerCase()
+            .includes(search.toLowerCase())
+        );
       }
       return item;
     });
@@ -122,8 +133,8 @@ function DoctorReferTable() {
         <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
           <FaSearch className="text-[#56585A]" />
           <input
-            className="bg-transparent outline-none"
-            placeholder="Search by Patient Name"
+            className="bg-transparent outline-none w-[27rem]"
+            placeholder="Search by Patient Name Or Phone Number Or Uhid"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>

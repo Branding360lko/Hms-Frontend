@@ -12,7 +12,7 @@ export const GetAllDoctorsHandle = createAsyncThunk(
   "GetAllDoctorsHandle",
   async () => {
     const { data } = await axios.get(
-      `${process.env.React_App_Base_url + "Doctor-GET-ALL"}`
+      `${process.env.React_App_Base_url + "get-all-doctor"}`
     );
     return data;
   }

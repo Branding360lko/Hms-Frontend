@@ -152,7 +152,6 @@ function DoctorEmergencyDischargeTable() {
     const result = await getAllEmergencyDischargePatientsDoctorListData(
       adminLoggedInData?.adminUniqueId
     );
-
     setAllDischargeData(result?.data?.data?.reverse());
     setFilteredData(result?.data?.data?.reverse());
   };
@@ -216,7 +215,12 @@ function DoctorEmergencyDischargeTable() {
   const searchHandle = () => {
     const filter = allDischargeData?.filter((item) => {
       if (search != "") {
-        return item?.PatientName?.toLowerCase().includes(search.toLowerCase());
+        return (
+          item?.PatientName?.toLowerCase().includes(search.toLowerCase()) ||
+          item?.patientPhone?.toLowerCase().includes(search.toLowerCase()) ||
+          item?.patientPhone2?.toLowerCase().includes(search.toLowerCase()) ||
+          item?.patientUhid?.toLowerCase().includes(search.toLowerCase())
+        );
       }
       return item;
     });
@@ -252,8 +256,8 @@ function DoctorEmergencyDischargeTable() {
         <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
           <FaSearch className="text-[#56585A]" />
           <input
-            className="bg-transparent outline-none"
-            placeholder="Search by Patient Name"
+            className="bg-transparent outline-none w-[27rem]"
+            placeholder="Search by Patient Name Or Phone Number Or Uhid"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>

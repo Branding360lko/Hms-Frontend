@@ -8,6 +8,7 @@ import { RiEdit2Fill } from "react-icons/ri";
 import { IoMdPersonAdd } from "react-icons/io";
 import { getMedicineDataHandle } from "../../../Store/Slices/Medicine";
 import { useDispatch, useSelector } from "react-redux";
+import { GiMedicinePills, GiMedicines } from "react-icons/gi";
 import {
   addDailyDoctorVisitIpdData,
   getAllDoctorVisitPatientsListData,
@@ -275,6 +276,7 @@ export default function IPDDoctorVisitTable() {
     );
     setDoctorWithPatients(result?.data?.data);
     setFilteredData(result?.data?.data?.reverse());
+    console.log(result?.data?.data, "result?.data?.data1212");
   };
   const addDailyDoctorVisitIpdDataHandle = async (e) => {
     e.preventDefault();
@@ -410,13 +412,25 @@ export default function IPDDoctorVisitTable() {
   const searchHandle = () => {
     const filter = doctorWithPatients?.filter((item) => {
       if (searchByPatientsId != "") {
-        return item?.IpdPatientName?.toLowerCase()?.includes(
-          searchByPatientsId?.toLowerCase()
+        return (
+          item?.IpdPatientName?.toLowerCase()?.includes(
+            searchByPatientsId?.toLowerCase()
+          ) ||
+          item?.IpdPatientUhid?.toLowerCase().includes(
+            searchByPatientsId?.toLowerCase()
+          ) ||
+          item?.IpdPatientPhone?.toLowerCase().includes(
+            searchByPatientsId?.toLowerCase()
+          ) ||
+          item?.IpdPatientPhone2?.toLowerCase().includes(
+            searchByPatientsId?.toLowerCase()
+          )
         );
       }
 
       return item;
     });
+
     setFilteredData(filter && filter);
   };
   useEffect(() => {
@@ -470,8 +484,8 @@ export default function IPDDoctorVisitTable() {
             <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
               <FaSearch className="text-[#56585A]" />
               <input
-                className="bg-transparent outline-none"
-                placeholder="Search by Patient Name"
+                className="bg-transparent outline-none w-[27rem]"
+                placeholder="Search by Patient Name Or Phone Number Or Uhid"
                 onChange={(e) => setSearchByPatientsId(e.target.value)}
               />
             </div>
@@ -560,6 +574,9 @@ export default function IPDDoctorVisitTable() {
                           ]}
                         >
                           <IoMdPersonAdd className="text-[20px] text-[#0ba46f]" />
+                        </div>
+                        <div className="p-[4px] h-fit w-fit border-[2px] border-[#2B2C76] rounded-[12px] cursor-pointer">
+                          <GiMedicines className="text-[20px] text-[#2B2C76]" />
                         </div>
                       </div>
                     </td>
