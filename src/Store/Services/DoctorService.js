@@ -5,10 +5,13 @@ export const doctorService = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: process.env.React_App_Base_url }),
   endpoints: (builder) => ({
     getAllDoctors: builder.query({
-      query: () => {
+      query: (limit, page, query) => {
         return {
           url: `Doctor-GET-ALL`,
           method: "GET",
+          params: limit,
+          page,
+          query,
         };
       },
     }),

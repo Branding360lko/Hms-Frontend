@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import PaginationComponent from "./Pagination";
 import { useState } from "react";
 // import { CiMenuKebab } from 'react-icons/ci';
@@ -7,11 +7,19 @@ import { useState } from "react";
 //     return children;
 // }
 
-function Table({ data, config, keyFn }) {
+function Table({ data, config, keyFn, handleLimitChange, setPageMain }) {
   //Table Pagination
   console.log(data, config, "fgfgf");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  console.log("TypwofSetLimit:", typeof setLimit);
+  console.log("data:", data);
+
+  useEffect(() => {
+    handleLimitChange(rowsPerPage);
+    setPageMain(page + 1);
+  }, [rowsPerPage, page]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

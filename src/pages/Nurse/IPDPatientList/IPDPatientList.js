@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./IPDPatientList.css";
 
 import { lazy } from "react";
@@ -30,20 +30,44 @@ import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
 import { getAllBeds } from "../../../Store/Slices/BedSlice";
 import { useGetAllNursesQuery } from "../../../Store/Services/NurseService";
 import { getAllNurses } from "../../../Store/Slices/NurseSlice";
+import {
+  useGetDropdownDoctorsQuery,
+  useGetDropdownNursesQuery,
+  useGetDropdownPatientsQuery,
+} from "../../../Store/Services/DropDownServices";
 
 const IPDPatientTable = lazy(() =>
   import("../../../components/Nurse/IPDPatientTableAndForm/IPD_PatientTable")
 );
 
 export default function IPDPatientList() {
-  const dispatch = useDispatch();
-  const responseGetAllIPDPatients = useGetAllIPDPatientsQuery();
-  const responseGetAllDoctors = useGetAllDoctorsQuery();
-  const responseGetAllDoctorProfessionalDetails =
-    useGetAllDoctorProfessionalDetailsQuery();
-  const responseGetAllPatients = useGetAllPatientsQuery();
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
 
-  const responseGetAllNurses = useGetAllNursesQuery();
+  const handleLimitChange = (value) => {
+    setLimit(value);
+  };
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const dispatch = useDispatch();
+  const responseGetAllIPDPatients = useGetAllIPDPatientsQuery({
+    limit: limit,
+    page: page,
+    query: searchQuery,
+  });
+  const responseGetAllDoctors = useGetAllDoctorsQuery({
+    limit: limit,
+    page: page,
+    query: searchQuery,
+  });
+  const responseGetAllDoctorProfessionalDetails = useGetDropdownDoctorsQuery();
+  const responseGetAllPatients = useGetDropdownPatientsQuery();
+
+  const responseGetAllNurses = useGetDropdownNursesQuery();
+
+  console.log("responseGetAllIPDPatients:", responseGetAllIPDPatients);
+  console.log("responseGetAllDoctors:", responseGetAllDoctors);
 
   // Ipd Patients Final Balance Calculation Get all
 
@@ -90,9 +114,9 @@ export default function IPDPatientList() {
       await responseGetAllIPDPatients.refetch();
     if (responseGetAllIPDPatientsRefetch.isSuccess) {
       const reverseArrayGetAllIPDPatients =
-        responseGetAllIPDPatientsRefetch?.data?.map(
-          responseGetAllIPDPatientsRefetch?.data?.pop,
-          [...responseGetAllIPDPatientsRefetch?.data]
+        responseGetAllIPDPatientsRefetch?.data?.ipdPatientsData?.map(
+          responseGetAllIPDPatientsRefetch?.data?.ipdPatientsData?.pop,
+          [...responseGetAllIPDPatientsRefetch?.data?.ipdPatientsData]
         );
       const filteredArrayGetAllIPDPatients =
         reverseArrayGetAllIPDPatients?.filter(
@@ -182,14 +206,20 @@ export default function IPDPatientList() {
     // IPD Patients
     if (responseGetAllIPDPatients.isSuccess) {
       const reverseArrayGetAllIPDPatients =
-        responseGetAllIPDPatients?.data?.map(
-          responseGetAllIPDPatients?.data?.pop,
-          [...responseGetAllIPDPatients?.data]
+        responseGetAllIPDPatients?.data?.ipdPatientsData?.map(
+          responseGetAllIPDPatients?.data?.ipdPatientsData?.pop,
+          [...responseGetAllIPDPatients?.data?.ipdPatientsData]
         );
+      console.log(
+        "reverseArrayGetAllIPDPatients:",
+        reverseArrayGetAllIPDPatients
+      );
+
       const filteredArrayGetAllIPDPatients =
         reverseArrayGetAllIPDPatients?.filter(
           (data) => data.isDeleted === false && data
         );
+
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
     }
     // --------------------
@@ -208,10 +238,11 @@ export default function IPDPatientList() {
 
     // Doctors
     if (responseGetAllDoctors.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctors?.data?.map(
-        responseGetAllDoctors?.data?.pop,
-        [...responseGetAllDoctors?.data]
-      );
+      const reverseArrayGetAllDoctors =
+        responseGetAllDoctors?.data?.Doctors?.map(
+          responseGetAllDoctors?.data?.Doctors?.pop,
+          [...responseGetAllDoctors?.data?.Doctors]
+        );
       const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
         (data) => data.isDeleted === false && data
       );
@@ -221,9 +252,9 @@ export default function IPDPatientList() {
     // Doctors Professional Details
     if (responseGetAllDoctorProfessionalDetails.isSuccess) {
       const reverseArrayGetAllDoctorsProfessionalDetails =
-        responseGetAllDoctorProfessionalDetails?.data?.map(
-          responseGetAllDoctorProfessionalDetails?.data?.pop,
-          [...responseGetAllDoctorProfessionalDetails?.data]
+        responseGetAllDoctorProfessionalDetails?.data?.Doctors?.map(
+          responseGetAllDoctorProfessionalDetails?.data?.Doctors?.pop,
+          [...responseGetAllDoctorProfessionalDetails?.data?.Doctors]
         );
       const filteredArrayGetAllDoctorsProfessionalDetails =
         reverseArrayGetAllDoctorsProfessionalDetails?.filter(
@@ -305,7 +336,10 @@ export default function IPDPatientList() {
           <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
             <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
-              <IPDPatientTable />
+              <IPDPatientTable
+                handleLimitChange={handleLimitChange}
+                setPage={setPage}
+              />
             </div>
           </div>
         </div>

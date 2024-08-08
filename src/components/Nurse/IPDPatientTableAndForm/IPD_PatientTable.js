@@ -70,7 +70,7 @@ import {
 import IpdChargesShowcase from "../../Receptionist/IpdChargesShowcase/IpdChargesShowcase";
 import axios from "axios";
 
-export default function IPD_PatientTable() {
+export default function IPD_PatientTable({ handleLimitChange, setPage }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { nurses } = useSelector((state) => state.NurseState);
@@ -1441,6 +1441,8 @@ export default function IPD_PatientTable() {
     handleIpdPatientsFinalBalanceCall();
   }, []);
 
+  console.log("ipdPatients:", ipdPatients);
+
   const filteredArray = ipdPatients?.filter((data) => {
     if (search !== "") {
       const userSearch = search.toLowerCase();
@@ -1694,7 +1696,13 @@ export default function IPD_PatientTable() {
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={mappedBillData} config={config} keyFn={keyFn} />
+        <Table
+          handleLimitChange={handleLimitChange}
+          setPageMain={setPage}
+          data={mappedBillData}
+          config={config}
+          keyFn={keyFn}
+        />
       </div>
       <Modal
         open={open}

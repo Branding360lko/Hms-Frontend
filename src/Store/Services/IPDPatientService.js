@@ -6,10 +6,13 @@ export const IPDPatientService = createApi({
 
   endpoints: (builder) => ({
     getAllIPDPatients: builder.query({
-      query: () => {
+      query: (limit, page, query) => {
         return {
           url: "IPDPatient-GET-ALL",
           method: "GET",
+          params: limit,
+          page,
+          query,
         };
       },
     }),
