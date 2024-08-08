@@ -70,7 +70,7 @@ import {
 import IpdChargesShowcase from "../../Receptionist/IpdChargesShowcase/IpdChargesShowcase";
 import axios from "axios";
 
-export default function IPD_PatientTable({ handleLimitChange, setPage }) {
+export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { nurses } = useSelector((state) => state.NurseState);
@@ -1668,6 +1668,8 @@ export default function IPD_PatientTable({ handleLimitChange, setPage }) {
     },
   ];
 
+  console.log("typeOfSetPageLimitIn PatientTable", typeof setPageLimit);
+
   const keyFn = (list) => {
     return list.mainId;
   };
@@ -1697,11 +1699,11 @@ export default function IPD_PatientTable({ handleLimitChange, setPage }) {
           </div> */}
         </div>
         <Table
-          handleLimitChange={handleLimitChange}
-          setPageMain={setPage}
           data={mappedBillData}
           config={config}
           keyFn={keyFn}
+          setPageLimit={setPageLimit}
+          setPageCount={setPageCount}
         />
       </div>
       <Modal

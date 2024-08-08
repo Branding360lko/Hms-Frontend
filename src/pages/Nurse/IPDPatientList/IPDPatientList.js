@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./IPDPatientList.css";
 
 import { lazy } from "react";
@@ -35,39 +35,47 @@ import {
   useGetDropdownNursesQuery,
   useGetDropdownPatientsQuery,
 } from "../../../Store/Services/DropDownServices";
+import axios from "axios";
 
 const IPDPatientTable = lazy(() =>
   import("../../../components/Nurse/IPDPatientTableAndForm/IPD_PatientTable")
 );
 
 export default function IPDPatientList() {
-  const [limit, setLimit] = useState(10);
-  const [page, setPage] = useState(1);
+  const [pageLimit, setPageLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(1);
 
-  const handleLimitChange = (value) => {
-    setLimit(value);
-  };
+  // const pageContext = useContext(null);
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const dispatch = useDispatch();
   const responseGetAllIPDPatients = useGetAllIPDPatientsQuery({
-    limit: limit,
-    page: page,
+    limit: pageLimit,
+    page: pageCount,
     query: searchQuery,
   });
   const responseGetAllDoctors = useGetAllDoctorsQuery({
-    limit: limit,
-    page: page,
+    limit: pageLimit,
+    page: pageCount,
     query: searchQuery,
   });
   const responseGetAllDoctorProfessionalDetails = useGetDropdownDoctorsQuery();
   const responseGetAllPatients = useGetDropdownPatientsQuery();
 
-  const responseGetAllNurses = useGetDropdownNursesQuery();
+  const responseGetAllNurses = useGetDropdownNursesQuery({ query: "" });
+
+  console.log("responseGetAllNurses:", responseGetAllNurses);
+  // useEffect(() => {
+  //   do {
+  //     responseGetAllNurses.refetch();
+  //     console.log("Called responseGetAllNurses");
+  //   } while (responseGetAllNurses.isSuccess === false);
+
+  // }, [responseGetAllNurses]);
 
   console.log("responseGetAllIPDPatients:", responseGetAllIPDPatients);
-  console.log("responseGetAllDoctors:", responseGetAllDoctors);
+  // console.log("responseGetAllDoctors:", responseGetAllDoctors);
 
   // Ipd Patients Final Balance Calculation Get all
 
@@ -107,6 +115,13 @@ export default function IPDPatientList() {
   } = useSelector((state) => state.IPDPatientBalanceState);
 
   console.log("updateIpdPatientDepositAmount:", updateIpdPatientDepositAmount);
+  // const baseUrl = process.env.React_App_Base_url;
+  // axios
+  //   .get(`${baseUrl}/DropdownData-Nurse`, {
+  //     params: { query: "" },
+  //   })
+  //   .then((response) => console.log("response axios nurse", response))
+  //   .catch((error) => console.log("axios error nurse", error));
 
   const apiRefetch = async () => {
     // IPD Patients
@@ -114,9 +129,9 @@ export default function IPDPatientList() {
       await responseGetAllIPDPatients.refetch();
     if (responseGetAllIPDPatientsRefetch.isSuccess) {
       const reverseArrayGetAllIPDPatients =
-        responseGetAllIPDPatientsRefetch?.data?.ipdPatientsData?.map(
-          responseGetAllIPDPatientsRefetch?.data?.ipdPatientsData?.pop,
-          [...responseGetAllIPDPatientsRefetch?.data?.ipdPatientsData]
+        responseGetAllIPDPatientsRefetch?.data?.ipdPatientData?.map(
+          responseGetAllIPDPatientsRefetch?.data?.ipdPatientData?.pop,
+          [...responseGetAllIPDPatientsRefetch?.data?.ipdPatientData]
         );
       const filteredArrayGetAllIPDPatients =
         reverseArrayGetAllIPDPatients?.filter(
@@ -206,19 +221,29 @@ export default function IPDPatientList() {
     // IPD Patients
     if (responseGetAllIPDPatients.isSuccess) {
       const reverseArrayGetAllIPDPatients =
-        responseGetAllIPDPatients?.data?.ipdPatientsData?.map(
-          responseGetAllIPDPatients?.data?.ipdPatientsData?.pop,
-          [...responseGetAllIPDPatients?.data?.ipdPatientsData]
+        responseGetAllIPDPatients?.data?.ipdPatientData?.map(
+          responseGetAllIPDPatients?.data?.ipdPatientData?.pop,
+          [...responseGetAllIPDPatients?.data?.ipdPatientData]
         );
-      console.log(
-        "reverseArrayGetAllIPDPatients:",
-        reverseArrayGetAllIPDPatients
-      );
+      // console.log(
+      //   "responseGetAllIPDPatients in ApiRefetch:",
+      //   responseGetAllIPDPatients
+      // );
+
+      // console.log(
+      //   "reverseArrayGetAllIPDPatients:",
+      //   reverseArrayGetAllIPDPatients
+      // );
 
       const filteredArrayGetAllIPDPatients =
         reverseArrayGetAllIPDPatients?.filter(
           (data) => data.isDeleted === false && data
         );
+
+      // console.log(
+      //   "filteredArrayGetAllIPDPatients:",
+      //   filteredArrayGetAllIPDPatients
+      // );
 
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
     }
@@ -230,6 +255,8 @@ export default function IPDPatientList() {
         responseGetAllNurses?.data?.pop,
         [...responseGetAllNurses?.data]
       );
+      console.log("responseGetAllNurses:", responseGetAllNurses);
+
       const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
         (data) => data.isDeleted === false && data
       );
@@ -337,8 +364,8 @@ export default function IPDPatientList() {
             <UpperNav />
             <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
               <IPDPatientTable
-                handleLimitChange={handleLimitChange}
-                setPage={setPage}
+                setPageLimit={setPageLimit}
+                setPageCount={setPageCount}
               />
             </div>
           </div>
