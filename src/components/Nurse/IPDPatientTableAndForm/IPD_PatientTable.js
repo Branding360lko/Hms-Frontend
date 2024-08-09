@@ -738,6 +738,23 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
 
   // console.log(responseUpdateBedAvailability);
 
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [filteredPatients, setFilteredPatients] = React.useState(
+    renderedPatientIDForDropdown
+  );
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    const filtered = renderedPatientIDForDropdown.filter((patient) => {
+      return `${patient.patientId} / ${patient.patientName}`
+        .toLowerCase()
+        .includes(query.toLowerCase());
+    });
+    setFilteredPatients(filtered);
+  };
+
+  console.log("filteredPatients:", filteredPatients);
+
   const modalAddIPDPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Add Patient</h2>
@@ -748,11 +765,23 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
         <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID *</label>
-            <Select
-              required
-              options={renderedPatientIDForDropdown}
-              onChange={setIpdPatientId}
+            <input
+              type="text"
+              placeholder="Search Patient"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
             />
+            <div>
+              {filteredPatients?.length > 0 ? (
+                <Select
+                  required
+                  options={filteredPatients}
+                  onChange={setIpdPatientId}
+                />
+              ) : (
+                <div>No patients found</div>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col gap-[6px] relative w-full">

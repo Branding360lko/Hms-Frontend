@@ -30,11 +30,11 @@ export const DropDownServices = createApi({
       },
     }),
     getDropdownNurses: builder.query({
-      query: (query) => {
+      query: (params) => {
         return {
           url: "DropdownData-Nurse",
           method: "GET",
-          params: query,
+          // params: { query: params.query },
         };
       },
     }),

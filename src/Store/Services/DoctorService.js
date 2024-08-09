@@ -9,9 +9,6 @@ export const doctorService = createApi({
         return {
           url: `Doctor-GET-ALL`,
           method: "GET",
-          params: limit,
-          page,
-          query,
         };
       },
     }),

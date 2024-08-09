@@ -36,6 +36,11 @@ import {
   useGetDropdownPatientsQuery,
 } from "../../../Store/Services/DropDownServices";
 import axios from "axios";
+import {
+  getAllDoctorsData,
+  getAllNursesData,
+  getAllPatientsData,
+} from "../../../Store/Services/AxiosServices/DropDownDataServices";
 
 const IPDPatientTable = lazy(() =>
   import("../../../components/Nurse/IPDPatientTableAndForm/IPD_PatientTable")
@@ -55,17 +60,67 @@ export default function IPDPatientList() {
     page: pageCount,
     query: searchQuery,
   });
-  const responseGetAllDoctors = useGetAllDoctorsQuery({
-    limit: pageLimit,
-    page: pageCount,
-    query: searchQuery,
-  });
-  const responseGetAllDoctorProfessionalDetails = useGetDropdownDoctorsQuery();
-  const responseGetAllPatients = useGetDropdownPatientsQuery();
+  // const responseGetAllDoctors = useGetAllDoctorsQuery({
+  //   limit: pageLimit,
+  //   page: pageCount,
+  //   query: searchQuery,
+  // });
 
-  const responseGetAllNurses = useGetDropdownNursesQuery({ query: "" });
+  // const [nurseData, setNurseData] = useState();
+  // const getAllNursesData = async () => {
+  //   const response = await axios
+  //     .get(`${process.env.React_App_Base_url}/DropdownData-Nurse`)
+  //     .then((response) => {
+  //       setNurseData(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
 
-  console.log("responseGetAllNurses:", responseGetAllNurses);
+  //   return response;
+  // };
+
+  // useEffect(() => {
+  //   getAllNursesData();
+  // }, []);
+
+  // console.log("nurseData:", nurseData);
+
+  // const responseGetAllDoctorProfessionalDetails =
+  //   useGetAllDoctorProfessionalDetailsQuery();
+  // const responseGetAllPatients = useGetDropdownPatientsQuery();
+
+  const [responseGetAllPatients, setResponseGetAllPatients] = useState(null);
+
+  const [responseGetAllNurses, setResponseGetAllNurses] = useState(null);
+
+  const [responseGetAllDoctors, setResponseGetAllDoctors] = useState(null);
+
+  // let responseGetAllNurses;
+
+  const fetcher = async () => {
+    const responseNurses = await getAllNursesData();
+    if (responseNurses) {
+      setResponseGetAllNurses(responseNurses);
+    }
+
+    const responsePatients = await getAllPatientsData();
+    if (responsePatients) {
+      setResponseGetAllPatients(responsePatients);
+    }
+
+    const responseDoctors = await getAllDoctorsData();
+    if (responseDoctors) {
+      setResponseGetAllDoctors(responseDoctors);
+    }
+  };
+
+  // fetcher();
+
+  // useEffect(() => {
+  //   console.log("responseGetAllNurses data:", responseGetAllNurses);
+  // }, [responseGetAllNurses]);
+
   // useEffect(() => {
   //   do {
   //     responseGetAllNurses.refetch();
@@ -124,6 +179,7 @@ export default function IPDPatientList() {
   //   .catch((error) => console.log("axios error nurse", error));
 
   const apiRefetch = async () => {
+    fetcher();
     // IPD Patients
     const responseGetAllIPDPatientsRefetch =
       await responseGetAllIPDPatients.refetch();
@@ -140,65 +196,72 @@ export default function IPDPatientList() {
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
     }
     // --------------------
+
     // Nurses
-    const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
-    if (responseGetAllNursesRefetch.isSuccess) {
-      const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
-        responseGetAllNursesRefetch?.data?.pop,
-        [...responseGetAllNursesRefetch?.data]
-      );
-      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllNurses(filteredArrayGetAllNurses));
-    }
+    // const responseGetAllNursesRefetch = responseGetAllNurses;
+    // if (responseGetAllNursesRefetch) {
+    //   const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.map(
+    //     responseGetAllNursesRefetch?.pop,
+    //     [...responseGetAllNursesRefetch]
+    //   );
+    //   const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllNurses(filteredArrayGetAllNurses));
+    // }
+
+    dispatch(getAllNurses(responseGetAllNurses));
+
     // Doctors
-    const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
-    if (responseGetAllDoctorsRefetch.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctorsRefetch?.data?.map(
-        responseGetAllDoctorsRefetch?.data?.pop,
-        [...responseGetAllDoctorsRefetch?.data]
-      );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
-    }
+    // const responseGetAllDoctorsRefetch = responseGetAllDoctors;
+    // if (responseGetAllDoctorsRefetch) {
+    //   const reverseArrayGetAllDoctors = responseGetAllDoctorsRefetch?.map(
+    //     responseGetAllDoctorsRefetch?.pop,
+    //     [...responseGetAllDoctorsRefetch]
+    //   );
+    //   const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
+
+    dispatch(getAllDoctors(responseGetAllDoctors));
+
     // ------------------
     // Doctors Professional Details
-    const responseGetAllDoctorsProfessionalDetailsRefetch =
-      await responseGetAllDoctorProfessionalDetails.refetch();
-    if (responseGetAllDoctorsProfessionalDetailsRefetch.isSuccess) {
-      const reverseArrayGetAllDoctorsProfessionalDetails =
-        responseGetAllDoctorsProfessionalDetailsRefetch?.data?.map(
-          responseGetAllDoctorsProfessionalDetailsRefetch?.data?.pop,
-          [...responseGetAllDoctorsProfessionalDetailsRefetch?.data]
-        );
-      const filteredArrayGetAllDoctorsProfessionalDetails =
-        reverseArrayGetAllDoctorsProfessionalDetails?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(
-        getAllDoctorsProfessionalDetails(
-          filteredArrayGetAllDoctorsProfessionalDetails
-        )
-      );
-    }
+    // const responseGetAllDoctorsProfessionalDetailsRefetch =
+    //   await responseGetAllDoctorProfessionalDetails.refetch();
+    // if (responseGetAllDoctorsProfessionalDetailsRefetch.isSuccess) {
+    //   const reverseArrayGetAllDoctorsProfessionalDetails =
+    //     responseGetAllDoctorsProfessionalDetailsRefetch?.data?.map(
+    //       responseGetAllDoctorsProfessionalDetailsRefetch?.data?.pop,
+    //       [...responseGetAllDoctorsProfessionalDetailsRefetch?.data]
+    //     );
+    //   const filteredArrayGetAllDoctorsProfessionalDetails =
+    //     reverseArrayGetAllDoctorsProfessionalDetails?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(
+    //     getAllDoctorsProfessionalDetails(
+    //       filteredArrayGetAllDoctorsProfessionalDetails
+    //     )
+    //   );
+    // }
     // ------------------
     // Patients
-    const responseGetAllPatientsRefetch =
-      await responseGetAllPatients.refetch();
-    if (responseGetAllPatientsRefetch.isSuccess) {
-      const reverseArrayGetAllPatients =
-        responseGetAllPatientsRefetch?.data?.map(
-          responseGetAllPatientsRefetch?.data?.pop,
-          [...responseGetAllPatientsRefetch?.data]
-        );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllPatients(filteredArrayGetAllPatients));
-    }
+    // const responseGetAllPatientsRefetch = responseGetAllPatients;
+    // if (responseGetAllPatientsRefetch) {
+    //   const reverseArrayGetAllPatients = responseGetAllPatientsRefetch?.map(
+    //     responseGetAllPatientsRefetch?.pop,
+    //     [...responseGetAllPatientsRefetch]
+    //   );
+    //   const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllPatients(filteredArrayGetAllPatients));
+    // }
+    dispatch(getAllPatients(responseGetAllPatients));
+
     //------------------
 
     // Beds
@@ -250,61 +313,71 @@ export default function IPDPatientList() {
     // --------------------
     // Nurses
 
-    if (responseGetAllNurses.isSuccess) {
-      const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
-        responseGetAllNurses?.data?.pop,
-        [...responseGetAllNurses?.data]
-      );
-      console.log("responseGetAllNurses:", responseGetAllNurses);
+    // if (responseGetAllNurses) {
+    //   const reverseArrayGetAllNurses = responseGetAllNurses?.map(
+    //     responseGetAllNurses?.pop,
+    //     [...responseGetAllNurses]
+    //   );
+    //   console.log("responseGetAllNurses:", responseGetAllNurses);
 
-      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllNurses(filteredArrayGetAllNurses));
-    }
+    //   const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllNurses(filteredArrayGetAllNurses));
+    // }
+
+    dispatch(getAllNurses(responseGetAllNurses));
 
     // Doctors
-    if (responseGetAllDoctors.isSuccess) {
-      const reverseArrayGetAllDoctors =
-        responseGetAllDoctors?.data?.Doctors?.map(
-          responseGetAllDoctors?.data?.Doctors?.pop,
-          [...responseGetAllDoctors?.data?.Doctors]
-        );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
-    }
+    // if (responseGetAllDoctors) {
+    //   const reverseArrayGetAllDoctors = responseGetAllDoctors?.map(
+    //     responseGetAllDoctors?.pop,
+    //     [...responseGetAllDoctors]
+    //   );
+    //   const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
+
+    dispatch(getAllDoctors(responseGetAllDoctors));
+
     // --------------------
     // Doctors Professional Details
-    if (responseGetAllDoctorProfessionalDetails.isSuccess) {
-      const reverseArrayGetAllDoctorsProfessionalDetails =
-        responseGetAllDoctorProfessionalDetails?.data?.Doctors?.map(
-          responseGetAllDoctorProfessionalDetails?.data?.Doctors?.pop,
-          [...responseGetAllDoctorProfessionalDetails?.data?.Doctors]
-        );
-      const filteredArrayGetAllDoctorsProfessionalDetails =
-        reverseArrayGetAllDoctorsProfessionalDetails?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(
-        getAllDoctorsProfessionalDetails(
-          filteredArrayGetAllDoctorsProfessionalDetails
-        )
-      );
-    }
+    // if (responseGetAllDoctorProfessionalDetails.isSuccess) {
+    //   const reverseArrayGetAllDoctorsProfessionalDetails =
+    //     responseGetAllDoctorProfessionalDetails?.data?.Doctors?.map(
+    //       responseGetAllDoctorProfessionalDetails?.data?.Doctors?.pop,
+    //       [...responseGetAllDoctorProfessionalDetails?.data?.Doctors]
+    //     );
+    //   const filteredArrayGetAllDoctorsProfessionalDetails =
+    //     reverseArrayGetAllDoctorsProfessionalDetails?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(
+    //     getAllDoctorsProfessionalDetails(
+    //       filteredArrayGetAllDoctorsProfessionalDetails
+    //     )
+    //   );
+    // }
     // --------------------
     // Patients
-    if (responseGetAllPatients.isSuccess) {
-      const reverseArrayGetAllPatients = responseGetAllPatients?.data?.map(
-        responseGetAllPatients?.data?.pop,
-        [...responseGetAllPatients?.data]
-      );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
+    if (responseGetAllPatients) {
+      // console.log("responseGetAllPatients in if:", responseGetAllPatients);
 
-      dispatch(getAllPatients(filteredArrayGetAllPatients));
+      // const reverseArrayGetAllPatients = responseGetAllPatients?.map(
+      //   responseGetAllPatients?.pop,
+      //   [...responseGetAllPatients]
+      // );
+      // const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+      //   (data) => data.isDeleted === false && data
+      // );
+
+      // console.log("filteredArrayGetAllPatients:", filteredArrayGetAllPatients);
+
+      // dispatch(getAllPatients(filteredArrayGetAllPatients));
+
+      dispatch(getAllPatients(responseGetAllPatients));
     }
 
     // Beds
@@ -327,16 +400,16 @@ export default function IPDPatientList() {
     createDoctor,
     updateDoctor,
     deleteDoctor,
-    responseGetAllDoctors.isSuccess,
-    responseGetAllDoctorProfessionalDetails.isSuccess,
+    // responseGetAllDoctors.isSuccess,
+    // responseGetAllDoctorProfessionalDetails.isSuccess,
     createNurse,
     updateNurse,
     deleteNurse,
-    responseGetAllNurses.isSuccess,
+    // responseGetAllNurses,
     patientCreate,
     patientUpdate,
     patientDelete,
-    responseGetAllPatients.isSuccess,
+    // responseGetAllPatients,
     createBeds,
     updateBeds,
     deleteBeds,
@@ -347,9 +420,9 @@ export default function IPDPatientList() {
   return (
     <>
       {responseGetAllIPDPatients.isLoading &&
-      responseGetAllDoctorProfessionalDetails.isLoading &&
-      responseGetAllPatients.isLoading &&
-      responseGetAllDoctors.isLoading ? (
+      // responseGetAllDoctorProfessionalDetails.isLoading &&
+      responseGetAllPatients &&
+      responseGetAllDoctors ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>
