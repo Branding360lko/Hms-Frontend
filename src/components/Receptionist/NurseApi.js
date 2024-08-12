@@ -196,11 +196,37 @@ export const addDailyDoctorVisitIpdData = async (formData) => {
     throw new Error(error);
   }
 };
+export const addDailyMedicineAndLabVisitIpdData = async (formData) => {
+  try {
+    const response = await axios.post(
+      `${process.env.React_App_Base_url + "IPD-create-medicine-lab"}`,
+
+      formData
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const addDailyDoctorVisitEmergencyData = async (formData) => {
   try {
     const response = await axios.post(
       `${
         process.env.React_App_Base_url + "add-EmergencyPatientsChecks-Routes"
+      }`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const addDailyMedicineAndLabEmergencyData = async (formData) => {
+  try {
+    const response = await axios.post(
+      `${
+        process.env.React_App_Base_url +
+        "add-EmergencyPatientMedicineLab-Routes"
       }`,
       formData
     );

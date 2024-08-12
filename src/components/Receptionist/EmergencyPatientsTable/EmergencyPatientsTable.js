@@ -3,6 +3,7 @@ import { CiViewList } from "react-icons/ci";
 import {
   addDailyDoctorVisitEmergencyData,
   addDailyDoctorVisitIpdData,
+  addDailyMedicineAndLabEmergencyData,
   getAllEmergencyPatientsData,
   getAllEmergencyPatientsListData,
   getAllEmergencyPatientsNurseData,
@@ -24,6 +25,7 @@ import { FaSearch } from "react-icons/fa";
 import PaginationComponent from "../../Pagination";
 import { IoMdPersonAdd } from "react-icons/io";
 import { GetAllDoctorsHandle } from "../../../Store/Slices/DoctorSlice";
+import { GiMedicines } from "react-icons/gi";
 
 function EmergencyPatientsTable() {
   const [open, setOpen] = React.useState(false);
@@ -280,6 +282,33 @@ function EmergencyPatientsTable() {
       handleClose3();
     }
   };
+  const addDailyMedicineAndLabEmergencyDataHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("Note", dailyDoctorVisitData?.notes);
+    formData.append("EmergencyPatientData", dailyDoctorVisitData?.ipdPatientId);
+    formData.append("isPatientsChecked", true);
+    formData.append("doctorId", null);
+    formData.append("mainId", dailyDoctorVisitData?.mainId);
+    formData.append(
+      "emergencyPatientCurrentBed",
+      dailyDoctorVisitData?.EmergencyPatientsCurrentBed
+    );
+    formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
+    formData.append("medicine", JSON.stringify(selectedMedicine));
+    formData.append("test", JSON.stringify(selectedTest));
+    const result = await addDailyMedicineAndLabEmergencyData(formData);
+    if (result?.status === 201) {
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(result?.data?.message);
+      handleClose2();
+    }
+    if (result?.status !== 201) {
+      handleClickSnackbarWarning();
+      setSnackBarSuccessWarning(result?.data?.message);
+      handleClose2();
+    }
+  };
   const getOneEmergencyPatientsDoctorVisitDataHandle = async (Id) => {
     const result = await getOneEmergencyPatientsDoctorVisitData(Id);
     setViewPatientsData(result && result?.data?.data);
@@ -291,7 +320,6 @@ function EmergencyPatientsTable() {
       patientData: result?.data?.patientPersonalData,
     });
   };
-
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
   const [allEmergencyPatients, setAllEmergencyPatients] = useState([]);
   const [activeDoctor, setActiveDoctor] = useState(false);
@@ -476,6 +504,24 @@ function EmergencyPatientsTable() {
                         ]}
                       >
                         <IoMdPersonAdd className="text-[20px] text-[#0ba46f]" />
+                      </div>
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#2B2C76] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen2(),
+                          setDailyDoctorVisitData({
+                            ...dailyDoctorVisitData,
+                            doctorId: item?.doctor_Id,
+                            doctorName: item?.doctorName,
+                            patientsId: item?.patientsId,
+                            ipdPatientId: item?.Emergencypatient_id,
+                            mainId: item?.EmergencyPatientMainId,
+                            EmergencyPatientsCurrentBed:
+                              item?.EmergencyPatientsCurrentBed,
+                          }),
+                        ]}
+                      >
+                        <GiMedicines className="text-[20px] text-[#2B2C76]" />
                       </div>
                     </div>
                   </td>
@@ -1088,7 +1134,311 @@ function EmergencyPatientsTable() {
           </Box>
         </Fade>
       </Modal>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open2}
+        onClose={handleClose2}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
+        }}
+      >
+        <Fade in={open2}>
+          <Box sx={style}>
+            <Typography
+              id="transition-modal-title"
+              variant="h6"
+              component="h2"
+              className="border-b-[4px] border-[#3497F9] w-fit"
+            >
+              Doctor Visit
+            </Typography>
+            <form
+              className="w-full flex flex-col gap-3"
+              onSubmit={addDailyMedicineAndLabEmergencyDataHandle}
+            >
+              <div className="w-full grid grid-cols-2 gap-3 pt-3">
+                <div className="w-full flex items-start justify-start flex-col gap-1">
+                  <p>Medicine Lab Submitted Time</p>
+                  <span className="w-full border-[1px] rounded border-[#ccc] p-1">
+                    <input
+                      type="datetime-local"
+                      placeholder="Doctor Name"
+                      className="w-full border-none outline-none"
+                      onChange={(e) =>
+                        setDailyDoctorVisitData({
+                          ...dailyDoctorVisitData,
+                          visitDateTime: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </span>
+                </div>{" "}
+              </div>
+              <div className="w-full ">
+                <div className="w-full flex justify-between items-center pt-1 pb-3">
+                  <p className="text-[1.2rem] font-semibold">Medicine</p>
+                  <button
+                    className="buttonFilled w-fit flex items-center"
+                    onClick={addMedicineTableHandle}
+                  >
+                    Add Medicine
+                  </button>
+                </div>
+                <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                  <thead>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>S_N</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Medicine</p>
+                    </th>
 
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Quantity</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Total</p>
+                    </th>
+
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Action</p>
+                    </th>
+                  </thead>
+                  <tbody>
+                    {selectedMedicine?.map((item, index) => (
+                      <tr key={index} className="border-b-[1px]">
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          {index + 1}
+                        </td>
+                        <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                          <input
+                            type="text"
+                            className="w-full  outline-none px-4"
+                            placeholder="Medicine"
+                            name="name"
+                            value={item?.name}
+                            onFocus={() => setActiveIndex(index)}
+                            onChange={(e) => [
+                              getMedicineData(e, index),
+                              selectMedicineHandle(e),
+                            ]}
+                            autocomplete="off"
+                            required
+                          />
+
+                          {activeIndex === index && (
+                            <span
+                              ref={selectRef}
+                              className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                            >
+                              {searchMedicine?.length > 0 ? (
+                                searchMedicine?.map((item) => (
+                                  <p
+                                    key={index}
+                                    className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                                    onClick={() => [
+                                      addSelectedMedicineDataHandle(
+                                        index,
+                                        item
+                                      ),
+                                      setActiveIndex(null),
+                                    ]}
+                                  >
+                                    {item?.Name}
+                                  </p>
+                                ))
+                              ) : (
+                                <p className="w-full flex items-center justify-center">
+                                  {isLoading === true
+                                    ? "Loading...."
+                                    : "No Result Found"}
+                                </p>
+                              )}
+                              {/* <Select
+                                name="colors"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              /> */}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="quantity"
+                            name="quantity"
+                            value={item?.quantity}
+                            onChange={(e) => getMedicineData(e, index)}
+                          />
+                        </td>
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="price"
+                            name="price"
+                            value={item?.total}
+                            onChange={(e) => getMedicineData(e, index)}
+                          />
+                        </td>
+
+                        <td
+                          className="justify-center text-[16px] py-4 px-[4px] text-center border-r flex items-center justify-center"
+                          onClick={(e) => deleteMedicineHandle(e, index)}
+                        >
+                          <MdDeleteForever className="text-[red] text-[1.5rem] cursor-pointer" />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="w-full ">
+                <div className="w-full flex justify-between items-center pt-1 pb-3">
+                  <p className="text-[1.2rem] font-semibold">Test</p>
+                  <button
+                    className="buttonFilled w-fit flex items-center"
+                    onClick={addTestTableHandle}
+                  >
+                    Add Test
+                  </button>
+                </div>
+                <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                  <thead>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>S_N</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Test</p>
+                    </th>
+
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Quantity</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Total</p>
+                    </th>
+
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Action</p>
+                    </th>
+                  </thead>
+                  <tbody>
+                    {selectedTest?.map((item, index) => (
+                      <tr key={index} className="border-b-[1px]">
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          {index + 1}
+                        </td>
+                        <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                          <input
+                            type="text"
+                            className="w-full  outline-none px-4"
+                            placeholder="Test"
+                            name="name"
+                            value={item?.name}
+                            onFocus={() => setActiveTestIndex(index)}
+                            onChange={(e) => [
+                              getTestData(e, index),
+                              selectTestHandle(e),
+                            ]}
+                            autocomplete="off"
+                            required
+                          />
+                          {activeTestIndex === index && (
+                            <span
+                              ref={selectRef}
+                              className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                            >
+                              {searchTest?.length > 0 ? (
+                                searchTest?.map((item) => (
+                                  <p
+                                    key={index}
+                                    className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                                    onClick={() => [
+                                      addSelectedTestDataHandle(index, item),
+                                      setActiveTestIndex(null),
+                                    ]}
+                                  >
+                                    {item?.Name}
+                                  </p>
+                                ))
+                              ) : (
+                                <p className="w-full flex items-center justify-center">
+                                  {isLoading === true
+                                    ? "Loading...."
+                                    : "No Result Found"}
+                                </p>
+                              )}
+                              {/* <Select
+                                name="colors"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              /> */}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="quantity"
+                            name="quantity"
+                            value={item?.quantity}
+                            onChange={(e) => getTestData(e, index)}
+                          />
+                        </td>
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="price"
+                            name="price"
+                            value={item?.total}
+                            onChange={(e) => getTestData(e, index)}
+                          />
+                        </td>
+
+                        <td
+                          className="justify-center text-[16px] py-4 px-[4px] text-center border-r flex items-center justify-center"
+                          onClick={(e) => deleteTestHandle(e, index)}
+                        >
+                          <MdDeleteForever className="text-[red] text-[1.5rem] cursor-pointer" />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="w-full flex flex-col items-start justify-start gap-2">
+                <p>Notes</p>
+                <textarea
+                  rows={3}
+                  className="w-full border outline-none pl-1 pt-1"
+                  placeholder="Note's"
+                  onChange={(e) =>
+                    setDailyDoctorVisitData({
+                      ...dailyDoctorVisitData,
+                      notes: e.target.value,
+                    })
+                  }
+                />{" "}
+              </div>
+              <button className="buttonFilled w-fit flex items-center">
+                Save +
+              </button>
+            </form>
+          </Box>
+        </Fade>
+      </Modal>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

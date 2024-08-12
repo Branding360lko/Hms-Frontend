@@ -11,6 +11,7 @@ import { MdDeleteForever } from "react-icons/md";
 import img from "../../../assets/20180125_001_1_.jpg";
 import {
   addDailyDoctorVisitIpdData,
+  addDailyMedicineAndLabVisitIpdData,
   getAllDoctorVisitPatientsListData,
   getAllNurseReferByNurseIdData,
   getAllNurseReferData,
@@ -22,6 +23,7 @@ import PaginationComponent from "../../Pagination";
 import { FaSearch } from "react-icons/fa";
 import { IoMdPersonAdd } from "react-icons/io";
 import { GetAllDoctorsHandle } from "../../../Store/Slices/DoctorSlice";
+import { GiMedicines } from "react-icons/gi";
 function ReferPatientsDoctorVisitTable() {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = React.useState(false);
@@ -318,6 +320,34 @@ function ReferPatientsDoctorVisitTable() {
       handleClose3();
     }
   };
+  const addDailyMedicineAndLabSubmitIpdDataHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("Note", dailyDoctorVisitData?.notes);
+    formData.append("ipdPatientData", dailyDoctorVisitData?.ipdPatientId);
+    formData.append("ipdPatientMainId", dailyDoctorVisitData?.mainId);
+    formData.append("isPatientsChecked", true);
+    formData.append(
+      "ipdPatientCurrentBed",
+      dailyDoctorVisitData?.ipdPatientsCurrentBed
+    );
+    formData.append("doctorId", null);
+    formData.append("AdditionalDoctorId", null);
+    formData.append("VisitDateTime", dailyDoctorVisitData?.visitDateTime);
+    formData.append("medicine", JSON.stringify(selectedMedicine));
+    formData.append("test", JSON.stringify(selectedTest));
+    const result = await addDailyMedicineAndLabVisitIpdData(formData);
+    if (result?.status === 201) {
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(result?.data?.message);
+      handleClose2();
+    }
+    if (result?.status !== 201) {
+      handleClickSnackbarWarning();
+      setSnackBarSuccessWarning(result?.data?.message);
+      handleClose2();
+    }
+  };
   // const getOnePatientsDoctorVisitDataHandle = async (Id) => {
   //   const result = await getOnePatientsDoctorVisitData(Id);
   //   setViewPatientsData(result && result?.data);
@@ -505,6 +535,29 @@ function ReferPatientsDoctorVisitTable() {
                         ]}
                       >
                         <IoMdPersonAdd className="text-[20px] text-[#0ba46f]" />
+                      </div>
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#2B2C76] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen2(),
+                          setDailyDoctorVisitData({
+                            ...dailyDoctorVisitData,
+                            referringDoctorId:
+                              item?.ReferringDoctorDetails?.[0]?._id,
+                            referDoctorId:
+                              item?.ReferredDoctorDetails?.[0]?._id,
+                            referedDoctorName:
+                              item?.ReferredDoctorDetails?.[0]?.doctorName,
+                            referringDoctorName:
+                              item?.ReferringDoctorDetails?.[0]?.doctorName,
+                            ipdPatientId: item?.ipdPatient,
+                            patientsId: item?.ipdPatientsDetails?.ipdDoctorId,
+                            mainId: item?.ipdPatientsDetails?.mainId,
+                            ipdPatientsCurrentBed: item?.IpdPatietnBed,
+                          }),
+                        ]}
+                      >
+                        <GiMedicines className="text-[20px] text-[#2B2C76]" />
                       </div>
                     </div>
                   </td>
@@ -1148,9 +1201,285 @@ function ReferPatientsDoctorVisitTable() {
       >
         <Fade in={open2}>
           <Box sx={style}>
-            <Typography className="flex items-center justify-center">
-              No Doctor Visit done
-            </Typography>
+            <form
+              className="w-full flex flex-col gap-3"
+              onSubmit={addDailyMedicineAndLabSubmitIpdDataHandle}
+            >
+              <div className="w-full grid grid-cols-2 gap-3 pt-3">
+                <div className="w-full flex items-start justify-start flex-col gap-1">
+                  <p>Medicine and Lab Submitted Time</p>
+                  <span className="w-full border-[1px] rounded border-[#ccc] p-1">
+                    <input
+                      type="datetime-local"
+                      placeholder="Medicine and Lab Submitted Time"
+                      className="w-full border-none outline-none"
+                      onChange={(e) =>
+                        setDailyDoctorVisitData({
+                          ...dailyDoctorVisitData,
+                          visitDateTime: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </span>
+                </div>{" "}
+              </div>
+              <div className="w-full ">
+                <div className="w-full flex justify-between items-center pt-1 pb-3">
+                  <p className="text-[1.2rem] font-semibold">Medicine</p>
+                  <button
+                    className="buttonFilled w-fit flex items-center"
+                    onClick={addMedicineTableHandle}
+                  >
+                    Add Medicine
+                  </button>
+                </div>
+                <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                  <thead>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>S_N</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Medicine</p>
+                    </th>
+
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Quantity</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Total</p>
+                    </th>
+
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Action</p>
+                    </th>
+                  </thead>
+                  <tbody>
+                    {selectedMedicine?.map((item, index) => (
+                      <tr key={index} className="border-b-[1px]">
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          {index + 1}
+                        </td>
+                        <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                          <input
+                            type="text"
+                            className="w-full  outline-none px-4"
+                            placeholder="Medicine"
+                            name="name"
+                            value={item?.name}
+                            onFocus={() => setActiveIndex(index)}
+                            onChange={(e) => [
+                              getMedicineData(e, index),
+                              selectMedicineHandle(e),
+                            ]}
+                            autocomplete="off"
+                            required
+                          />
+
+                          {activeIndex === index && (
+                            <span
+                              ref={selectRef}
+                              className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                            >
+                              {searchMedicine?.length > 0 ? (
+                                searchMedicine?.map((item) => (
+                                  <p
+                                    key={index}
+                                    className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                                    onClick={() => [
+                                      addSelectedMedicineDataHandle(
+                                        index,
+                                        item
+                                      ),
+                                      setActiveIndex(null),
+                                    ]}
+                                  >
+                                    {item?.Name}
+                                  </p>
+                                ))
+                              ) : (
+                                <p className="w-full flex items-center justify-center">
+                                  {isLoading === true
+                                    ? "Loading...."
+                                    : "No Result Found"}
+                                </p>
+                              )}
+                              {/* <Select
+                                name="colors"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              /> */}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="quantity"
+                            name="quantity"
+                            value={item?.quantity}
+                            onChange={(e) => [getMedicineData(e, index)]}
+                          />
+                        </td>
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="price"
+                            name="price"
+                            value={item?.total}
+                            onChange={(e) => getMedicineData(e, index)}
+                          />
+                        </td>
+
+                        <td
+                          className="justify-center text-[16px] py-4 px-[4px] text-center border-r flex items-center justify-center"
+                          onClick={(e) => deleteMedicineHandle(e, index)}
+                        >
+                          <MdDeleteForever className="text-[red] text-[1.5rem] cursor-pointer" />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="w-full ">
+                <div className="w-full flex justify-between items-center pt-1 pb-3">
+                  <p className="text-[1.2rem] font-semibold">Test</p>
+                  <button
+                    className="buttonFilled w-fit flex items-center"
+                    onClick={addTestTableHandle}
+                  >
+                    Add Test
+                  </button>
+                </div>
+                <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+                  <thead>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>S_N</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Test</p>
+                    </th>
+
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Quantity</p>
+                    </th>
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Total</p>
+                    </th>
+
+                    <th className="border-[1px] p-1 font-semibold">
+                      <p>Action</p>
+                    </th>
+                  </thead>
+                  <tbody>
+                    {selectedTest?.map((item, index) => (
+                      <tr key={index} className="border-b-[1px]">
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          {index + 1}
+                        </td>
+                        <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                          <input
+                            type="text"
+                            className="w-full  outline-none px-4"
+                            placeholder="Test"
+                            name="name"
+                            value={item?.name}
+                            onFocus={() => setActiveTestIndex(index)}
+                            onChange={(e) => [
+                              getTestData(e, index),
+                              selectTestHandle(e),
+                            ]}
+                            autocomplete="off"
+                            required
+                          />
+                          {activeTestIndex === index && (
+                            <span
+                              ref={selectRef}
+                              className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                            >
+                              {searchTest?.length > 0 ? (
+                                searchTest?.map((item) => (
+                                  <p
+                                    key={index}
+                                    className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                                    onClick={() => [
+                                      addSelectedTestDataHandle(index, item),
+                                      setActiveTestIndex(null),
+                                    ]}
+                                  >
+                                    {item?.Name}
+                                  </p>
+                                ))
+                              ) : (
+                                <p className="w-full flex items-center justify-center">
+                                  {isLoading === true
+                                    ? "Loading...."
+                                    : "No Result Found"}
+                                </p>
+                              )}
+                              {/* <Select
+                                name="colors"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              /> */}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="quantity"
+                            name="quantity"
+                            value={item?.quantity}
+                            onChange={(e) => getTestData(e, index)}
+                          />
+                        </td>
+                        <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                          <input
+                            type="text"
+                            className="w-[5rem]  outline-none"
+                            placeholder="price"
+                            name="price"
+                            value={item?.total}
+                            onChange={(e) => getTestData(e, index)}
+                          />
+                        </td>
+
+                        <td
+                          className="justify-center text-[16px] py-4 px-[4px] text-center border-r flex items-center justify-center"
+                          onClick={(e) => deleteTestHandle(e, index)}
+                        >
+                          <MdDeleteForever className="text-[red] text-[1.5rem] cursor-pointer" />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="w-full flex flex-col items-start justify-start gap-2">
+                <p>Notes</p>
+                <textarea
+                  rows={3}
+                  className="w-full border outline-none pl-1 pt-1"
+                  placeholder="Note's"
+                  onChange={(e) =>
+                    setDailyDoctorVisitData({
+                      ...dailyDoctorVisitData,
+                      notes: e.target.value,
+                    })
+                  }
+                />{" "}
+              </div>
+              <button className="buttonFilled w-fit flex items-center">
+                Save +
+              </button>
+            </form>
           </Box>
         </Fade>
       </Modal>
