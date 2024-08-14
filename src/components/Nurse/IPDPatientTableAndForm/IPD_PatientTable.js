@@ -69,6 +69,7 @@ import {
 } from "../../../Store/Slices/IPDPatientBalanceSlice";
 import IpdChargesShowcase from "../../Receptionist/IpdChargesShowcase/IpdChargesShowcase";
 import axios from "axios";
+import ChangPatientBedModal from "../ChangPatientBed/ChangPatientBedModal";
 
 export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   const dispatch = useDispatch();
@@ -171,7 +172,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   const [addBedFormOpen, setAddBedFormOpen] = React.useState(false);
   const [selectedBed, setSelectedBed] = React.useState(null);
 
-  const [updatedBed, setUpdatedBed] = React.useState(null);
+  // const [updatedBed, setUpdatedBed] = React.useState(null);
   const [previousBed, setPreviousBed] = React.useState(null);
 
   const [currentPatientBed, setCurrentPatientBed] = React.useState(null);
@@ -218,9 +219,9 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     setSelectedBed(bed);
   };
 
-  const handleUpdatedBedSelect = (bed) => {
-    setUpdatedBed(bed);
-  };
+  // const handleUpdatedBedSelect = (bed) => {
+  //   setUpdatedBed(bed);
+  // };
 
   // Add Medical Charges State and Logic
 
@@ -228,7 +229,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     useUpdateIPDPatientMedicalChargesByIdMutation();
 
   const handleAddMedicalCharges = (updateData) => {
-    console.log("updateData:", updateData);
+    // console.log("updateData:", updateData);
     addMedicalCharges(updateData);
   };
 
@@ -390,7 +391,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     }, 2000);
   };
 
-  console.log("ipdPatientDischargeState:", ipdPatientDischargeState);
+  // console.log("ipdPatientDischargeState:", ipdPatientDischargeState);
 
   // Final Discharge
 
@@ -409,10 +410,10 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
         discharged: true,
       });
 
-      console.log(
-        "Ipd Patient Discharge successful:",
-        responseIpdPatientFinalDischargeReq
-      );
+      // console.log(
+      //   "Ipd Patient Discharge successful:",
+      //   responseIpdPatientFinalDischargeReq
+      // );
 
       setSnackBarSuccessMessage(
         responseIpdPatientFinalDischargeReq?.data?.message
@@ -444,10 +445,10 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     const responseGetIpdDepositsRefetch =
       await responseGetIpdPatientDeposits.refetch();
 
-    console.log(
-      "responseGetIpdDepositsRefetch:",
-      responseGetIpdDepositsRefetch
-    );
+    // console.log(
+    //   "responseGetIpdDepositsRefetch:",
+    //   responseGetIpdDepositsRefetch
+    // );
 
     setIpdPatientDeposits(responseGetIpdDepositsRefetch?.data?.data?.balance);
   };
@@ -462,9 +463,9 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   //   );
   // }, [responseGetIpdPatientDeposits?.isSuccess]);
 
-  console.log("ipdPatientDeposits:", ipdPatientDeposits);
+  // console.log("ipdPatientDeposits:", ipdPatientDeposits);
 
-  console.log("selectedPayment:", selectedPayment);
+  // console.log("selectedPayment:", selectedPayment);
 
   const renderedPaymentsForDropdown = ipdPatientDeposits?.map((payment) => {
     return {
@@ -746,14 +747,16 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   const handleSearch = (query) => {
     setSearchQuery(query);
     const filtered = renderedPatientIDForDropdown.filter((patient) => {
-      return `${patient.patientId} / ${patient.patientName}`
-        .toLowerCase()
-        .includes(query.toLowerCase());
+      Object.values(patient).some(
+        (value) =>
+          typeof value === "string" &&
+          value.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     });
     setFilteredPatients(filtered);
   };
 
-  console.log("filteredPatients:", filteredPatients);
+  // console.log("filteredPatients:", filteredPatients);
 
   const modalAddIPDPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -765,7 +768,8 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
         <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID *</label>
-            <input
+
+            {/* <input
               type="text"
               placeholder="Search Patient"
               value={searchQuery}
@@ -781,7 +785,12 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
               ) : (
                 <div>No patients found</div>
               )}
-            </div>
+            </div> */}
+            <Select
+              required
+              options={renderedPatientIDForDropdown}
+              onChange={setIpdPatientId}
+            />
           </div>
 
           <div className="flex flex-col gap-[6px] relative w-full">
@@ -940,6 +949,23 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
 
   // Update Modal
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
+
+  const [isBedChange, setIsBedChange] = React.useState(false);
+
+  const handleBedChangeModalClose = () => {
+    setIsBedChange(false);
+  };
+
+  const handleBedChangeClick = (e) => {
+    e.preventDefault();
+    if (
+      window.confirm(
+        `Are you sure you want to change the bed? \n This will change the bed cost! `
+      )
+    )
+      setIsBedChange(true);
+  };
+
   const handleOpenUpdateModal = (data) => {
     // console.log("data in update modal:", data);
     const currentBedId = data.data.ipdBedNo;
@@ -997,13 +1023,15 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     setIpdBedNo();
     setIpdPatientNotes();
     setOpenUpdateModal(false);
+
+    setIsBedChange(false);
   };
 
   React.useEffect(() => {
     if (responseUpdateIPDPatientById.isSuccess) {
       dispatch(updateIpdPatientChange(Math.random()));
       setPreviousBed(null);
-      setUpdatedBed(null);
+      // setUpdatedBed(null);
 
       setSnackBarSuccessMessage(responseUpdateIPDPatientById?.data?.message);
       handleClickSnackbarSuccess();
@@ -1027,9 +1055,9 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
       ipdDepositAmount: ipdDepositAmount,
       ipdPaymentMode: ipdPaymentMode,
       // ipdWardNo: ipdWardNo,
-      ipdFloorNo: updatedBed?.bedFloor,
+      // ipdFloorNo: updatedBed?.bedFloor,
       // ipdRoomNo: ipdRoomNo,
-      ipdBedNo: updatedBed?.bedId,
+      // ipdBedNo: updatedBed?.bedId,
       ipdPatientNotes: ipdPatientNotes,
     };
 
@@ -1040,11 +1068,11 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
 
     updateIPDPatientById(updateData);
 
-    if (updatedBed) {
-      if (updatedBed?.bedId !== previousBed.bedId) {
-        handleIpdPatientBedUpdate();
-      }
-    }
+    // if (updatedBed) {
+    //   if (updatedBed?.bedId !== previousBed.bedId) {
+    //     handleIpdPatientBedUpdate();
+    //   }
+    // }
 
     // console.log(updateData);
   };
@@ -1053,27 +1081,29 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   // console.log("previousBed:", previousBed);
   // console.log("previousBed.bedId:", previousBed?.bedId);
 
-  const handleIpdPatientBedUpdate = () => {
-    // console.log("inside handleBedUpdate");
-    // console.log("previousBed.bedId:", previousBed?.bedId);
-    const previousBedAvailData = {
-      bedId: previousBed.bedId,
-      data: { bedAvailableOrNot: true },
-    };
+  const [updateBedFormOpen, setUpdateBedFormOpen] = React.useState(false);
 
-    updateBedAvailability(previousBedAvailData);
+  // const handleIpdPatientBedUpdate = () => {
+  //   console.log("inside handleBedUpdate");
+  //   console.log("previousBed.bedId:", previousBed?.bedId);
+  //   const previousBedAvailData = {
+  //     bedId: previousBed.bedId,
+  //     data: { bedAvailableOrNot: true },
+  //   };
 
-    const updatedBedAvailabilityData = {
-      bedId: updatedBed.bedId,
-      data: { bedAvailableOrNot: false },
-    };
+  //   updateBedAvailability(previousBedAvailData);
 
-    updateBedAvailability(updatedBedAvailabilityData);
-  };
+  //   const updatedBedAvailabilityData = {
+  //     bedId: updatedBed.bedId,
+  //     data: { bedAvailableOrNot: false },
+  //   };
+
+  //   updateBedAvailability(updatedBedAvailabilityData);
+  // };
 
   // console.log("ipdPatientData in patientTable:", ipdPatientData);
   const modalUpdateIPDPatient = (
-    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+    <div className=" relative flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Update Patient</h2>
       <form
         className="flex flex-col gap-[1rem]"
@@ -1189,11 +1219,21 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             />
           </div> */}
         </div>
-        {/* <BedSelector
-          beds={beds}
-          handleBedSelect={handleUpdatedBedSelect}
-          ipdPtientEdit={true}
-        /> */}
+
+        {!isBedChange && (
+          <div>
+            <button onClick={handleBedChangeClick} className="buttonFilled">
+              Switch Bed
+            </button>
+          </div>
+        )}
+        {/* {isBedChange && (
+          <BedSelector
+            beds={beds}
+            handleBedSelect={handleUpdatedBedSelect}
+            ipdPtientEdit={true}
+          />
+        )} */}
 
         <div className="flex flex-col gap-[6px]">
           <label className="text-[14px]">Notes</label>
@@ -1229,6 +1269,14 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
           mainId={mainId}
         /> */}
       </div>
+      <ChangPatientBedModal
+        beds={beds}
+        // handleBedSelect={handleUpdatedBedSelect}
+        ipdPtientEdit={true}
+        bedModalOpen={setIsBedChange}
+        handleModalClose={handleBedChangeModalClose}
+        ipdPatientId={ipdPatientId}
+      />
     </div>
   );
 
@@ -1441,7 +1489,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     </div>
   );
   // ---------------
-  console.log(ipdPatientData);
+  // console.log(ipdPatientData);
   const [search, setSearch] = React.useState("");
 
   const apiBaseUrl = process.env.React_App_Base_url;
@@ -1470,7 +1518,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     handleIpdPatientsFinalBalanceCall();
   }, []);
 
-  console.log("ipdPatients:", ipdPatients);
+  // console.log("ipdPatients:", ipdPatients);
 
   const filteredArray = ipdPatients?.filter((data) => {
     if (search !== "") {
@@ -1503,7 +1551,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     };
   });
 
-  console.log("mappedBillData:", mappedBillData);
+  // console.log("mappedBillData:", mappedBillData);
 
   // Add balance Modal Funtiontionality
 
@@ -1536,7 +1584,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
       },
     };
 
-    console.log("updatedData:", updateData);
+    // console.log("updatedData:", updateData);
 
     addIpdPatientBalance(updateData);
   };
@@ -1697,7 +1745,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     },
   ];
 
-  console.log("typeOfSetPageLimitIn PatientTable", typeof setPageLimit);
+  // console.log("typeOfSetPageLimitIn PatientTable", typeof setPageLimit);
 
   const keyFn = (list) => {
     return list.mainId;
