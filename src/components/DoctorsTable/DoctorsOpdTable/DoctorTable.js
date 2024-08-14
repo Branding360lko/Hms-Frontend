@@ -1,7 +1,7 @@
 import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import img from "../../../assets/20180125_001_1_.jpg";
-import { CiViewList } from "react-icons/ci";
+import { CiDiscount1, CiViewList } from "react-icons/ci";
 import { RiEdit2Fill } from "react-icons/ri";
 import style from "../../../styling/styling";
 import Select from "react-select";
@@ -65,6 +65,11 @@ function DoctorTable() {
     setOpen1(false);
     setSelectedPatient([]);
   };
+  const [open2, setOpen2] = React.useState(false);
+  const handleOpen2 = () => setOpen2(true);
+  const handleClose2 = () => {
+    setOpen2(false);
+  };
   const IndicatorSeparator = ({ innerProps }) => {
     return <span style={indicatorSeparatorStyle} {...innerProps} />;
   };
@@ -89,6 +94,8 @@ function DoctorTable() {
       dispatch(getTestDataHandle());
     }
   }, []);
+  const [customDiscount, setCustomDiscount] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState();
   const { medicineData } = useSelector((state) => state.MedicineData);
   const { testData } = useSelector((state) => state.TestData);
   const [patientData, setPatientData] = useState([]);
@@ -483,8 +490,8 @@ function DoctorTable() {
     setTest(result);
   }, [testData]);
   useEffect(() => {
-    console.log(patientData, "patientData");
-  }, [patientData]);
+    console.log(discountAmount, "patientData");
+  }, [discountAmount]);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -589,6 +596,17 @@ function DoctorTable() {
                         ]}
                       >
                         <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                      </div>
+                      <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#000080] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen2(),
+                          getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
+                            item?._id
+                          ),
+                        ]}
+                      >
+                        <CiDiscount1 className="text-[20px] text-[#000080]" />
                       </div>
                     </div>
                   </td>
@@ -955,6 +973,99 @@ function DoctorTable() {
               ) : (
                 "Patient Not Checked Yet"
               )}
+            </Typography>
+          </Box>
+        </Fade>
+      </Modal>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open2}
+        onClose={handleClose2}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
+        }}
+      >
+        <Fade in={open2}>
+          <Box sx={style}>
+            <Typography
+              id="transition-modal-title"
+              variant="h6"
+              component="h2"
+              className="border-b-[4px] border-[#3497F9] w-fit"
+            >
+              OPD Patient Table Data
+            </Typography>
+            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+              <div className="flex pt-[10px] pb-[10px] gap-[10%]">
+                <span>
+                  <img src={img} alt="patients " className="w-[15rem] " />
+                </span>
+                <div class="grid grid-cols-2 gap-1">
+                  <div className="flex gap-[10px]">
+                    <span>Patients Uhid</span>:
+                    <p>{"Uhid" + patientData?.patientId}</p>
+                  </div>
+                  <div className="flex gap-[10px]">
+                    <span>Admission Date / Time</span>:
+                    <p>
+                      {date(patientData?.createdAt)}-
+                      {time(patientData?.createdAt)}
+                    </p>
+                  </div>
+                  <div className="flex gap-[10px]">
+                    <span>Name</span>:<p>{patientData?.patientName}</p>
+                  </div>
+                  <div className="flex gap-[10px]">
+                    <span>Gender</span>:<p>{patientData?.patientGender}</p>
+                  </div>
+
+                  <div className="flex gap-[10px]">
+                    <span>Patient Phone NO</span>:
+                    <p>{patientData?.patientPhone}</p>
+                  </div>
+
+                  <div className="flex gap-[10px]">
+                    <span>Patient Blood Group</span>:
+                    <p>{patientData?.patientBloodGroup}</p>
+                  </div>
+                  <div className="flex gap-[10px]">
+                    <span>Patient Gender</span>:
+                    <p>{patientData?.patientGender}</p>
+                  </div>
+                  <div className="flex gap-[10px]">
+                    <span>Patient Age</span>:<p>{patientData?.patientAge}</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h2>Discount Offered By Doctor</h2>
+                <form className=" flex items-start justify-start flex-col w-full gap-3 mt-4">
+                  <div className="w-full flex items-center justify-start gap-2 ">
+                    <select
+                      className="border-2 w-[20rem] p-2 outline-none"
+                      onChange={(e) => setDiscountAmount(e.target.value)}
+                    >
+                      <option>Select a Refund</option>
+                      <option value={"100"}>Full Refund</option>
+                      <option value={"50"}>Partial Refund</option>
+                    </select>
+                    <p>OR</p>
+                    <input
+                      type="text"
+                      placeholder="Enter Custom Percentage(ex:75%)"
+                      className="border-2 w-[20rem] p-2 outline-none"
+                      onChange={(e) => [setDiscountAmount(e.target.value)]}
+                    />
+                  </div>
+
+                  <button className="buttonFilled">Proceed</button>
+                </form>
+              </div>
             </Typography>
           </Box>
         </Fade>

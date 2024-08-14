@@ -30,6 +30,8 @@ import Snackbars from "../../SnackBar";
 
 import Select from "react-select";
 
+import { date, time } from "../../../utils/DateAndTimeConvertor";
+
 export default function AuthenticatedUsersTable() {
   const dispatch = useDispatch();
   const { Admins } = useSelector((state) => state.AdminState);
@@ -95,17 +97,17 @@ export default function AuthenticatedUsersTable() {
     };
   });
 
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
+  // const date = (dateTime) => {
+  //   const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
-  };
+  //   return newdate.toLocaleDateString();
+  // };
 
-  const time = (dateTime) => {
-    const newDate = new Date(dateTime);
+  // const time = (dateTime) => {
+  //   const newDate = new Date(dateTime);
 
-    return newDate.toLocaleTimeString();
-  };
+  //   return newDate.toLocaleTimeString();
+  // };
 
   const style = {
     position: "absolute",
@@ -284,7 +286,7 @@ export default function AuthenticatedUsersTable() {
       handleCloseUpdateModal();
       handleClickSnackbarSuccess();
     } else if (responseAdminUpdateById.isError) {
-      setSnackBarSuccessWarning(responseAdminUpdateById?.error?.data);
+      setSnackBarSuccessWarning(responseAdminUpdateById?.error?.data?.error);
       handleClickSnackbarWarning();
     }
   }, [responseAdminUpdateById.isSuccess, responseAdminUpdateById.isError]);
@@ -298,6 +300,7 @@ export default function AuthenticatedUsersTable() {
         adminName: adminName,
         adminRole: adminRole,
         adminPassword: adminPassword,
+        adminEmail: adminEmail,
       },
     };
     adminUpdateById(updateData);
@@ -325,7 +328,7 @@ export default function AuthenticatedUsersTable() {
               className="py-[10px] outline-none border-b"
               type="email"
               // required
-              disabled
+              // disabled
               placeholder="Enter email id"
               value={adminEmail}
               onChange={(e) => setAdminEmail(e.target.value)}

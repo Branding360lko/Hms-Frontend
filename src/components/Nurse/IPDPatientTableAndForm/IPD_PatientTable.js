@@ -70,6 +70,8 @@ import {
 import IpdChargesShowcase from "../../Receptionist/IpdChargesShowcase/IpdChargesShowcase";
 import axios from "axios";
 
+import { date } from "../../../utils/DateAndTimeConvertor";
+
 export default function IPD_PatientTable() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -77,6 +79,9 @@ export default function IPD_PatientTable() {
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
   const { ipdPatients } = useSelector((state) => state.IPDPatientState);
+  const { adminRole } = useSelector((state) => state.AdminState);
+
+  console.log(adminRole);
 
   const [createIPDPatient, responseCreateIPDPatient] =
     useCreateIPDPatientMutation();
@@ -576,11 +581,11 @@ export default function IPD_PatientTable() {
 
   // -----------------------------------------------------------
 
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
+  // const date = (dateTime) => {
+  //   const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
-  };
+  //   return newdate.toLocaleDateString();
+  // };
 
   const time = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -1396,6 +1401,7 @@ export default function IPD_PatientTable() {
   // ---------------
   console.log(ipdPatientData);
   const [search, setSearch] = React.useState("");
+  const [searchByName, setSearchByName] = React.useState("");
 
   const apiBaseUrl = process.env.React_App_Base_url;
 
@@ -1423,17 +1429,21 @@ export default function IPD_PatientTable() {
     handleIpdPatientsFinalBalanceCall();
   }, []);
 
-  const filteredArray = ipdPatients?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.mainId?.toLowerCase();
+  // const filteredArray = ipdPatients?.filter((data) => {
+  //   if (search !== "" && searchByName === "") {
+  //     const userSearch = search.toLowerCase();
+  //     const searchInData = data?.mainId?.toLowerCase();
 
-      return searchInData?.startsWith(userSearch);
-    }
-    return data;
-  });
+  //     return searchInData?.startsWith(userSearch);
+  //   } else if (search === "" && searchByName !== "") {
+  //     const userSearch = searchByName.toLowerCase();
+  //     const searchInData = data?.mainId.toLowerCase();
+  //   } else {
+  //     return data;
+  //   }
+  // });
 
-  const mappedBillData = filteredArray?.map((data, index) => {
+  const mappedData = ipdPatients?.map((data, index) => {
     const filteredPatientData = patients?.find(
       (patient) => data?.ipdPatientId === patient?.patientId
     );
@@ -1454,7 +1464,23 @@ export default function IPD_PatientTable() {
     };
   });
 
-  console.log("mappedBillData:", mappedBillData);
+  const filteredArray = mappedData?.filter((data) => {
+    if (search !== "" && searchByName === "") {
+      const userSearch = search.toLowerCase();
+      const searchInData = data?.data?.mainId?.toLowerCase();
+
+      return searchInData?.startsWith(userSearch);
+    } else if (search === "" && searchByName !== "") {
+      const userSearch = searchByName.toLowerCase();
+      const searchInData = data?.patientData?.patientName.toLowerCase();
+
+      return searchInData?.startsWith(userSearch);
+    } else {
+      return data;
+    }
+  });
+
+  console.log("filteredArray:", filteredArray);
 
   // Add balance Modal Funtiontionality
 
@@ -1664,19 +1690,37 @@ export default function IPD_PatientTable() {
           </button>
         </div>
         <div className="flex justify-between">
-          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
-            <FaSearch className="text-[#56585A]" />
-            <input
-              className="bg-transparent outline-none"
-              placeholder="Search by id"
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div className="flex flex-row gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                className="bg-transparent outline-none"
+                placeholder="Search by id"
+                value={search}
+                onChange={(e) => {
+                  setSearchByName("");
+                  setSearch(e.target.value);
+                }}
+              />
+            </div>
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                className="bg-transparent outline-none"
+                placeholder="Search by name"
+                value={searchByName}
+                onChange={(e) => {
+                  setSearchByName(e.target.value);
+                  setSearch("");
+                }}
+              />
+            </div>
           </div>
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={mappedBillData} config={config} keyFn={keyFn} />
+        <Table data={filteredArray} config={config} keyFn={keyFn} />
       </div>
       <Modal
         open={open}
@@ -1830,13 +1874,30 @@ export default function IPD_PatientTable() {
                 <div>
                   <Link
                     target="_blank"
-                    to={`${
-                      browserLinks?.nurse.category
-                    }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
-                      .split(" ")
-                      .join("")}/${
-                      ipdPatientData?.data?.mainId
-                    }/${selectedPayment}`}
+                    to={
+                      adminRole === "Receptionist"
+                        ? `${
+                            browserLinks?.nurse.category
+                          }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
+                            .split(" ")
+                            .join("")}/${
+                            ipdPatientData?.data?.mainId
+                          }/${selectedPayment}`
+                        : `${
+                            browserLinks?.superadmin?.category
+                          }/${browserLinks?.superadmin?.internalPages?.ipdPatients
+                            .split(" ")
+                            .join("")}/${
+                            ipdPatientData?.data?.mainId
+                          }/${selectedPayment}`
+                    }
+                    // to={`${
+                    //   browserLinks?.nurse.category
+                    // }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
+                    //   .split(" ")
+                    //   .join("")}/${
+                    //   ipdPatientData?.data?.mainId
+                    // }/${selectedPayment}`}
                     className={`buttonFilled flex items-center gap-[10px] text-sm no-underline ${
                       !selectedPayment ? "disabled" : ""
                     }`}
@@ -1967,7 +2028,7 @@ export default function IPD_PatientTable() {
                     <Link
                       onClick={(e) => handleDischargeButtonClick(e)}
                       // target="_blank"
-                      // to={ipdPatientData?.data?.mainId}
+                      to={ipdPatientData?.data?.mainId}
                       // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
                       className="buttonFilled flex items-center gap-[10px]"
                     >

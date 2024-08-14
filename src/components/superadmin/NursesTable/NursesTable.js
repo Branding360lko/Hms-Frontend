@@ -25,7 +25,13 @@ import DialogBoxToDelete from "../../DialogBoxToDelete";
 
 import placeholder from "../../../assets/imageplaceholder.png";
 
+import TableWithApi from "../../TableWithApi";
+import { GrPowerReset } from "react-icons/gr";
+
 import { useForm } from "react-hook-form";
+
+import { useCallback } from "react";
+import { debounce } from "lodash";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -37,18 +43,27 @@ import {
   createNurseChange,
   updateNurseChange,
   deleteNurseChange,
+  pageChange,
+  limitChange,
+  nurseIdForSearchingChange,
+  nurseNameForSearchingChange,
+  nurseMobileNoForSearchingChange,
 } from "../../../Store/Slices/NurseSlice";
 
 // import DatePicker from "react-datepicker";
 // import "react-datepicker/dist/react-datepicker.css";
 import { Link } from "react-router-dom";
 
+import { date, time } from "../../../utils/DateAndTimeConvertor";
+
 export default function NursesTable() {
   const dispatch = useDispatch();
 
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
 
-  const { nurses } = useSelector((state) => state.NurseState);
+  const { nurses, page, limit, totalPages } = useSelector(
+    (state) => state.NurseState
+  );
   // console.log(patients);
   const [createNurse, responseCreateNurse] = useCreateNurseMutation();
   const [updateNurseById, responseUpdateNurseById] =
@@ -158,17 +173,17 @@ export default function NursesTable() {
 
   // console.log(patientDateOfBirth);
 
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
+  // const date = (dateTime) => {
+  //   const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
-  };
+  //   return newdate.toLocaleDateString();
+  // };
 
-  const time = (dateTime) => {
-    const newDate = new Date(dateTime);
+  // const time = (dateTime) => {
+  //   const newDate = new Date(dateTime);
 
-    return newDate.toLocaleTimeString();
-  };
+  //   return newDate.toLocaleTimeString();
+  // };
 
   const {
     register,
@@ -202,58 +217,58 @@ export default function NursesTable() {
   const handleCloseViewModal = () => setOpenViewModal(false);
 
   const modalViewPatientDetails = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <div className='border-b flex gap-[1rem] py-[1rem] w-full'>
-        <h3 className='font-[500]'>Nurse ID: </h3>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+        <h3 className="font-[500]">Nurse ID: </h3>
         <h3>{nurseData?.nurseId}</h3>
       </div>
-      <div className='flex w-full'>
-        <div className='w-[25%] flex flex-col items-center'>
+      <div className="flex w-full">
+        <div className="w-[25%] flex flex-col items-center">
           <img
-            className='w-[200px] h-[200px] object-contain'
+            className="w-[200px] h-[200px] object-contain"
             src={
               nurseData.nurseImage
                 ? process.env.React_App_Base_Image_Url + nurseData.nurseImage
                 : placeholder
             }
-            alt='nurseImage'
+            alt="nurseImage"
           />
           {/* <button className='buttonFilled w-fit'>Button</button> */}
         </div>
-        <div className='w-[75%] flex flex-col gap-[10px] text-[14px]'>
-          <div className='grid grid-cols-2 gap-[10px]'>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Name: </p>
+        <div className="w-[75%] flex flex-col gap-[10px] text-[14px]">
+          <div className="grid grid-cols-2 gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Name: </p>
               <p>{nurseData.nurseName}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Age: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Age: </p>
               <p>{nurseData.nurseAge}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Phone: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Phone: </p>
               <p>{nurseData.nursePhone}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Nurse Qualification: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Nurse Qualification: </p>
               <p>{nurseData.nurseQualification}</p>
             </div>
           </div>
-          <div className='flex flex-col gap-[10px]'>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Email Id: </p>
-              <p className='text-[14px]'>{nurseData.nurseEmail}</p>
+          <div className="flex flex-col gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Email Id: </p>
+              <p className="text-[14px]">{nurseData.nurseEmail}</p>
             </div>
 
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Created On: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Created On: </p>
+              <p className="break-word text-[14px]">
                 {`${date(nurseData?.createdAt)} ${time(nurseData?.createdAt)}`}
               </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Updated On: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Updated On: </p>
+              <p className="break-word text-[14px]">
                 {`${date(nurseData?.updatedAt)} ${time(nurseData?.updatedAt)}`}
               </p>
             </div>
@@ -360,41 +375,42 @@ export default function NursesTable() {
   };
 
   const modalADDPatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Add Nurse Information</h2>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Add Nurse Information</h2>
       <form
-        className='flex flex-col gap-[1rem]'
-        onSubmit={handleSubmit(handleAddPatient)}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Nurse Name *</label>
+        className="flex flex-col gap-[1rem]"
+        onSubmit={handleSubmit(handleAddPatient)}
+      >
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Nurse Name *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter nurse name'
+              placeholder="Enter nurse name"
               {...register("nurseName", { required: true })}
             />
             {errors.nurseName && (
-              <span className='text-[red]'>This field is required</span>
+              <span className="text-[red]">This field is required</span>
             )}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Email</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Email</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='email'
-              placeholder='Enter nurse email'
+              className="py-[10px] outline-none border-b"
+              type="email"
+              placeholder="Enter nurse email"
               {...register("nurseEmail")}
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Age</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Age</label>
 
             <input
-              className='py-[10px] outline-none border-b'
-              placeholder='Enter age'
+              className="py-[10px] outline-none border-b"
+              placeholder="Enter age"
               required
               value={nurseAge}
               onChange={(e) => {
@@ -403,10 +419,10 @@ export default function NursesTable() {
               }}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Phone *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Phone *</label>
             <input
-              className='py-[10px] outline-none border-b'
+              className="py-[10px] outline-none border-b"
               required
               minLength={10}
               maxLength={10}
@@ -415,40 +431,40 @@ export default function NursesTable() {
                 const value = e.target.value.replace(/\D/g, "");
                 setNursePhone(value);
               }}
-              placeholder='Enter nurse phone number'
+              placeholder="Enter nurse phone number"
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Nurse Qualification</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Nurse Qualification</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter nurse qualification'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter nurse qualification"
               {...register("nurseQualification")}
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Nurse Photo</label>
-            <div className='flex flex-col gap-[1rem]'>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Nurse Photo</label>
+            <div className="flex flex-col gap-[1rem]">
               <input
-                type='file'
-                accept='image/png, image/gif, image/jpeg'
+                type="file"
+                accept="image/png, image/gif, image/jpeg"
                 onChange={(e) => setNurseImage(e.target.files[0])}
               />
 
               <img
-                className='object-contain w-[100px] h-[100px]'
+                className="object-contain w-[100px] h-[100px]"
                 src={nurseImage ? URL.createObjectURL(nurseImage) : placeholder}
-                alt='placeholderimg'
+                alt="placeholderimg"
               />
             </div>
           </div>
         </div>
 
-        <div className='flex gap-[1rem] items-center'>
-          <button type='submit' className='buttonFilled'>{`Save >`}</button>
+        <div className="flex gap-[1rem] items-center">
+          <button type="submit" className="buttonFilled">{`Save >`}</button>
           {/* <button className='buttonOutlined'>{`Save >`}</button> */}
         </div>
       </form>
@@ -507,38 +523,38 @@ export default function NursesTable() {
   };
 
   const modalUpdatePatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Update Nurse Information</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleUpdatePatient}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Nurse Name</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Update Nurse Information</h2>
+      <form className="flex flex-col gap-[1rem]" onSubmit={handleUpdatePatient}>
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Nurse Name</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
               value={nurseName}
-              placeholder='Enter nurse name'
+              placeholder="Enter nurse name"
               onChange={(e) => setNurseName(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Email</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Email</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='email'
+              className="py-[10px] outline-none border-b"
+              type="email"
               value={nurseEmail}
-              placeholder='Enter patient email'
+              placeholder="Enter patient email"
               onChange={(e) => setNurseEmail(e.target.value)}
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Age</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Age</label>
 
             <input
-              className='py-[10px] outline-none border-b'
-              placeholder='Enter age'
+              className="py-[10px] outline-none border-b"
+              placeholder="Enter age"
               required
               value={nurseAge}
               onChange={(e) => {
@@ -547,14 +563,14 @@ export default function NursesTable() {
               }}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Phone</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Phone</label>
             <input
-              className='py-[10px] outline-none border-b'
+              className="py-[10px] outline-none border-b"
               required
               minLength={10}
               maxLength={10}
-              placeholder='Enter nurse phone number'
+              placeholder="Enter nurse phone number"
               value={nursePhone}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
@@ -563,55 +579,53 @@ export default function NursesTable() {
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Nurse Qualification</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Nurse Qualification</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter weight'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter weight"
               value={nurseQualification}
               onChange={(e) => setNurseQualification(e.target.value)}
             />
           </div>
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Nurse Photo</label>
-            <div className='flex flex-col gap-[1rem]'>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Nurse Photo</label>
+            <div className="flex flex-col gap-[1rem]">
               <input
-                type='file'
-                accept='image/png, image/gif, image/jpeg'
+                type="file"
+                accept="image/png, image/gif, image/jpeg"
                 onChange={(e) => setNurseImage(e.target.files[0])}
               />
 
               <img
-                className='object-contain w-[100px] h-[100px]'
+                className="object-contain w-[100px] h-[100px]"
                 src={nurseImage ? URL.createObjectURL(nurseImage) : placeholder}
-                alt='placeholderimg'
+                alt="placeholderimg"
               />
             </div>
           </div>
         </div>
 
-        <div className='flex gap-[1rem] items-center'>
-          <button type='submit' className='buttonFilled'>{`Save >`}</button>
+        <div className="flex gap-[1rem] items-center">
+          <button type="submit" className="buttonFilled">{`Save >`}</button>
         </div>
       </form>
     </div>
   );
 
-  const [search, setSearch] = React.useState("");
+  // const filteredArray = nurses?.filter((data) => {
+  //   if (search !== "") {
+  //     const userSearch = search.toLowerCase();
+  //     const searchInData = data?.nurseName?.toLowerCase();
 
-  const filteredArray = nurses?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.nurseName?.toLowerCase();
+  //     return searchInData?.startsWith(userSearch);
+  //   }
+  //   return data;
+  // });
 
-      return searchInData?.startsWith(userSearch);
-    }
-    return data;
-  });
-
-  const mappedBillData = filteredArray;
+  const mappedNurseData = nurses;
 
   const config = [
     {
@@ -637,16 +651,18 @@ export default function NursesTable() {
     {
       label: "Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           <div
             onClick={() => handleOpenViewModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-            <MdViewKanban className='text-[25px] text-[#96999C]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+          >
+            <MdViewKanban className="text-[25px] text-[#96999C]" />
           </div>
           <div
             onClick={() => handleOpenUpdateModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
             onClick={() => handleClickOpenDialogBox(list)}
@@ -659,46 +675,181 @@ export default function NursesTable() {
   ];
 
   const keyFn = (list) => {
-    return list.patientName;
+    return list.nurseId;
   };
+
+  const [search, setSearch] = React.useState("");
+  const [search2, setSearch2] = React.useState("");
+  const [search3, setSearch3] = React.useState("");
+
+  const handleSearch = useCallback(
+    debounce((searchTerm) => {
+      dispatch(nurseIdForSearchingChange(searchTerm));
+    }, 1000),
+    [search]
+  );
+  const handleSearch1 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(nurseNameForSearchingChange(searchTerm));
+    }, 1000),
+    [search2]
+  );
+  const handleSearch2 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(nurseMobileNoForSearchingChange(searchTerm));
+    }, 1000),
+    [search3]
+  );
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>Nurses</h2>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">Nurses</h2>
           <button
             onClick={handleOpen}
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          >
             + Add Nurse
           </button>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
-            <input
-              className='bg-transparent outline-none'
-              placeholder='Search by nurse name'
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="grid grid-cols-2 gap-[1rem]">
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search}
+                className="bg-transparent outline-none"
+                placeholder="Search by nurse id"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSearch2("");
+                  setSearch3("");
+                  // const searchTerm = e.target.value;
+                  handleSearch(e.target.value);
+                  dispatch(nurseNameForSearchingChange(""));
+                  dispatch(nurseMobileNoForSearchingChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(opdPatientIdChange(search))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
           </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search2}
+                className="bg-transparent outline-none"
+                placeholder="Search by nurse name"
+                onChange={(e) => {
+                  setSearch2(e.target.value);
+                  setSearch("");
+                  setSearch3("");
+                  // handleSearch1(e.target.value);
+                  handleSearch1(e.target.value);
+                  dispatch(nurseMobileNoForSearchingChange(""));
+                  dispatch(nurseIdForSearchingChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search3}
+                className="bg-transparent outline-none"
+                placeholder="Search by mobile number"
+                onChange={(e) => {
+                  setSearch3(e.target.value);
+                  setSearch("");
+                  setSearch2("");
+                  handleSearch2(e.target.value);
+                  dispatch(nurseNameForSearchingChange(""));
+                  dispatch(nurseIdForSearchingChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={mappedBillData} config={config} keyFn={keyFn} />
+        <TableWithApi
+          data={mappedNurseData}
+          config={config}
+          keyFn={keyFn}
+          pageChange={pageChange}
+          limitChange={limitChange}
+          page={page}
+          limit={limit}
+          totalPages={totalPages}
+        />
+        {/* <Table data={mappedBillData} config={config} keyFn={keyFn} /> */}
       </div>
       <Modal
         open={open}
         onClose={handleClose}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Add Nurse
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalADDPatient}
           </Typography>
         </Box>
@@ -706,15 +857,16 @@ export default function NursesTable() {
       <Modal
         open={openUpdateModal}
         onClose={handleCloseUpdateModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Update Nurse
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalUpdatePatient}
           </Typography>
         </Box>
@@ -722,12 +874,13 @@ export default function NursesTable() {
       <Modal
         open={openViewModal}
         onClose={handleCloseViewModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <div className='flex justify-between items-center'>
-              <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center">
+              <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Nurse Details
               </h1>
               {/* <Link
@@ -742,7 +895,7 @@ export default function NursesTable() {
               </Link> */}
             </div>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewPatientDetails}
           </Typography>
         </Box>
@@ -751,14 +904,14 @@ export default function NursesTable() {
       <Snackbars
         open={openSnackbarSuccess}
         setOpen={setOpenSnackBarSuccess}
-        severity='success'
+        severity="success"
         message={snackBarMessageSuccess}
       />
       {/* Warning Snackbar */}
       <Snackbars
         open={openSnackbarWarning}
         setOpen={setOpenSnackBarWarning}
-        severity='warning'
+        severity="warning"
         message={snackBarMessageWarning}
       />
       <DialogBoxToDelete

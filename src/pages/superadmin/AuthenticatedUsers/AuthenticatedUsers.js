@@ -6,6 +6,8 @@ import browserLinks from "../../../browserlinks";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 
+import axios from "axios";
+
 import { useSelector, useDispatch } from "react-redux";
 
 import { useGetAllAdminsQuery } from "../../../Store/Services/AdminService";
@@ -62,6 +64,29 @@ export default function AuthenticatedUsers() {
 
   //   console.log(Admins);
 
+  const fetchNursesNames = async () => {
+    return await axios
+      .get(`${process.env.React_App_Base_url}DropdownData-Nurse`, {
+        params: { query: "" },
+      })
+      .then((res) => dispatch(getAllNurses(res.data)))
+      .catch((err) => console.error(err));
+  };
+
+  const fetchDoctorNames = async () => {
+    return await axios
+      .get(`${process.env.React_App_Base_url}DropdownData-Doctor`, {
+        params: { query: "" },
+      })
+      .then((res) => dispatch(getAllDoctors(res.data)))
+      .catch((err) => console.error(err));
+  };
+
+  React.useEffect(() => {
+    fetchNursesNames();
+    fetchDoctorNames();
+  }, []);
+
   const apiRefetch = async () => {
     // Admins
     const responseGetAllAdminsRefetch = await responseGetAllAdmins.refetch();
@@ -76,30 +101,27 @@ export default function AuthenticatedUsers() {
       dispatch(getAllAdmins(filteredArrayGetAllAdmins));
     }
     // ----------------------
-    const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
-    if (responseGetAllDoctorsRefetch.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctorsRefetch?.data?.map(
-        responseGetAllDoctorsRefetch?.data?.pop,
-        [...responseGetAllDoctorsRefetch?.data]
-      );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
-    }
+    // const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
+    // if (responseGetAllDoctorsRefetch.isSuccess) {
+    //   const filteredArrayGetAllDoctors =
+    //     responseGetAllDoctors?.data?.Doctors?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
     // ------------------
-    const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
-    if (responseGetAllNursesRefetch.isSuccess) {
-      const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
-        responseGetAllNursesRefetch?.data?.pop,
-        [...responseGetAllNursesRefetch?.data]
-      );
-      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllNurses(filteredArrayGetAllNurses));
-    }
+    // const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
+    // if (responseGetAllNursesRefetch.isSuccess) {
+    //   const filteredArrayGetAllNurses =
+    //     responseGetAllNurses?.data?.nurses?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllNurses(filteredArrayGetAllNurses));
+    // }
     // ------------------
+
+    fetchNursesNames();
+    fetchDoctorNames();
   };
 
   React.useEffect(() => {
@@ -117,28 +139,22 @@ export default function AuthenticatedUsers() {
     }
     // ----------------------------
     // Doctors
-    if (responseGetAllDoctors.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctors?.data?.map(
-        responseGetAllDoctors?.data?.pop,
-        [...responseGetAllDoctors?.data]
-      );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
-    }
+    // if (responseGetAllDoctors.isSuccess) {
+    //   const filteredArrayGetAllDoctors =
+    //     responseGetAllDoctors?.data?.Doctors?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
     // --------------------
     // Nurse
-    if (responseGetAllNurses.isSuccess) {
-      const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
-        responseGetAllNurses?.data?.pop,
-        [...responseGetAllNurses?.data]
-      );
-      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllNurses(filteredArrayGetAllNurses));
-    }
+    // if (responseGetAllNurses.isSuccess) {
+    //   const filteredArrayGetAllNurses =
+    //     responseGetAllNurses?.data?.nurses?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllNurses(filteredArrayGetAllNurses));
+    // }
     // --------------------
   }, [
     createAdmin,

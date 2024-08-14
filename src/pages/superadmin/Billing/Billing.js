@@ -8,6 +8,8 @@ import LinearProgress from "@mui/material/LinearProgress";
 
 import { useSelector, useDispatch } from "react-redux";
 
+import axios from "axios";
+
 import { useGetAllBillingsQuery } from "../../../Store/Services/BillingService";
 import { getAllBillings } from "../../../Store/Slices/BillingSlice";
 import {
@@ -49,6 +51,31 @@ export default function Billing() {
     (state) => state.PatientState
   );
 
+  const fetchPatientNames = async () => {
+    return await axios
+      .get(`${process.env.React_App_Base_url}DropdownData-Patient`, {
+        params: { query: "" },
+      })
+      .then((res) => dispatch(getAllPatients(res.data)))
+      .catch((err) => console.error(err));
+  };
+
+  const fetchDoctorNames = async () => {
+    return await axios
+      .get(`${process.env.React_App_Base_url}DropdownData-Doctor`, {
+        params: { query: "" },
+      })
+      .then((res) => dispatch(getAllDoctors(res.data)))
+      .catch((err) => console.error(err));
+  };
+
+  React.useEffect(() => {
+    fetchPatientNames();
+    fetchDoctorNames();
+
+    console.log(patients);
+  }, []);
+
   const apiRefetch = async () => {
     // Billing
     const responseGetAllBillingRefetch = await responseGetAllBillings.refetch();
@@ -64,53 +91,49 @@ export default function Billing() {
     }
     // ---------------------
     // Doctors
-    const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
-    if (responseGetAllDoctorsRefetch.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctorsRefetch?.data?.map(
-        responseGetAllDoctorsRefetch?.data?.pop,
-        [...responseGetAllDoctorsRefetch?.data]
-      );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
-    }
+    // const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
+    // if (responseGetAllDoctorsRefetch.isSuccess) {
+    //   const filteredArrayGetAllDoctors =
+    //     responseGetAllDoctorsRefetch?.data?.Doctors?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
     // ------------------
     // Doctors Professional Details
-    const responseGetAllDoctorsProfessionalDetailsRefetch =
-      await responseGetAllDoctorProfessionalDetails.refetch();
-    if (responseGetAllDoctorsProfessionalDetailsRefetch.isSuccess) {
-      const reverseArrayGetAllDoctorsProfessionalDetails =
-        responseGetAllDoctorsProfessionalDetailsRefetch?.data?.map(
-          responseGetAllDoctorsProfessionalDetailsRefetch?.data?.pop,
-          [...responseGetAllDoctorsProfessionalDetailsRefetch?.data]
-        );
-      const filteredArrayGetAllDoctorsProfessionalDetails =
-        reverseArrayGetAllDoctorsProfessionalDetails?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(
-        getAllDoctorsProfessionalDetails(
-          filteredArrayGetAllDoctorsProfessionalDetails
-        )
-      );
-    }
+    // const responseGetAllDoctorsProfessionalDetailsRefetch =
+    //   await responseGetAllDoctorProfessionalDetails.refetch();
+    // if (responseGetAllDoctorsProfessionalDetailsRefetch.isSuccess) {
+    //   const filteredArrayGetAllDoctorsProfessionalDetails =
+    //     responseGetAllDoctorsProfessionalDetailsRefetch?.data?.DoctorProfDetails?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(
+    //     getAllDoctorsProfessionalDetails(
+    //       filteredArrayGetAllDoctorsProfessionalDetails
+    //     )
+    //   );
+    // }
     // ------------------
     // Patients
-    const responseGetAllPatientsRefetch =
-      await responseGetAllPatients.refetch();
-    if (responseGetAllPatientsRefetch.isSuccess) {
-      const reverseArrayGetAllPatients =
-        responseGetAllPatientsRefetch?.data?.map(
-          responseGetAllPatientsRefetch?.data?.pop,
-          [...responseGetAllPatientsRefetch?.data]
-        );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllPatients(filteredArrayGetAllPatients));
-    }
+    // const responseGetAllPatientsRefetch =
+    //   await responseGetAllPatients.refetch();
+    // if (responseGetAllPatientsRefetch.isSuccess) {
+    //   // const reverseArrayGetAllPatients =
+    //   //   responseGetAllPatientsRefetch?.data?.map(
+    //   //     responseGetAllPatientsRefetch?.data?.pop,
+    //   //     [...responseGetAllPatientsRefetch?.data]
+    //   //   );
+    //   const filteredArrayGetAllPatients =
+    //     responseGetAllPatientsRefetch?.data?.Patients?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllPatients(filteredArrayGetAllPatients));
+    // }
     //------------------
+
+    fetchPatientNames();
+    fetchDoctorNames();
   };
 
   React.useEffect(() => {
@@ -128,81 +151,80 @@ export default function Billing() {
     }
     // ---------------------
     // Doctors
-    if (responseGetAllDoctors.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctors?.data?.map(
-        responseGetAllDoctors?.data?.pop,
-        [...responseGetAllDoctors?.data]
-      );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
-    }
+    // if (responseGetAllDoctors.isSuccess) {
+    //   const filteredArrayGetAllDoctors =
+    //     responseGetAllDoctors?.data?.Doctors?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
     // --------------------
     // Doctors Professional Details
-    if (responseGetAllDoctorProfessionalDetails.isSuccess) {
-      const reverseArrayGetAllDoctorsProfessionalDetails =
-        responseGetAllDoctorProfessionalDetails?.data?.map(
-          responseGetAllDoctorProfessionalDetails?.data?.pop,
-          [...responseGetAllDoctorProfessionalDetails?.data]
-        );
-      const filteredArrayGetAllDoctorsProfessionalDetails =
-        reverseArrayGetAllDoctorsProfessionalDetails?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(
-        getAllDoctorsProfessionalDetails(
-          filteredArrayGetAllDoctorsProfessionalDetails
-        )
-      );
-    }
+    // if (responseGetAllDoctorProfessionalDetails.isSuccess) {
+    //   // const reverseArrayGetAllDoctorsProfessionalDetails =
+    //   //   responseGetAllDoctorProfessionalDetails?.data?.map(
+    //   //     responseGetAllDoctorProfessionalDetails?.data?.pop,
+    //   //     [...responseGetAllDoctorProfessionalDetails?.data]
+    //   //   );
+    //   const filteredArrayGetAllDoctorsProfessionalDetails =
+    //     responseGetAllDoctorProfessionalDetails?.data?.DoctorProfDetails?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(
+    //     getAllDoctorsProfessionalDetails(
+    //       filteredArrayGetAllDoctorsProfessionalDetails
+    //     )
+    //   );
+    // }
     // --------------------
     // Patients
-    if (responseGetAllPatients.isSuccess) {
-      const reverseArrayGetAllPatients = responseGetAllPatients?.data?.map(
-        responseGetAllPatients?.data?.pop,
-        [...responseGetAllPatients?.data]
-      );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
+    // if (responseGetAllPatients.isSuccess) {
+    //   // const reverseArrayGetAllPatients = responseGetAllPatients?.data?.map(
+    //   //   responseGetAllPatients?.data?.pop,
+    //   //   [...responseGetAllPatients?.data]
+    //   // );
+    //   const filteredArrayGetAllPatients =
+    //     responseGetAllPatients?.data?.Patients?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
 
-      dispatch(getAllPatients(filteredArrayGetAllPatients));
-    }
+    //   dispatch(getAllPatients(filteredArrayGetAllPatients));
+    // }
   }, [
     createBilling,
     updateBilling,
     deleteBilling,
     responseGetAllBillings.isSuccess,
-    createDoctor,
-    updateDoctor,
-    deleteDoctor,
-    responseGetAllDoctors.isSuccess,
-    responseGetAllDoctorProfessionalDetails.isSuccess,
-    patientCreate,
-    patientUpdate,
-    patientDelete,
-    responseGetAllPatients.isSuccess,
+    // createDoctor,
+    // updateDoctor,
+    // deleteDoctor,
+    // responseGetAllDoctors.isSuccess,
+    // responseGetAllDoctorProfessionalDetails.isSuccess,
+    // patientCreate,
+    // patientUpdate,
+    // patientDelete,
+    // responseGetAllPatients.isSuccess,
   ]);
   return (
     <>
-      {responseGetAllBillings.isLoading &&
-      responseGetAllDoctorProfessionalDetails.isLoading &&
-      responseGetAllPatients.isLoading &&
-      responseGetAllDoctors.isLoading ? (
+      {responseGetAllBillings.isLoading ? (
+        // &&
+        // responseGetAllDoctorProfessionalDetails.isLoading &&
+        // responseGetAllPatients.isLoading &&
+        // responseGetAllDoctors.isLoading
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>
       ) : (
-        <div className='superadmin-main flex flex-row w-full h-screen'>
-          <div className='w-[20%] shadow-lg'>
+        <div className="superadmin-main flex flex-row w-full h-screen">
+          <div className="w-[20%] shadow-lg">
             <SideNav
               activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.billing}`}
             />
           </div>
-          <div className='superadmin-main-right flex flex-col w-[80%]'>
+          <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
-            <div className='superadmin-main-right_dashboard w-full overflow-y-scroll'>
+            <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
               <BillingTable />
             </div>
           </div>

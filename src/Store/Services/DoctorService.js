@@ -5,10 +5,17 @@ export const doctorService = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: process.env.React_App_Base_url }),
   endpoints: (builder) => ({
     getAllDoctors: builder.query({
-      query: () => {
+      query: (params) => {
         return {
           url: `Doctor-GET-ALL`,
           method: "GET",
+          params: {
+            page: params?.page,
+            limit: params?.limit,
+            doctorNameForSearch: params?.doctorNameForSearch,
+            doctorMobileNumberForSearch: params?.doctorMobileNumberForSearch,
+            doctorIdForSearch: params?.doctorIdForSearch,
+          },
         };
       },
     }),
@@ -21,10 +28,15 @@ export const doctorService = createApi({
       },
     }),
     getAllDoctorProfessionalDetails: builder.query({
-      query: () => {
+      query: (params) => {
         return {
           url: `DoctorProfDetails-GET-ALL`,
           method: "GET",
+          params: {
+            page: params?.page,
+            limit: params?.limit,
+            query: params?.query,
+          },
         };
       },
     }),

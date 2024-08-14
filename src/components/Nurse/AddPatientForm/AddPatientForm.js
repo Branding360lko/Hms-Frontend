@@ -16,7 +16,9 @@ import { createPatientChange } from "../../../Store/Slices/PatientSlice";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
-// import Select from "react-select";
+import { Country, State, City } from "country-state-city";
+
+import Select from "react-select";
 
 export default function AddPatientForm() {
   const dispatch = useDispatch();
@@ -56,12 +58,20 @@ export default function AddPatientForm() {
   const [patientLocalAddress, setPatientLocalAddress] = React.useState("");
   const [patientPermanentAddress, setPatientPermanentAddress] =
     React.useState("");
-  const [patientCity, setPatientCity] = React.useState("");
-  const [patientState, setPatientState] = React.useState("");
+  const [patientCity, setPatientCity] = React.useState({
+    value: "",
+    label: "",
+  });
+  const [patientState, setPatientState] = React.useState({
+    value: "",
+    label: "",
+  });
   const [patientCountry, setPatientCountry] = React.useState("");
   const [patientZipCode, setPatientZipCode] = React.useState("");
   const [patientImage, setPatientImage] = React.useState();
-  const [patientGender, setPatientGender] = React.useState("Female");
+  const [patientGender, setPatientGender] = React.useState();
+
+  const [relativeCategory, setRelativeCategory] = React.useState("Father");
 
   const [sameAsLocalAddress, setSameAsLocalAddress] = React.useState(false);
 
@@ -71,6 +81,32 @@ export default function AddPatientForm() {
       setPatientPermanentAddress(patientLocalAddress);
     }
   }, [sameAsLocalAddress, patientLocalAddress]);
+
+  const [allStates, setAllStates] = React.useState([]);
+  const [allCitiesByStates, setAllCitiesByStates] = React.useState([]);
+
+  // console.log(allCitiesByStates);
+  React.useEffect(() => {
+    setAllStates(State.getStatesOfCountry("IN"));
+  }, []);
+
+  React.useEffect(() => {
+    setAllCitiesByStates(City.getCitiesOfState("IN", patientState.value));
+  }, [patientState]);
+
+  const renderedStatesForDropdown = allStates?.map((data) => {
+    return {
+      value: data.isoCode,
+      label: `${data.name} (${data.isoCode})`,
+    };
+  });
+
+  const renderedCitiesByStateForDropdown = allCitiesByStates?.map((data) => {
+    return {
+      value: data.name,
+      label: `${data.name}`,
+    };
+  });
 
   // const [patientAdmitCategory, setPatientAdminCaetgory] =
   //   React.useState("OPD Patient");
@@ -118,9 +154,21 @@ export default function AddPatientForm() {
       dispatch(createPatientChange(Math.random()));
       setSnackBarSuccessMessage(responseAddPatient?.data?.message);
       handleClickSnackbarSuccess();
-
+      setPatientPhone("");
+      // setPatientPhone2("");
+      setPatientAge("");
+      setPatientLocalAddress("");
+      setPatientPermanentAddress("");
+      setPatientCity({
+        value: "",
+        label: "",
+      });
+      setPatientState({
+        value: "",
+        label: "",
+      });
       setPatientImage();
-      setPatientGender("Female");
+      setPatientGender();
       // setPatientCase("");
       setTimeout(() => {
         setLoading(false);
@@ -145,6 +193,9 @@ export default function AddPatientForm() {
       patientAge,
       patientLocalAddress,
       patientPermanentAddress,
+      relativeCategory,
+      patientCity,
+      patientState,
       // patientDateOfBirth,
     };
 
@@ -152,8 +203,19 @@ export default function AddPatientForm() {
 
     formData.append("patientName", patientData?.patientName);
     formData.append("patientEmail", patientData?.patientEmail);
-    formData.append("patientFatherName", patientData?.patientFatherName);
-    formData.append("patientHusbandName", patientData?.patientHusbandName);
+    formData.append("relativeCategory", patientData?.relativeCategory);
+    formData.append(
+      "patientFatherName",
+      patientData?.patientFatherName ? patientData?.patientFatherName : ""
+    );
+    formData.append(
+      "patientHusbandName",
+      patientData?.patientHusbandName ? patientData?.patientHusbandName : ""
+    );
+    formData.append(
+      "patientCareOfName",
+      patientData?.patientCareOfName ? patientData?.patientCareOfName : ""
+    );
     // formData.append(
     //   "patientDateOfBirth",
     //   patientData?.patientDateOfBirth?.startDate
@@ -161,7 +223,7 @@ export default function AddPatientForm() {
     formData.append("patientDateOfBirth", "NODATA");
     formData.append("patientAge", patientData?.patientAge);
     formData.append("patientPhone", patientData?.patientPhone);
-    formData.append("patientPhone2", patientData?.patientPhone2);
+    // formData.append("patientPhone2", patientData?.patientPhone2);
     formData.append("patientHeight", patientData?.patientHeight);
     formData.append("patientWeight", patientData?.patientWeight);
     formData.append("patientGender", patientData?.patientGender);
@@ -171,9 +233,12 @@ export default function AddPatientForm() {
       "patientPermanentAddress",
       patientData?.patientPermanentAddress
     );
-    formData.append("patientCity", patientData?.patientCity);
-    formData.append("patientState", patientData?.patientState);
-    formData.append("patientCountry", patientData?.patientCountry);
+    formData.append("patientCityNew", JSON.stringify(patientData?.patientCity));
+    formData.append(
+      "patientStateNew",
+      JSON.stringify(patientData?.patientState)
+    );
+    // formData.append("patientCountry", patientData?.patientCountry);
     formData.append("patientZipCode", patientData?.patientZipCode);
     formData.append("patientImage", patientData?.patientImage);
     formData.append(
@@ -197,6 +262,8 @@ export default function AddPatientForm() {
 
     addPatient(formData);
     setLoading(true);
+
+    // console.log(formData);
   };
 
   // const renderedAdmittingDoctorForDropdown = doctors?.map((data) => {
@@ -209,67 +276,133 @@ export default function AddPatientForm() {
   return (
     <Suspense fallback={<>...</>}>
       <>
-        <div className='flex flex-col gap-[1rem] p-[1rem]'>
-          <div className='flex justify-between'>
-            <h2 className='border-b-[4px] border-[#3497F9]'>Add New Patient</h2>
+        <div className="flex flex-col gap-[1rem] p-[1rem]">
+          <div className="flex justify-between">
+            <h2 className="border-b-[4px] border-[#3497F9]">Add New Patient</h2>
           </div>
-          <div className='flex flex-col w-full text-[#3E454D] items-start text-start gap-[1rem] px-[10px] pb-[2rem]'>
+          <div className="flex flex-col w-full text-[#3E454D] items-start text-start gap-[1rem] px-[10px] pb-[2rem]">
             {loading ? (
               "Loading..."
             ) : (
               <form
-                className='flex flex-col gap-[1rem]'
-                onSubmit={handleSubmit(handleAddPatient)}>
-                <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Patients Name *</label>
+                className="flex flex-col gap-[1rem]"
+                onSubmit={handleSubmit(handleAddPatient)}
+              >
+                <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Patients Name *</label>
                     <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
+                      className="py-[10px] outline-none border-b"
+                      type="text"
                       required
-                      placeholder='Enter patient name'
+                      placeholder="Enter patient name"
                       {...register("patientName", { required: true })}
                     />
                     {errors.patientName && (
-                      <span className='text-[red]'>This field is required</span>
+                      <span className="text-[red]">This field is required</span>
                     )}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Email</label>
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Email</label>
                     <input
-                      className='py-[10px] outline-none border-b'
-                      type='email'
-                      placeholder='Enter patient email'
+                      className="py-[10px] outline-none border-b"
+                      type="email"
+                      placeholder="Enter patient email"
                       {...register("patientEmail")}
                     />
                     {/* {errors.patientEmail && (
               <span className="text-[red]">This field is required</span>
             )} */}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Father Name</label>
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Age *</label>
+                    {/* <DatePicker
+              className="py-[10px] outline-none border-b"
+              required
+              selected={patientDateOfBirth.startDate}
+              maxDate={new Date()}
+              onChange={(date) =>
+                setPatientDateOfBirth({
+                  startDate: date,
+                })
+              }
+            /> */}
                     <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter patient father name'
-                      {...register("patientFatherName")}
+                      className="py-[10px] outline-none border-b"
+                      // type='number'
+                      placeholder="Enter age"
+                      // {...register("patientAge", { required: true })}
+                      required
+                      value={patientAge}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        setPatientAge(value);
+                      }}
                     />
-                    {errors.patientFatherName && (
-                      <span className='text-[red]'>This field is required</span>
-                    )}
+                    {/* {errors.patientAge && (
+              <span className='text-[red]'>This field is required</span>
+            )} */}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Husband Name</label>
-                    <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter patient husband name'
-                      {...register("patientHusbandName")}
-                    />
-                    {errors.patientHusbandName && (
-                      <span className='text-[red]'>This field is required</span>
-                    )}
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Relative category</label>
+                    <select
+                      className="py-[11.5px] outline-none border-b bg-transparent"
+                      onChange={(e) => setRelativeCategory(e.target.value)}
+                    >
+                      <option>Father</option>
+                      <option>Husband</option>
+                      <option>Care Of</option>
+                    </select>
                   </div>
+                  {relativeCategory === "Father" && (
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Father Name</label>
+                      <input
+                        className="py-[10px] outline-none border-b"
+                        type="text"
+                        placeholder="Enter patient father name"
+                        {...register("patientFatherName")}
+                      />
+                      {errors.patientFatherName && (
+                        <span className="text-[red]">
+                          This field is required
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {relativeCategory === "Husband" && (
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Husband Name</label>
+                      <input
+                        className="py-[10px] outline-none border-b"
+                        type="text"
+                        placeholder="Enter patient husband name"
+                        {...register("patientHusbandName")}
+                      />
+                      {errors.patientHusbandName && (
+                        <span className="text-[red]">
+                          This field is required
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {relativeCategory === "Care Of" && (
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Care Of Name</label>
+                      <input
+                        className="py-[10px] outline-none border-b"
+                        type="text"
+                        placeholder="Enter patient (care of) name"
+                        {...register("patientCareOfName")}
+                      />
+                      {errors.patientCareOfName && (
+                        <span className="text-[red]">
+                          This field is required
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {/* <div className='flex flex-col gap-[6px]'>
             <label className='text-[14px]'>Date Of Birth *</label>
             <DatePicker
@@ -292,39 +425,11 @@ export default function AddPatientForm() {
               <span className='text-[red]'>This field is required</span>
             )}
           </div> */}
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Age *</label>
-                    {/* <DatePicker
-              className="py-[10px] outline-none border-b"
-              required
-              selected={patientDateOfBirth.startDate}
-              maxDate={new Date()}
-              onChange={(date) =>
-                setPatientDateOfBirth({
-                  startDate: date,
-                })
-              }
-            /> */}
+
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Phone *</label>
                     <input
-                      className='py-[10px] outline-none border-b'
-                      // type='number'
-                      placeholder='Enter age'
-                      // {...register("patientAge", { required: true })}
-                      required
-                      value={patientAge}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "");
-                        setPatientAge(value);
-                      }}
-                    />
-                    {/* {errors.patientAge && (
-              <span className='text-[red]'>This field is required</span>
-            )} */}
-                  </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Phone *</label>
-                    <input
-                      className='py-[10px] outline-none border-b'
+                      className="py-[10px] outline-none border-b"
                       // type='number'
                       required
                       minLength={10}
@@ -334,7 +439,7 @@ export default function AddPatientForm() {
                         const value = e.target.value.replace(/\D/g, "");
                         setPatientPhone(value);
                       }}
-                      placeholder='Enter patient phone number'
+                      placeholder="Enter patient phone number"
                       // {...register("patientPhone", {
                       //   required: true,
                       //   minLength: 10,
@@ -347,81 +452,61 @@ export default function AddPatientForm() {
               </span>
             )} */}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>
-                      Phone Number of Attendent
-                    </label>
+
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Height</label>
                     <input
-                      className='py-[10px] outline-none border-b'
-                      // type='number'
-                      // required
-                      minLength={10}
-                      maxLength={10}
-                      value={patientPhone2}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "");
-                        setPatientPhone2(value);
-                      }}
-                      placeholder='Enter phone number of attendent'
-                      // {...register("patientPhone2", {
-                      //   minLength: 10,
-                      //   maxLength: 10,
-                      // })}
-                    />
-                    {/* {errors.patientPhone2 && (
-              <span className='text-[red]'>
-                This field is required with 10 digits
-              </span>
-            )} */}
-                  </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Height</label>
-                    <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter height'
+                      className="py-[10px] outline-none border-b"
+                      type="text"
+                      placeholder="Enter height"
                       {...register("patientHeight")}
                     />
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Weight</label>
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Weight</label>
                     <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter weight'
+                      className="py-[10px] outline-none border-b"
+                      type="text"
+                      placeholder="Enter weight"
                       {...register("patientWeight")}
                     />
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Patient Gender *</label>
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Patient Gender *</label>
                     <RadioGroup
-                      aria-labelledby='demo-radio-buttons-group-label'
+                      aria-labelledby="demo-radio-buttons-group-label"
                       value={patientGender}
-                      name='radio-buttons-group'
+                      name="radio-buttons-group"
                       onChange={(e) => setPatientGender(e.target.value)}
-                      sx={{ display: "flex", flexDirection: "row" }}>
+                      sx={{ display: "flex", flexDirection: "row" }}
+                    >
                       <FormControlLabel
-                        value='Female'
+                        value="Female"
                         control={<Radio />}
-                        label='Female'
+                        required={true}
+                        label="Female"
                       />
                       <FormControlLabel
-                        value='Male'
+                        value="Male"
                         control={<Radio />}
-                        label='Male'
+                        label="Male"
+                        required={true}
                       />
                       <FormControlLabel
-                        value='Other'
+                        value="Other"
                         control={<Radio />}
-                        label='Other'
+                        label="Other"
+                        required={true}
                       />
                     </RadioGroup>
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Blood Group *</label>
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Blood Group *</label>
                     <select
-                      className='py-[11.5px] outline-none border-b bg-transparent'
-                      {...register("patientBloodGroup", { required: true })}>
+                      className="py-[11.5px] outline-none border-b bg-transparent"
+                      {...register("patientBloodGroup", { required: true })}
+                    >
+                      <option>Not Available</option>
                       <option>O positive</option>
                       <option>O negative</option>
                       <option>A positive</option>
@@ -432,36 +517,36 @@ export default function AddPatientForm() {
                       <option>AB negative</option>
                     </select>
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Patient Photo</label>
-                    <div className='flex flex-col gap-[1rem]'>
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Patient Photo</label>
+                    <div className="flex flex-col gap-[1rem]">
                       <input
-                        type='file'
-                        accept='image/png, image/gif, image/jpeg'
+                        type="file"
+                        accept="image/png, image/gif, image/jpeg"
                         onChange={(e) => setPatientImage(e.target.files[0])}
                       />
 
                       <img
-                        className='object-contain w-[100px] h-[100px]'
+                        className="object-contain w-[100px] h-[100px]"
                         src={
                           patientImage
                             ? URL.createObjectURL(patientImage)
                             : placeholder
                         }
-                        alt='placeholderimg'
+                        alt="placeholderimg"
                       />
                     </div>
                   </div>
                 </div>
 
-                <h3 className='border-b py-[1rem]'>Patient Address Details</h3>
-                <div className='grid grid-cols-2 gap-[2rem] border-b pb-[3rem]'>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Local Address</label>
+                <h3 className="border-b py-[1rem]">Patient Address Details</h3>
+                <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Local Address</label>
                     <textarea
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter patient local address'
+                      className="py-[10px] outline-none border-b"
+                      type="text"
+                      placeholder="Enter patient local address"
                       value={patientLocalAddress}
                       // {...register("patientLocalAddress")}
                       onChange={(e) => setPatientLocalAddress(e.target.value)}
@@ -470,25 +555,30 @@ export default function AddPatientForm() {
               <span className="text-[red]">This field is required</span>
             )} */}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <div className='flex gap-[1rem]'>
-                      <label className='text-[14px]'>Permanent Address</label>
-                      <div className='flex gap-[10px] items-center'>
+                  <div className="flex flex-col gap-[6px]">
+                    <div className="flex gap-[1rem]">
+                      <label className="text-[14px]">Permanent Address</label>
+                      <div className="flex gap-[10px] items-center">
                         <input
-                          type='checkbox'
-                          onChange={(e) =>
-                            setSameAsLocalAddress(e.target.checked)
-                          }
+                          type="checkbox"
+                          onChange={(e) => {
+                            setSameAsLocalAddress(e.target.checked);
+                            if (e.target.checked === true) {
+                              setPatientPermanentAddress(patientLocalAddress);
+                            } else if (e.target.checked === false) {
+                              setPatientPermanentAddress("");
+                            }
+                          }}
                         />
-                        <p className='text-[12px]'>Same as local address</p>
+                        <p className="text-[12px]">Same as local address</p>
                       </div>
                     </div>
                     <textarea
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      defaultValue={patientPermanentAddress}
+                      className="py-[10px] outline-none border-b"
+                      type="text"
+                      value={patientPermanentAddress}
                       disabled={sameAsLocalAddress === true ? true : false}
-                      placeholder='Enter patient permanent address'
+                      placeholder="Enter patient permanent address"
                       // {...register("patientPermanentAddress")}
                       onChange={(e) =>
                         setPatientPermanentAddress(e.target.value)
@@ -498,48 +588,55 @@ export default function AddPatientForm() {
               <span className="text-[red]">This field is required</span>
             )} */}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>City</label>
-                    <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter patient city'
-                      {...register("patientCity")}
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">State</label>
+                    <Select
+                      options={renderedStatesForDropdown}
+                      onChange={setPatientState}
                     />
-                    {/* {errors.patientCity && (
-              <span className="text-[red]">This field is required</span>
-            )} */}
-                  </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>State</label>
-                    <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter patient state'
+                    {/* <input
+                      className="py-[10px] outline-none border-b"
+                      type="text"
+                      placeholder="Enter patient state"
                       {...register("patientState")}
-                    />
+                    /> */}
                     {/* {errors.patientState && (
               <span className="text-[red]">This field is required</span>
             )} */}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Country</label>
-                    <input
-                      className='py-[10px] outline-none border-b'
-                      type='text'
-                      placeholder='Enter patient country'
-                      {...register("patientCountry")}
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">City</label>
+                    <Select
+                      options={renderedCitiesByStateForDropdown}
+                      onChange={setPatientCity}
                     />
-                    {/* {errors.patientCountry && (
+                    {/* <input
+                      className="py-[10px] outline-none border-b"
+                      type="text"
+                      placeholder="Enter patient city"
+                      {...register("patientCity")}
+                    /> */}
+                    {/* {errors.patientCity && (
               <span className="text-[red]">This field is required</span>
             )} */}
                   </div>
-                  <div className='flex flex-col gap-[6px]'>
-                    <label className='text-[14px]'>Zipcode</label>
+
+                  {/* <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Country</label>
                     <input
-                      className='py-[10px] outline-none border-b'
-                      type='number'
-                      placeholder='Enter patient zipcode'
+                      className="py-[10px] outline-none border-b"
+                      type="text"
+                      placeholder="Enter patient country"
+                      {...register("patientCountry")}
+                    />
+                    
+                  </div> */}
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Zipcode</label>
+                    <input
+                      className="py-[10px] outline-none border-b"
+                      type="number"
+                      placeholder="Enter patient zipcode"
                       {...register("patientZipCode")}
                     />
                     {/* {errors.patientZipcode && (
@@ -547,11 +644,12 @@ export default function AddPatientForm() {
             )} */}
                   </div>
                 </div>
-                <div className='flex gap-[1rem] items-center'>
+                <div className="flex gap-[1rem] items-center">
                   <button
-                    type='submit'
-                    className='buttonFilled'>{`Save & Print >`}</button>
-                  <button className='buttonOutlined'>{`Save >`}</button>
+                    type="submit"
+                    className="buttonFilled"
+                  >{`Save >`}</button>
+                  {/* <button className='buttonOutlined'>{`Save >`}</button> */}
                 </div>
               </form>
             )}
@@ -561,14 +659,14 @@ export default function AddPatientForm() {
         <Snackbars
           open={openSnackbarSuccess}
           setOpen={setOpenSnackBarSuccess}
-          severity='success'
+          severity="success"
           message={snackBarMessageSuccess}
         />
         {/* Warning Snackbar */}
         <Snackbars
           open={openSnackbarWarning}
           setOpen={setOpenSnackBarWarning}
-          severity='warning'
+          severity="warning"
           message={snackBarMessageWarning}
         />
       </>

@@ -29,6 +29,12 @@ import * as React from "react";
 import Snackbars from "../../SnackBar";
 import DialogBoxToDelete from "../../DialogBoxToDelete";
 
+import TableWithApi from "../../TableWithApi";
+import { GrPowerReset } from "react-icons/gr";
+
+import { useCallback } from "react";
+import { debounce } from "lodash";
+
 import {
   useCreateOPDPatientMutation,
   useUpdateOPDPatientByIdMutation,
@@ -39,6 +45,11 @@ import {
   createOPDPatientChange,
   updateOPDPatientChange,
   deleteOPDPatientChange,
+  pageChange,
+  limitChange,
+  opdPatientIdChange,
+  patientNameChange,
+  patientMobileNumberChange,
 } from "../../../Store/Slices/OPDPatientSlice";
 
 import { Link } from "react-router-dom";
@@ -49,7 +60,9 @@ export default function OPD_PatientTable() {
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
-  const { OPDPatients } = useSelector((state) => state.OPDPatientState);
+  const { OPDPatients, page, limit, totalPages } = useSelector(
+    (state) => state.OPDPatientState
+  );
 
   const [createOPDPatient, responseCreateOPDPatient] =
     useCreateOPDPatientMutation();
@@ -180,6 +193,23 @@ export default function OPD_PatientTable() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  // const [patientId, setPatientId] = React.useState("");
+
+  // const fetchPatientNames = async () => {
+  //   return await axios
+  //     .get(`${process.env.React_App_Base_url}DropdownData-Patient`, {
+  //       params: { query: "" },
+  //     })
+  //     .then((res) => dispatch(getAllPatients(res.data)))
+  //     .catch((err) => console.error(err));
+  // };
+
+  // React.useEffect(() => {
+  //   fetchPatientNames();
+  // }, [opdPatientId]);
+
+  // console.log(opdPatientId);
 
   const renderedPatientIDForDropdown = patients?.map((data) => {
     return {
@@ -393,25 +423,25 @@ export default function OPD_PatientTable() {
   // Update Modal
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
   const handleOpenUpdateModal = (data) => {
-    setMainId(data?.data?.mainId);
+    setMainId(data?.mainId);
     setOpdPatientId({
-      value: data?.data?.opdPatientId,
-      label: data?.data?.opdPatientId,
+      value: data?.opdPatientId,
+      label: `${data?.patientData?.patientId} / ${data?.patientData?.patientName}`,
     });
     setOpdCaseId({
-      value: data?.data?.opdCaseId,
-      label: data?.data?.opdCaseId,
+      value: data?.opdCaseId,
+      label: data?.opdCaseId,
     });
-    setOpdId({ value: data?.data?.opdId, label: data?.data?.opdId });
+    setOpdId({ value: data?.opdId, label: data?.opdId });
     setOpdDoctorId({
-      value: data?.data?.opdDoctorId,
-      label: data?.data?.opdDoctorId,
+      value: data?.opdDoctorId,
+      label: `${data?.doctorData?.doctorId} / ${data?.doctorData?.doctorName}`,
     });
-    setOpdPatientBloodPressure(data?.data?.opdPatientBloodPressure);
-    setOpdPatientStandardCharges(data?.data?.opdPatientStandardCharges);
-    setOpdPatientPaymentMode(data?.data?.opdPatientPaymentMode);
-    setOpdDoctorVisitDate(data?.data?.opdDoctorVisitDate);
-    setOpdPatientNotes(data?.data?.opdPatientNotes);
+    setOpdPatientBloodPressure(data?.opdPatientBloodPressure);
+    setOpdPatientStandardCharges(data?.opdPatientStandardCharges);
+    setOpdPatientPaymentMode(data?.opdPatientPaymentMode);
+    setOpdDoctorVisitDate(data?.opdDoctorVisitDate);
+    setOpdPatientNotes(data?.opdPatientNotes);
     setOpenUpdateModal(true);
   };
   const handleCloseUpdateModal = () => {
@@ -618,14 +648,14 @@ export default function OPD_PatientTable() {
     setOpdPatientData(data);
     setOpenViewModal(true);
   };
-  console.log(opdPatientData);
+  // console.log(opdPatientData);
   const handleCloseViewModal = () => setOpenViewModal(false);
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <div className="border-b flex gap-[1rem] py-[1rem] w-full">
         <h3 className="font-[500]">ID: </h3>
-        <h3>{opdPatientData?.data?.mainId}</h3>
+        <h3>{opdPatientData?.mainId}</h3>
       </div>
       <div className="flex w-full">
         <div className="w-[25%] flex flex-col items-center">
@@ -645,11 +675,11 @@ export default function OPD_PatientTable() {
           <div className="grid grid-cols-2 gap-[10px]">
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Id: </p>
-              <p>{opdPatientData?.data?.opdPatientId}</p>
+              <p>{opdPatientData?.opdPatientId}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Doctor Id: </p>
-              <p>{opdPatientData?.data?.opdDoctorId}</p>
+              <p>{opdPatientData?.opdDoctorId}</p>
             </div>
 
             <div className="flex">
@@ -698,7 +728,7 @@ export default function OPD_PatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Standard Charge: </p>
-              <p>{opdPatientData?.data?.opdPatientStandardCharges}</p>
+              <p>{opdPatientData?.opdPatientStandardCharges}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Weight: </p>
@@ -706,35 +736,33 @@ export default function OPD_PatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Payment Mode: </p>
-              <p>{opdPatientData?.data?.opdPatientPaymentMode}</p>
+              <p>{opdPatientData?.opdPatientPaymentMode}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Visit Date: </p>
-              <p>{`${date(opdPatientData?.data?.opdDoctorVisitDate)} / ${time(
-                opdPatientData?.data?.opdDoctorVisitDate
+              <p>{`${date(opdPatientData?.opdDoctorVisitDate)} / ${time(
+                opdPatientData?.opdDoctorVisitDate
               )}`}</p>
             </div>
           </div>
           <div className="flex flex-col gap-[10px]">
             <div className="flex flex-col">
               <p className="font-[600] w-[150px]">Notes: </p>
-              <p className="text-[14px]">
-                {opdPatientData?.data?.opdPatientNotes}
-              </p>
+              <p className="text-[14px]">{opdPatientData?.opdPatientNotes}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Created On: </p>
               <p className="break-word text-[14px]">
-                {`${date(opdPatientData?.data?.createdAt)} ${time(
-                  opdPatientData?.data?.createdAt
+                {`${date(opdPatientData?.createdAt)} ${time(
+                  opdPatientData?.createdAt
                 )}`}
               </p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Updated On: </p>
               <p className="break-word text-[14px]">
-                {`${date(opdPatientData?.data?.updatedAt)} ${time(
-                  opdPatientData?.data?.updatedAt
+                {`${date(opdPatientData?.updatedAt)} ${time(
+                  opdPatientData?.updatedAt
                 )}`}
               </p>
             </div>
@@ -746,35 +774,39 @@ export default function OPD_PatientTable() {
   // ---------------
 
   const [search, setSearch] = React.useState("");
+  const [search2, setSearch2] = React.useState("");
+  const [search3, setSearch3] = React.useState("");
 
-  const filteredArray = OPDPatients?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.opdPatientId?.toLowerCase();
+  // const filteredArray = OPDPatients?.filter((data) => {
+  //   if (search !== "") {
+  //     const userSearch = search.toLowerCase();
+  //     const searchInData = data?.opdPatientId?.toLowerCase();
 
-      return searchInData?.startsWith(userSearch);
-    }
-    return data;
-  });
+  //     return searchInData?.startsWith(userSearch);
+  //   }
+  //   return data;
+  // });
 
-  const mappedBillData = filteredArray?.map((data, index) => {
-    const filteredPatientData = patients?.find(
-      (patient) => data?.opdPatientId === patient?.patientId
-    );
-    const filteredDoctorData = doctors?.find(
-      (doctor) => doctor?.doctorId === data?.opdDoctorId
-    );
-    return {
-      data,
-      patientData: filteredPatientData,
-      doctorData: filteredDoctorData,
-    };
-  });
+  // const mappedBillData = filteredArray?.map((data, index) => {
+  //   const filteredPatientData = patients?.find(
+  //     (patient) => data?.opdPatientId === patient?.patientId
+  //   );
+  //   const filteredDoctorData = doctors?.find(
+  //     (doctor) => doctor?.doctorId === data?.opdDoctorId
+  //   );
+  //   return {
+  //     data,
+  //     patientData: filteredPatientData,
+  //     doctorData: filteredDoctorData,
+  //   };
+  // });
+
+  const mappedOPDPatientData = OPDPatients;
 
   const config = [
     {
       label: "OPD Bill No",
-      render: (list) => list?.data?.mainId,
+      render: (list) => list?.mainId,
     },
     {
       label: "Patient Name",
@@ -786,17 +818,17 @@ export default function OPD_PatientTable() {
     },
     {
       label: "Date Created",
-      render: (list) => date(list?.data?.createdAt),
+      render: (list) => date(list?.createdAt),
     },
     {
       label: "Standard Charge",
-      render: (list) => list?.data?.opdPatientStandardCharges,
+      render: (list) => list?.opdPatientStandardCharges,
     },
     {
       label: "Payment Mode",
       render: (list) => (
         <p className="bg-[#B5FFBC] font-[600] rounded-lg p-[4px]">
-          {list?.data?.opdPatientPaymentMode}
+          {list?.opdPatientPaymentMode}
         </p>
       ),
     },
@@ -829,6 +861,25 @@ export default function OPD_PatientTable() {
   const keyFn = (list) => {
     return list.mainId;
   };
+
+  const handleSearch = useCallback(
+    debounce((searchTerm) => {
+      dispatch(opdPatientIdChange(searchTerm));
+    }, 1000),
+    [search]
+  );
+  const handleSearch1 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(patientNameChange(searchTerm));
+    }, 1000),
+    [search2]
+  );
+  const handleSearch2 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(patientMobileNumberChange(searchTerm));
+    }, 1000),
+    [search3]
+  );
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -841,20 +892,130 @@ export default function OPD_PatientTable() {
             + Add OPD Patients
           </button>
         </div>
-        <div className="flex justify-between">
-          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
-            <FaSearch className="text-[#56585A]" />
-            <input
-              className="bg-transparent outline-none"
-              placeholder="Search by uhid"
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="grid grid-cols-2 gap-[1rem]">
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search}
+                className="bg-transparent outline-none"
+                placeholder="Search by UHID"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSearch2("");
+                  setSearch3("");
+                  // const searchTerm = e.target.value;
+                  handleSearch(e.target.value);
+                  dispatch(patientNameChange(""));
+                  dispatch(patientMobileNumberChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(opdPatientIdChange(search))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
           </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search2}
+                className="bg-transparent outline-none"
+                placeholder="Search by patient name"
+                onChange={(e) => {
+                  setSearch2(e.target.value);
+                  setSearch("");
+                  setSearch3("");
+                  // handleSearch1(e.target.value);
+                  handleSearch1(e.target.value);
+                  dispatch(patientMobileNumberChange(""));
+                  dispatch(opdPatientIdChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search3}
+                className="bg-transparent outline-none"
+                placeholder="Search by mobile number"
+                onChange={(e) => {
+                  setSearch3(e.target.value);
+                  setSearch("");
+                  setSearch2("");
+                  handleSearch2(e.target.value);
+                  dispatch(patientNameChange(""));
+                  dispatch(opdPatientIdChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={mappedBillData} config={config} keyFn={keyFn} />
+        <TableWithApi
+          data={mappedOPDPatientData}
+          config={config}
+          keyFn={keyFn}
+          pageChange={pageChange}
+          limitChange={limitChange}
+          page={page}
+          limit={limit}
+          totalPages={totalPages}
+        />
+        {/* <Table data={mappedBillData} config={config} keyFn={keyFn} /> */}
       </div>
       <Modal
         open={open}
@@ -905,7 +1066,7 @@ export default function OPD_PatientTable() {
               <Link
                 // onClick={handleGeneratePdf}
                 target="_blank"
-                to={opdPatientData?.data?.mainId}
+                to={opdPatientData?.mainId}
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
                 className="buttonFilled flex items-center gap-[10px]"
               >

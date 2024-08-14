@@ -188,6 +188,19 @@ export default function PatientViewPage() {
                         </p>
                       </div>
                     )}
+                    {responseGetPatientById?.currentData?.patientCareOfName && (
+                      <div className="flex">
+                        <p className="font-[500] w-[150px] text-start">
+                          Care Of Name:
+                        </p>
+                        <p>
+                          {
+                            responseGetPatientById?.currentData
+                              ?.patientCareOfName
+                          }
+                        </p>
+                      </div>
+                    )}
                     <div className="flex">
                       <p className="font-[500] w-[150px] text-start">Email:</p>
                       <p>{responseGetPatientById?.currentData?.patientEmail}</p>

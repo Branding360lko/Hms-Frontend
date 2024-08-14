@@ -5,6 +5,12 @@ const initialState = {
   createOPDPatient: "",
   updateOPDPatient: "",
   deleteOPDPatient: "",
+  page: 1,
+  limit: 10,
+  totalPages: 0,
+  patientName: "",
+  opdPatientId: "",
+  patientMobileNumber: "",
 };
 
 const OPDPatientSlice = createSlice({
@@ -23,6 +29,24 @@ const OPDPatientSlice = createSlice({
     deleteOPDPatientChange: (state, action) => {
       state.deleteOPDPatient = action.payload;
     },
+    pageChange: (state, action) => {
+      state.page = action.payload;
+    },
+    limitChange: (state, action) => {
+      state.limit = action.payload;
+    },
+    patientNameChange: (state, action) => {
+      state.patientName = action.payload;
+    },
+    opdPatientIdChange: (state, action) => {
+      state.opdPatientId = action.payload;
+    },
+    patientMobileNumberChange: (state, action) => {
+      state.patientMobileNumber = action.payload;
+    },
+    totalPagesChange: (state, action) => {
+      state.totalPages = action.payload;
+    },
   },
 });
 
@@ -31,6 +55,12 @@ export const {
   createOPDPatientChange,
   updateOPDPatientChange,
   deleteOPDPatientChange,
+  pageChange,
+  limitChange,
+  patientNameChange,
+  opdPatientIdChange,
+  patientMobileNumberChange,
+  totalPagesChange,
 } = OPDPatientSlice.actions;
 
 export default OPDPatientSlice.reducer;

@@ -8,7 +8,10 @@ import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 
 import { useGetAllPatientsQuery } from "../../Store/Services/PatientService";
-import { getAllPatients } from "../../Store/Slices/PatientSlice";
+import {
+  getAllPatients,
+  totalPagesChange,
+} from "../../Store/Slices/PatientSlice";
 
 const SideNav = lazy(() => import("../../components/Nurse/SideNav"));
 const UpperNav = lazy(() => import("../../components/Nurse/UpperNav/UpperNav"));
@@ -19,26 +22,53 @@ const DashboardTable = lazy(() =>
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const responseGetAllPatients = useGetAllPatientsQuery();
 
-  const { patients, patientCreate, patientUpdate, patientDelete } = useSelector(
-    (state) => state.PatientState
-  );
+  const {
+    patients,
+    patientCreate,
+    patientUpdate,
+    patientDelete,
+    page,
+    limit,
+    query,
+    totalPages,
+  } = useSelector((state) => state.PatientState);
+
+  const responseGetAllPatients = useGetAllPatientsQuery({
+    page: page,
+    limit: limit,
+    query: query,
+  });
 
   const apiRefetch = async () => {
     // Patients
-    const responseGetAllPatientsRefetch =
-      await responseGetAllPatients.refetch();
+    const responseGetAllPatientsRefetch = await responseGetAllPatients.refetch({
+      page: page,
+      limit: limit,
+      query: query,
+    });
     if (responseGetAllPatientsRefetch.isSuccess) {
-      const reverseArrayGetAllPatients =
-        responseGetAllPatientsRefetch?.data?.map(
-          responseGetAllPatientsRefetch?.data?.pop,
-          [...responseGetAllPatientsRefetch?.data]
+      // const reverseArrayGetAllPatients =
+      //   responseGetAllPatientsRefetch?.data?.Patients?.map(
+      //     responseGetAllPatientsRefetch?.data?.Patients.pop,
+      //     [...responseGetAllPatientsRefetch?.data?.Patients]
+      //   );
+      // const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+      //   (data) => data.isDeleted === false && data
+      // );
+      // const reverseArrayGetAllPatients =
+      //   responseGetAllPatientsRefetch?.data?.Patients?.map(
+      //     responseGetAllPatientsRefetch?.data?.Patients.pop,
+      //     [...responseGetAllPatientsRefetch?.data?.Patients]
+      //   );
+      const filteredArrayGetAllPatients =
+        responseGetAllPatientsRefetch?.data?.Patients?.filter(
+          (data) => data.isDeleted === false && data
         );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
       dispatch(getAllPatients(filteredArrayGetAllPatients));
+      dispatch(
+        totalPagesChange(responseGetAllPatientsRefetch?.data?.totalPages)
+      );
     }
     //------------------
   };
@@ -46,21 +76,28 @@ export default function Dashboard() {
     apiRefetch();
     // Patients
     if (responseGetAllPatients.isSuccess) {
-      const reverseArrayGetAllPatients = responseGetAllPatients?.data?.map(
-        responseGetAllPatients?.data?.pop,
-        [...responseGetAllPatients?.data]
-      );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
+      // const reverseArrayGetAllPatients =
+      //   responseGetAllPatients?.data?.Patients.map(
+      //     responseGetAllPatients?.data?.Patients.pop,
+      //     [...responseGetAllPatients?.data?.Patients]
+      //   );
+      const filteredArrayGetAllPatients =
+        responseGetAllPatients?.data?.Patients?.filter(
+          (data) => data.isDeleted === false && data
+        );
 
       dispatch(getAllPatients(filteredArrayGetAllPatients));
+      dispatch(totalPagesChange(responseGetAllPatients?.data?.totalPages));
     }
   }, [
     patientCreate,
     patientUpdate,
     patientDelete,
     responseGetAllPatients.isSuccess,
+    page,
+    limit,
+    query,
+    totalPages,
   ]);
   return (
     <>

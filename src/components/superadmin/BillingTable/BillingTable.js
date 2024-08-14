@@ -56,10 +56,18 @@ import DialogBoxToDelete from "../../DialogBoxToDelete";
 import BillSummary from "./BillSummary/BillSummary";
 // import browserLinks from "../../../browserlinks";
 
+import { date, time } from "../../../utils/DateAndTimeConvertor";
+
 export default function BillingTable() {
   const navigate = useNavigate();
 
   const { billings } = useSelector((state) => state.BillingState);
+
+  const { patients } = useSelector((state) => state.PatientState);
+
+  const { doctors, doctorProfessionalDetails } = useSelector(
+    (state) => state.DoctorState
+  );
   const dispatch = useDispatch();
 
   const [createBilling, responseCreateBilling] = useCreateBillingMutation();
@@ -72,17 +80,17 @@ export default function BillingTable() {
 
   const [submitButton, setSubmitButton] = React.useState();
 
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
+  // const date = (dateTime) => {
+  //   const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
-  };
+  //   return newdate.toLocaleDateString();
+  // };
 
-  const time = (dateTime) => {
-    const newDate = new Date(dateTime);
+  // const time = (dateTime) => {
+  //   const newDate = new Date(dateTime);
 
-    return newDate.toLocaleTimeString();
-  };
+  //   return newDate.toLocaleTimeString();
+  // };
 
   // Snackbar--------------------
   // ----Succcess
@@ -147,11 +155,6 @@ export default function BillingTable() {
   // ----------------------------------
 
   const toWords = new ToWords();
-  const { doctors, doctorProfessionalDetails } = useSelector(
-    (state) => state.DoctorState
-  );
-
-  const { patients } = useSelector((state) => state.PatientState);
 
   const [id, setId] = React.useState();
 
@@ -661,26 +664,22 @@ export default function BillingTable() {
   const filteredArrayGetAllPatients = patients?.filter(
     (data) => data.isDeleted === false && data
   );
-  const renderedPatientForDropdownBilling = filteredArrayGetAllPatients?.map(
-    (data) => {
-      return {
-        value: data.patientId,
-        label: `${data.patientId} / ${data.patientName}`,
-      };
-    }
-  );
+  const renderedPatientForDropdownBilling = patients?.map((data) => {
+    return {
+      value: data.patientId,
+      label: `${data.patientId} / ${data.patientName}`,
+    };
+  });
 
   const filteredArrayGetAllDoctors = doctors?.filter(
     (data) => data.isDeleted === false && data
   );
-  const renderedDoctorsForDropdownBilling = filteredArrayGetAllDoctors?.map(
-    (data) => {
-      return {
-        value: data.doctorId,
-        label: `${data.doctorId} / ${data.doctorName} (${data.doctorSpecialization})`,
-      };
-    }
-  );
+  const renderedDoctorsForDropdownBilling = doctors?.map((data) => {
+    return {
+      value: data.doctorId,
+      label: `${data.doctorId} / ${data.doctorName} (${data.doctorSpecialization})`,
+    };
+  });
 
   const handleAddBill = (e) => {
     e.preventDefault();
@@ -732,26 +731,26 @@ export default function BillingTable() {
   };
 
   const billingModalAddForm = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Bill Information</h2>
-      <form className='flex flex-col gap-[1rem] ' onSubmit={handleAddBill}>
-        <div className='grid grid-cols-4 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>UHID</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Bill Information</h2>
+      <form className="flex flex-col gap-[1rem] " onSubmit={handleAddBill}>
+        <div className="grid grid-cols-4 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">UHID</label>
             <Select
-              className='text-[12px]'
+              className="text-[12px]"
               required
               options={renderedPatientForDropdownBilling}
               onChange={setBillingPatientId}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Name *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Name *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter patient name'
+              placeholder="Enter patient name"
               value={billingPatientName}
               onChange={(e) => setBillingPatientName(e.target.value)}
             />
@@ -765,108 +764,110 @@ export default function BillingTable() {
             />
           </div> */}
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>OPD, IPD, Emergency *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">OPD, IPD, Emergency *</label>
             <select
               required
               value={billing_OPD_IPD_Emergency}
               onChange={(e) => setBilling_OPD_IPD_Emergency(e.target.value)}
-              className='py-[11.5px] outline-none border-b bg-transparent'>
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>OPD</option>
               <option>IPD</option>
               <option>Emergency</option>
             </select>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Admitting Doctor *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Admitting Doctor *</label>
             <Select
-              className='text-[12px]'
+              className="text-[12px]"
               required
               options={renderedDoctorsForDropdownBilling}
               onChange={setBillingAdmittingDoctorId}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>MR No. *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">MR No. *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter MR No.'
+              placeholder="Enter MR No."
               value={billing_MR_No}
               onChange={(e) => setBilling_MR_No(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>IP No. *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">IP No. *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter IP No.'
+              placeholder="Enter IP No."
               value={billing_IP_No}
               onChange={(e) => setBilling_IP_No(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Age *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Age *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
+              className="py-[10px] outline-none border-b"
+              type="number"
               required
-              placeholder='Enter age'
+              placeholder="Enter age"
               value={billingPatientAge}
               onChange={(e) => setBillingPatientAge(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Gender *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Gender *</label>
             <select
               required
               value={billingPatientGender}
               onChange={(e) => setBillingPatientGender(e.target.value)}
-              className='py-[11.5px] outline-none border-b bg-transparent'>
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>Male</option>
               <option>Female</option>
               <option>Other</option>
             </select>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Room No *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Room No *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter room no.'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter room no."
               value={billingRoomNo}
               onChange={(e) => setBillingRoomNo(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bed No *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Bed No *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter bed no.'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter bed no."
               value={billingBedNo}
               onChange={(e) => setBillingBedNo(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bill Bed Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Bill Bed Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter bill bed category'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter bill bed category"
               value={billingBedCategory}
               onChange={(e) => setBillingBedCategory(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Occ Bed Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Occ Bed Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter acc bed category'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter acc bed category"
               value={billingOccBedCategory}
               onChange={(e) => setBillingOccBedCategory(e.target.value)}
             />
@@ -880,87 +881,87 @@ export default function BillingTable() {
               placeholder='Enter bed category'
             />
           </div> */}
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bill Date & Time *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Bill Date & Time *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={billing_BillDateAndTime}
               onChange={(e) => setBilling_BillDateAndTime(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Addmission Date & Time *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Addmission Date & Time *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={billing_AdmissionDateAndTime}
               onChange={(e) => setBilling_AdmissionDateAndTime(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Discharge Date & Time *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Discharge Date & Time *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={billing_DischargeDateAndTime}
               onChange={(e) => setBilling_DischargeDateAndTime(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter patient category'
+              placeholder="Enter patient category"
               value={billingPatientCategory}
               onChange={(e) => setBillingPatientCategory(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Tariff Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Tariff Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter tariff category'
+              placeholder="Enter tariff category"
               value={billingTariffCategory}
               onChange={(e) => setBillingTariffCategory(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Payment Mode *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Payment Mode *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter payment mode'
+              placeholder="Enter payment mode"
               value={billingPaymentMode}
               onChange={(e) => setBillingPaymentMode(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Paid Amount *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Paid Amount *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
-              step='0.1'
-              placeholder='Enter paid amount'
+              className="py-[10px] outline-none border-b"
+              type="number"
+              step="0.1"
+              placeholder="Enter paid amount"
               value={billingPaidAmount}
               onChange={(e) => setBillingPaidAmount(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Credit Note Amount *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Credit Note Amount *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
-              step='0.1'
-              placeholder='Enter credit note amount'
+              className="py-[10px] outline-none border-b"
+              type="number"
+              step="0.1"
+              placeholder="Enter credit note amount"
               value={billingCreditNoteAmount}
               onChange={(e) => setBillingCreditNoteAmount(e.target.value)}
             />
@@ -989,7 +990,7 @@ export default function BillingTable() {
           </div> */}
         </div>
 
-        <div className='border-b-[4px] py-[1rem]'>
+        <div className="border-b-[4px] py-[1rem]">
           <AddItemTable
             allItems={allItems}
             setAllItems={setAllItems}
@@ -1066,36 +1067,38 @@ export default function BillingTable() {
           />
         </div>
 
-        <div className='flex flex-col gap-[3rem]'>
-          <div className='flex flex-col items-end gap-[10px]'>
-            <div className='flex flex-row items-center'>
-              <h3 className='w-[250px]'>Bill Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billAmount}`}</h3>
+        <div className="flex flex-col gap-[3rem]">
+          <div className="flex flex-col items-end gap-[10px]">
+            <div className="flex flex-row items-center">
+              <h3 className="w-[250px]">Bill Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billAmount}`}</h3>
             </div>
-            <div className='flex flex-row items-center border-b'>
-              <h3 className='w-[250px]'>Credit Note Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billingCreditNoteAmount}`}</h3>
+            <div className="flex flex-row items-center border-b">
+              <h3 className="w-[250px]">Credit Note Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billingCreditNoteAmount}`}</h3>
             </div>
-            <div className='flex flex-row items-center border-b'>
-              <h3 className='w-[250px]'>Net Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billNetAmount}`}</h3>
+            <div className="flex flex-row items-center border-b">
+              <h3 className="w-[250px]">Net Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billNetAmount}`}</h3>
             </div>
-            <div className='flex flex-row items-center'>
-              <h3 className='w-[250px]'>Patient Paid Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billingPaidAmount}`}</h3>
+            <div className="flex flex-row items-center">
+              <h3 className="w-[250px]">Patient Paid Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billingPaidAmount}`}</h3>
             </div>
           </div>
           <h3>{`Amount in words  :  ${billAmountInWords}`}</h3>
         </div>
 
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
+            type="submit"
             onClick={() => setSubmitButton("add")}
-            className='buttonFilled'>{`Save >`}</button>
+            className="buttonFilled"
+          >{`Save >`}</button>
           <button
             onClick={() => setSubmitButton("addprint")}
-            className='buttonOutlined'>{`Save & Print >`}</button>
+            className="buttonOutlined"
+          >{`Save & Print >`}</button>
         </div>
       </form>
     </div>
@@ -1252,29 +1255,30 @@ export default function BillingTable() {
   };
 
   const billingModalUpdateForm = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Bill Information</h2>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Bill Information</h2>
       <form
-        className='flex flex-col gap-[1rem] '
-        onSubmit={handleUpdateBilling}>
-        <div className='grid grid-cols-4 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Registration No</label>
+        className="flex flex-col gap-[1rem] "
+        onSubmit={handleUpdateBilling}
+      >
+        <div className="grid grid-cols-4 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Registration No</label>
             <Select
-              className='text-[12px]'
+              className="text-[12px]"
               required
               options={renderedPatientForDropdownBilling}
               onChange={setBillingPatientId}
               value={billingPatientId}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Name *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Name *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter patient name'
+              placeholder="Enter patient name"
               value={billingPatientName}
               onChange={(e) => setBillingPatientName(e.target.value)}
             />
@@ -1288,109 +1292,111 @@ export default function BillingTable() {
         />
       </div> */}
 
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>OPD, IPD, Emergency *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">OPD, IPD, Emergency *</label>
             <select
               required
               value={billing_OPD_IPD_Emergency}
               onChange={(e) => setBilling_OPD_IPD_Emergency(e.target.value)}
-              className='py-[11.5px] outline-none border-b bg-transparent'>
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>OPD</option>
               <option>IPD</option>
               <option>Emergency</option>
             </select>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Admitting Doctor *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Admitting Doctor *</label>
             <Select
-              className='text-[12px]'
+              className="text-[12px]"
               required
               options={renderedDoctorsForDropdownBilling}
               onChange={setBillingAdmittingDoctorId}
               value={billingAdmittingDoctorId}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>MR No. *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">MR No. *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter MR No.'
+              placeholder="Enter MR No."
               value={billing_MR_No}
               onChange={(e) => setBilling_MR_No(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>IP No. *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">IP No. *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter IP No.'
+              placeholder="Enter IP No."
               value={billing_IP_No}
               onChange={(e) => setBilling_IP_No(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Age *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Age *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
+              className="py-[10px] outline-none border-b"
+              type="number"
               required
-              placeholder='Enter age'
+              placeholder="Enter age"
               value={billingPatientAge}
               onChange={(e) => setBillingPatientAge(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Gender *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Gender *</label>
             <select
               required
               value={billingPatientGender}
               onChange={(e) => setBillingPatientGender(e.target.value)}
-              className='py-[11.5px] outline-none border-b bg-transparent'>
+              className="py-[11.5px] outline-none border-b bg-transparent"
+            >
               <option>Male</option>
               <option>Female</option>
               <option>Other</option>
             </select>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Room No *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Room No *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter room no.'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter room no."
               value={billingRoomNo}
               onChange={(e) => setBillingRoomNo(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bed No *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Bed No *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter bed no.'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter bed no."
               value={billingBedNo}
               onChange={(e) => setBillingBedNo(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bill Bed Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Bill Bed Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter bill bed category'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter bill bed category"
               value={billingBedCategory}
               onChange={(e) => setBillingBedCategory(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Occ Bed Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Occ Bed Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter acc bed category'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter acc bed category"
               value={billingOccBedCategory}
               onChange={(e) => setBillingOccBedCategory(e.target.value)}
             />
@@ -1404,87 +1410,87 @@ export default function BillingTable() {
           placeholder='Enter bed category'
         />
       </div> */}
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Bill Date & Time *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Bill Date & Time *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={billing_BillDateAndTime}
               onChange={(e) => setBilling_BillDateAndTime(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Addmission Date & Time *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Addmission Date & Time *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={billing_AdmissionDateAndTime}
               onChange={(e) => setBilling_AdmissionDateAndTime(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Discharge Date & Time *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Discharge Date & Time *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='datetime-local'
+              className="py-[10px] outline-none border-b"
+              type="datetime-local"
               required
               value={billing_DischargeDateAndTime}
               onChange={(e) => setBilling_DischargeDateAndTime(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter patient category'
+              placeholder="Enter patient category"
               value={billingPatientCategory}
               onChange={(e) => setBillingPatientCategory(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Tariff Category *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Tariff Category *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter tariff category'
+              placeholder="Enter tariff category"
               value={billingTariffCategory}
               onChange={(e) => setBillingTariffCategory(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Payment Mode *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Payment Mode *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter payment mode'
+              placeholder="Enter payment mode"
               value={billingPaymentMode}
               onChange={(e) => setBillingPaymentMode(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Paid Amount *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Paid Amount *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
-              step='0.1'
-              placeholder='Enter paid amount'
+              className="py-[10px] outline-none border-b"
+              type="number"
+              step="0.1"
+              placeholder="Enter paid amount"
               value={billingPaidAmount}
               onChange={(e) => setBillingPaidAmount(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Credit Note Amount *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Credit Note Amount *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
-              step='0.1'
-              placeholder='Enter credit note amount'
+              className="py-[10px] outline-none border-b"
+              type="number"
+              step="0.1"
+              placeholder="Enter credit note amount"
               value={billingCreditNoteAmount}
               onChange={(e) => setBillingCreditNoteAmount(e.target.value)}
             />
@@ -1513,7 +1519,7 @@ export default function BillingTable() {
           </div> */}
         </div>
 
-        <div className='border-b-[4px] py-[1rem]'>
+        <div className="border-b-[4px] py-[1rem]">
           <AddItemTable
             allItems={allItems}
             setAllItems={setAllItems}
@@ -1590,33 +1596,34 @@ export default function BillingTable() {
           />
         </div>
 
-        <div className='flex flex-col gap-[3rem]'>
-          <div className='flex flex-col items-end gap-[10px]'>
-            <div className='flex flex-row items-center'>
-              <h3 className='w-[250px]'>Bill Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billAmount}`}</h3>
+        <div className="flex flex-col gap-[3rem]">
+          <div className="flex flex-col items-end gap-[10px]">
+            <div className="flex flex-row items-center">
+              <h3 className="w-[250px]">Bill Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billAmount}`}</h3>
             </div>
-            <div className='flex flex-row items-center border-b'>
-              <h3 className='w-[250px]'>Credit Note Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billingCreditNoteAmount}`}</h3>
+            <div className="flex flex-row items-center border-b">
+              <h3 className="w-[250px]">Credit Note Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billingCreditNoteAmount}`}</h3>
             </div>
-            <div className='flex flex-row items-center border-b'>
-              <h3 className='w-[250px]'>Net Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billNetAmount}`}</h3>
+            <div className="flex flex-row items-center border-b">
+              <h3 className="w-[250px]">Net Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billNetAmount}`}</h3>
             </div>
-            <div className='flex flex-row items-center'>
-              <h3 className='w-[250px]'>Patient Paid Amount :</h3>
-              <h3 className='w-[300px]'>{`₹ ${billingPaidAmount}`}</h3>
+            <div className="flex flex-row items-center">
+              <h3 className="w-[250px]">Patient Paid Amount :</h3>
+              <h3 className="w-[300px]">{`₹ ${billingPaidAmount}`}</h3>
             </div>
           </div>
           <h3>{`Amount in words  :  ${billAmountInWords}`}</h3>
         </div>
 
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
-            className='buttonFilled'
-            onClick={() => setSubmitButton("update")}>{`Save >`}</button>
+            type="submit"
+            className="buttonFilled"
+            onClick={() => setSubmitButton("update")}
+          >{`Save >`}</button>
           {/* <button
             onClick={() => setSubmitButton("updateprint")}
             className='buttonOutlined'>{`Save & Print >`}</button> */}
@@ -1689,16 +1696,18 @@ export default function BillingTable() {
     {
       label: "Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           <div
             onClick={() => handleOpenViewModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-            <MdViewKanban className='text-[25px] text-[#96999C]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+          >
+            <MdViewKanban className="text-[25px] text-[#96999C]" />
           </div>
           <div
             onClick={() => handleOpenUpdateModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
             onClick={() => handleClickOpenDialogBox(list)}
@@ -1716,21 +1725,22 @@ export default function BillingTable() {
   };
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>Billing</h2>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">Billing</h2>
           <button
             onClick={handleOpen}
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          >
             + Add Billing
           </button>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
+        <div className="flex justify-between">
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
             <input
-              className='bg-transparent outline-none'
-              placeholder='Search by bill no'
+              className="bg-transparent outline-none"
+              placeholder="Search by bill no"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -1744,15 +1754,16 @@ export default function BillingTable() {
       <Modal
         open={open}
         onClose={handleClose}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Add Billing
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {billingModalAddForm}
           </Typography>
         </Box>
@@ -1760,15 +1771,16 @@ export default function BillingTable() {
       <Modal
         open={openUpdateModal}
         onClose={handleCloseUpdateModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Edit Billing
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {billingModalUpdateForm}
           </Typography>
         </Box>
@@ -1776,25 +1788,27 @@ export default function BillingTable() {
       <Modal
         open={openViewModal}
         onClose={handleCloseViewModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <div className='flex justify-between items-center'>
-              <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center">
+              <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Billing Details
               </h1>
               <Link
                 // onClick={handleGeneratePdf}
-                target='_blank'
+                target="_blank"
                 to={viewData?.data?.billingId}
-                className='buttonFilled flex items-center gap-[10px]'>
+                className="buttonFilled flex items-center gap-[10px]"
+              >
                 <LuHardDriveDownload />
                 <p>Download</p>
               </Link>
             </div>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             <BillSummary
               date={date}
               time={time}
@@ -1808,14 +1822,14 @@ export default function BillingTable() {
       <Snackbars
         open={openSnackbarSuccess}
         setOpen={setOpenSnackBarSuccess}
-        severity='success'
+        severity="success"
         message={snackBarMessageSuccess}
       />
       {/* Warning Snackbar */}
       <Snackbars
         open={openSnackbarWarning}
         setOpen={setOpenSnackBarWarning}
-        severity='warning'
+        severity="warning"
         message={snackBarMessageWarning}
       />
       <DialogBoxToDelete

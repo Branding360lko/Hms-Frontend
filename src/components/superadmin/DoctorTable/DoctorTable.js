@@ -23,11 +23,17 @@ import FormLabel from "@mui/material/FormLabel";
 import Snackbars from "../../SnackBar";
 import DialogBoxToDelete from "../../DialogBoxToDelete";
 
+import TableWithApi from "../../TableWithApi";
+import { GrPowerReset } from "react-icons/gr";
+
 import placeholder from "../../../assets/imageplaceholder.png";
 
 import { useForm } from "react-hook-form";
 
 import { useSelector, useDispatch } from "react-redux";
+
+import { useCallback } from "react";
+import { debounce } from "lodash";
 
 import {
   useCreateDoctorMutation,
@@ -40,12 +46,21 @@ import {
   createDoctorChange,
   updateDoctorChange,
   deleteDoctorChange,
+  pageChange,
+  limitChange,
+  doctorNameForSearchChange,
+  doctorMobileNumberForSearchChange,
+  doctorIdForSearchChange,
 } from "../../../Store/Slices/DoctorSlice";
+
+import { date, time } from "../../../utils/DateAndTimeConvertor";
 
 export default function DoctorTable() {
   const dispatch = useDispatch();
 
-  const { doctors } = useSelector((state) => state.DoctorState);
+  const { doctors, page, limit, totalPages } = useSelector(
+    (state) => state.DoctorState
+  );
 
   const [createDoctor, responseCreateDoctor] = useCreateDoctorMutation();
   const [updateDoctorById, responseUpdateDoctorById] =
@@ -79,9 +94,20 @@ export default function DoctorTable() {
   const [doctorZipCode, setDoctorZipCode] = React.useState("");
   const [doctorImage, setDoctorImage] = React.useState();
   const [doctorGender, setDoctorGender] = React.useState("Female");
-  const [doctorFee, setDoctorFee] = React.useState("");
   const [doctorDepartment, setDoctorDepartment] = React.useState("");
   const [doctorDesignation, setDoctorDesignation] = React.useState("");
+  const [doctorFee, setDoctorFee] = React.useState("");
+  const [doctorOPDFee, setDoctorOPDFee] = React.useState("");
+  const [doctorGereralHighFee, setDoctorGereralHighFee] = React.useState("");
+  const [doctorGereralJanataFee, setDoctorGereralJanataFee] =
+    React.useState("");
+  const [doctorSemiPrivateFee, setDoctorSemiPrivateFee] = React.useState("");
+  const [doctorPrivateSingleAcFee, setDoctorPrivateSingleAcFee] =
+    React.useState("");
+  const [doctorPrivateSingleAcDlxFee, setDoctorPrivateSingleAcDlxFee] =
+    React.useState("");
+  const [doctorPrivateSuiteFee, setDoctorPrivateSuiteFee] = React.useState("");
+  const [doctorEmergencyFee, setDoctorEmergencyFee] = React.useState("");
 
   React.useEffect(() => {
     if (
@@ -130,6 +156,37 @@ export default function DoctorTable() {
       setDoctorDesignation(
         responseGetDoctorById?.data?.DoctorProfessionalDetails
           ?.doctorDesignation
+      );
+      setDoctorOPDFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails?.doctorOPDFee
+      );
+      setDoctorGereralHighFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails
+          ?.doctorGereralHighFee
+      );
+      setDoctorGereralJanataFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails
+          ?.doctorGereralJanataFee
+      );
+      setDoctorSemiPrivateFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails
+          ?.doctorSemiPrivateFee
+      );
+      setDoctorPrivateSingleAcFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails
+          ?.doctorPrivateSingleAcFee
+      );
+      setDoctorPrivateSingleAcDlxFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails
+          ?.doctorPrivateSingleAcDlxFee
+      );
+      setDoctorPrivateSuiteFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails
+          ?.doctorPrivateSuiteFee
+      );
+      setDoctorEmergencyFee(
+        responseGetDoctorById?.data?.DoctorProfessionalDetails
+          ?.doctorEmergencyFee
       );
     }
   }, [responseGetDoctorById.isSuccess, doctorId, responseGetDoctorById.status]);
@@ -194,17 +251,17 @@ export default function DoctorTable() {
 
   // ----------------------------------
 
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
+  // const date = (dateTime) => {
+  //   const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
-  };
+  //   return newdate.toLocaleDateString();
+  // };
 
-  const time = (dateTime) => {
-    const newDate = new Date(dateTime);
+  // const time = (dateTime) => {
+  //   const newDate = new Date(dateTime);
 
-    return newDate.toLocaleTimeString();
-  };
+  //   return newDate.toLocaleTimeString();
+  // };
 
   const {
     register,
@@ -339,9 +396,67 @@ export default function DoctorTable() {
               </p>
             </div>
             <div className="flex">
-              <p className="font-[600] w-[150px]">Fees: </p>
+              <p className="font-[600] w-[350px]">Fees: </p>
               <p className="text-[14px]">
                 {doctorData?.DoctorProfessionalDetails?.doctorFee}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">Doctor OPD Fee: </p>
+              <p className="text-[14px]">
+                {doctorData?.DoctorProfessionalDetails?.doctorOPDFee}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">Doctor General High Fee: </p>
+              <p className="text-[14px]">
+                {doctorData?.DoctorProfessionalDetails?.doctorGereralHighFee}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">Doctor General Janata Fee:</p>
+              <p className="text-[14px]">
+                {doctorData?.DoctorProfessionalDetails?.doctorGereralJanataFee}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">Doctor Semi Private Fee:</p>
+              <p className="text-[14px]">
+                {doctorData?.DoctorProfessionalDetails?.doctorSemiPrivateFee}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">
+                Doctor Private Single AC Fee:
+              </p>
+              <p className="text-[14px]">
+                {
+                  doctorData?.DoctorProfessionalDetails
+                    ?.doctorPrivateSingleAcFee
+                }
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">
+                Doctor Private Single AC Dlx Fee:
+              </p>
+              <p className="text-[14px]">
+                {
+                  doctorData?.DoctorProfessionalDetails
+                    ?.doctorPrivateSingleAcDlxFee
+                }
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">Doctor Private Suite Fee:</p>
+              <p className="text-[14px]">
+                {doctorData?.DoctorProfessionalDetails?.doctorPrivateSuiteFee}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[350px]">Doctor Emergency Fee:</p>
+              <p className="text-[14px]">
+                {doctorData?.DoctorProfessionalDetails?.doctorEmergencyFee}
               </p>
             </div>
             <div className="flex">
@@ -442,9 +557,26 @@ export default function DoctorTable() {
     formData.append("doctorCountry", doctorData?.doctorCountry);
     formData.append("doctorZipCode", doctorData?.doctorZipCode);
     formData.append("doctorImage", doctorData?.doctorImage);
-    formData.append("doctorFee", doctorData?.doctorFee);
     formData.append("doctorDepartment", doctorData?.doctorDepartment);
     formData.append("doctorDesignation", doctorData?.doctorDesignation);
+    formData.append("doctorFee", doctorData?.doctorFee);
+    formData.append("doctorOPDFee", doctorData?.doctorOPDFee);
+    formData.append("doctorGereralHighFee", doctorData?.doctorGereralHighFee);
+    formData.append(
+      "doctorGereralJanataFee",
+      doctorData?.doctorGereralJanataFee
+    );
+    formData.append("doctorSemiPrivateFee", doctorData?.doctorSemiPrivateFee);
+    formData.append(
+      "doctorPrivateSingleAcFee",
+      doctorData?.doctorPrivateSingleAcFee
+    );
+    formData.append(
+      "doctorPrivateSingleAcDlxFee",
+      doctorData?.doctorPrivateSingleAcDlxFee
+    );
+    formData.append("doctorPrivateSuiteFee", doctorData?.doctorPrivateSuiteFee);
+    formData.append("doctorEmergencyFee", doctorData?.doctorEmergencyFee);
 
     // console.log(formData);
     createDoctor(formData);
@@ -533,19 +665,7 @@ export default function DoctorTable() {
               {...register("doctorDOB", { required: true })}
             />
           </div>
-          <div className="flex flex-col gap-[6px]">
-            <label className="text-[14px]">Doctor Fees *</label>
-            <input
-              className="py-[10px] outline-none border-b"
-              type="number"
-              required
-              placeholder="Enter doctor fees"
-              {...register("doctorFee", { required: true })}
-            />
-            {errors.doctorFee && (
-              <span className="text-[red]">This field is required</span>
-            )}
-          </div>
+
           <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Doctor Department *</label>
             <input
@@ -609,6 +729,125 @@ export default function DoctorTable() {
               <option>AB positive</option>
               <option>AB negative</option>
             </select>
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Fees *</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor fees"
+              {...register("doctorFee", { required: true })}
+            />
+            {errors.doctorFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor OPD Fee *</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor OPD Fee"
+              {...register("doctorOPDFee", { required: true })}
+            />
+            {errors.doctorOPDFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor General High Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor general high fee"
+              {...register("doctorGereralHighFee", { required: true })}
+            />
+            {errors.doctorGereralHighFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor General Janata Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor gereral janata fee"
+              {...register("doctorGereralJanataFee", { required: true })}
+            />
+            {errors.doctorGereralJanataFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Semi Private Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor semi private fee"
+              {...register("doctorSemiPrivateFee", { required: true })}
+            />
+            {errors.doctorSemiPrivateFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Private Single AC Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor private single AC fee"
+              {...register("doctorPrivateSingleAcFee", { required: true })}
+            />
+            {errors.doctorPrivateSingleAcFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">
+              Doctor Private Single AC Dlx Fee
+            </label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor private single AC dlx fee"
+              {...register("doctorPrivateSingleAcDlxFee", { required: true })}
+            />
+            {errors.doctorPrivateSingleAcDlxFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Private Suite Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor private suite fee"
+              {...register("doctorPrivateSuiteFee", { required: true })}
+            />
+            {errors.doctorPrivateSuiteFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Emergency Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor emergency fee"
+              {...register("doctorEmergencyFee", { required: true })}
+            />
+            {errors.doctorEmergencyFee && (
+              <span className="text-[red]">This field is required</span>
+            )}
           </div>
           <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Doctor Photo *</label>
@@ -730,9 +969,10 @@ export default function DoctorTable() {
       handleClickSnackbarSuccess();
       handleCloseUpdateModal();
 
+      responseGetDoctorById.refetch();
       setDoctorImage();
       setDoctorGender("Female");
-      //   responseGetPatientById.refetch();
+      // responseGetPatientById.refetch();
       setDoctorId("");
       reset();
     } else if (responseUpdateDoctorById.isError) {
@@ -761,9 +1001,17 @@ export default function DoctorTable() {
     formData.append("doctorCountry", doctorCountry);
     formData.append("doctorZipCode", doctorZipCode);
     formData.append("doctorImage", doctorImage);
-    formData.append("doctorFee", doctorFee);
     formData.append("doctorDepartment", doctorDepartment);
     formData.append("doctorDesignation", doctorDesignation);
+    formData.append("doctorFee", doctorFee);
+    formData.append("doctorOPDFee", doctorOPDFee);
+    formData.append("doctorGereralHighFee", doctorGereralHighFee);
+    formData.append("doctorGereralJanataFee", doctorGereralJanataFee);
+    formData.append("doctorSemiPrivateFee", doctorSemiPrivateFee);
+    formData.append("doctorPrivateSingleAcFee", doctorPrivateSingleAcFee);
+    formData.append("doctorPrivateSingleAcDlxFee", doctorPrivateSingleAcDlxFee);
+    formData.append("doctorPrivateSuiteFee", doctorPrivateSuiteFee);
+    formData.append("doctorEmergencyFee", doctorEmergencyFee);
 
     const updateData = {
       id: doctorId,
@@ -846,17 +1094,6 @@ export default function DoctorTable() {
             />
           </div>
           <div className="flex flex-col gap-[6px]">
-            <label className="text-[14px]">Doctor Fees</label>
-            <input
-              className="py-[10px] outline-none border-b"
-              type="number"
-              required
-              placeholder="Enter doctor fees"
-              value={doctorFee}
-              onChange={(e) => setDoctorFee(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Doctor Department</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -916,6 +1153,107 @@ export default function DoctorTable() {
               <option>AB positive</option>
               <option>AB negative</option>
             </select>
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor fees"
+              value={doctorFee}
+              onChange={(e) => setDoctorFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor OPD Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor OPD Fee"
+              value={doctorOPDFee}
+              onChange={(e) => setDoctorOPDFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor General High Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor general high fee"
+              value={doctorGereralHighFee}
+              onChange={(e) => setDoctorGereralHighFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Gereral Janata Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor general janata fee"
+              value={doctorGereralJanataFee}
+              onChange={(e) => setDoctorGereralJanataFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Semi Private Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor semi private fee"
+              value={doctorSemiPrivateFee}
+              onChange={(e) => setDoctorSemiPrivateFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Private Single AC Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor private single AC fee"
+              value={doctorPrivateSingleAcFee}
+              onChange={(e) => setDoctorPrivateSingleAcFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">
+              Doctor Private Single AC Dlx Fee
+            </label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor private single AC dlx fee"
+              value={doctorPrivateSingleAcDlxFee}
+              onChange={(e) => setDoctorPrivateSingleAcDlxFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Private Suite Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor private suite fee"
+              value={doctorPrivateSuiteFee}
+              onChange={(e) => setDoctorPrivateSuiteFee(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Doctor Emergency Fee</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              required
+              placeholder="Enter doctor emergency fee"
+              value={doctorEmergencyFee}
+              onChange={(e) => setDoctorEmergencyFee(e.target.value)}
+            />
           </div>
           <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Doctor Photo</label>
@@ -1017,19 +1355,17 @@ export default function DoctorTable() {
     </div>
   );
 
-  const [search, setSearch] = React.useState("");
+  // const filteredArray = doctors?.filter((data) => {
+  //   if (search !== "") {
+  //     const userSearch = search.toLowerCase();
+  //     const searchInData = data?.doctorName?.toLowerCase();
 
-  const filteredArray = doctors?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.doctorName?.toLowerCase();
+  //     return searchInData?.startsWith(userSearch);
+  //   }
+  //   return data;
+  // });
 
-      return searchInData?.startsWith(userSearch);
-    }
-    return data;
-  });
-
-  const mappedBillData = filteredArray;
+  const mappedDoctorData = doctors;
 
   const config = [
     {
@@ -1085,6 +1421,29 @@ export default function DoctorTable() {
   const keyFn = (list) => {
     return list.doctorId;
   };
+
+  const [search, setSearch] = React.useState("");
+  const [search2, setSearch2] = React.useState("");
+  const [search3, setSearch3] = React.useState("");
+
+  const handleSearch = useCallback(
+    debounce((searchTerm) => {
+      dispatch(doctorIdForSearchChange(searchTerm));
+    }, 1000),
+    [search]
+  );
+  const handleSearch1 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(doctorNameForSearchChange(searchTerm));
+    }, 1000),
+    [search2]
+  );
+  const handleSearch2 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(doctorMobileNumberForSearchChange(searchTerm));
+    }, 1000),
+    [search3]
+  );
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1097,20 +1456,130 @@ export default function DoctorTable() {
             + Add Doctor
           </button>
         </div>
-        <div className="flex justify-between">
-          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
-            <FaSearch className="text-[#56585A]" />
-            <input
-              className="bg-transparent outline-none"
-              placeholder="Search by doctor name"
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="grid grid-cols-2 gap-[1rem]">
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search}
+                className="bg-transparent outline-none"
+                placeholder="Search by doctor id"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSearch2("");
+                  setSearch3("");
+                  // const searchTerm = e.target.value;
+                  handleSearch(e.target.value);
+                  dispatch(doctorNameForSearchChange(""));
+                  dispatch(doctorMobileNumberForSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(opdPatientIdChange(search))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
           </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search2}
+                className="bg-transparent outline-none"
+                placeholder="Search by doctor name"
+                onChange={(e) => {
+                  setSearch2(e.target.value);
+                  setSearch("");
+                  setSearch3("");
+                  // handleSearch1(e.target.value);
+                  handleSearch1(e.target.value);
+                  dispatch(doctorMobileNumberForSearchChange(""));
+                  dispatch(doctorIdForSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search3}
+                className="bg-transparent outline-none"
+                placeholder="Search by mobile number"
+                onChange={(e) => {
+                  setSearch3(e.target.value);
+                  setSearch("");
+                  setSearch2("");
+                  handleSearch2(e.target.value);
+                  dispatch(doctorNameForSearchChange(""));
+                  dispatch(doctorIdForSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={mappedBillData} config={config} keyFn={keyFn} />
+        <TableWithApi
+          data={mappedDoctorData}
+          config={config}
+          keyFn={keyFn}
+          pageChange={pageChange}
+          limitChange={limitChange}
+          page={page}
+          limit={limit}
+          totalPages={totalPages}
+        />
+        {/* <Table data={mappedBillData} config={config} keyFn={keyFn} /> */}
       </div>
       <Modal
         open={open}

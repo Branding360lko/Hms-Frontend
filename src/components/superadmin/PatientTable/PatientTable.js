@@ -27,6 +27,9 @@ import placeholder from "../../../assets/imageplaceholder.png";
 
 import { useForm } from "react-hook-form";
 
+import { useCallback } from "react";
+import { debounce } from "lodash";
+
 import { useSelector, useDispatch } from "react-redux";
 import {
   useAddPatientMutation,
@@ -37,18 +40,43 @@ import {
   createPatientChange,
   updatePatientChange,
   deletePatientChange,
+  pageChange,
+  limitChange,
+  patientUHIDforSearchChange,
+  patientNameForSearchChange,
+  patientMobileNumberForSearchChange,
 } from "../../../Store/Slices/PatientSlice";
 
 // import DatePicker from "react-datepicker";
 // import "react-datepicker/dist/react-datepicker.css";
 import { Link } from "react-router-dom";
 
+import { date, time } from "../../../utils/DateAndTimeConvertor";
+
+import TableWithApi from "../../TableWithApi";
+import { GrPowerReset } from "react-icons/gr";
+
+import { Country, State, City } from "country-state-city";
+
+import Select from "react-select";
+
 export default function PatientTable() {
+  // console.log(Country.getAllCountries());
+  // console.log(State.getAllStates());
+
   const dispatch = useDispatch();
 
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
 
-  const { patients } = useSelector((state) => state.PatientState);
+  const {
+    patients,
+    page,
+    limit,
+    totalPages,
+    // patientUHIDforSearch,
+    // patientNameForSearch,
+    // patientMobileNumberForSearch,
+  } = useSelector((state) => state.PatientState);
   // console.log(patients);
   const [addPatient, responseAddPatient] = useAddPatientMutation();
   const [updatePatientById, responseUpdatePatientById] =
@@ -65,6 +93,7 @@ export default function PatientTable() {
   const [patientEmail, setPatientEmail] = React.useState("");
   const [patientFatherName, setPatientFatherName] = React.useState("");
   const [patientHusbandName, setPatientHusbandName] = React.useState("");
+  const [patientCareOfName, setPatientCareOfName] = React.useState();
   // const [patientDateOfBirth, setPatientDateOfBirth] = React.useState({
   //   startDate: new Date(),
   // });
@@ -77,14 +106,48 @@ export default function PatientTable() {
   const [patientLocalAddress, setPatientLocalAddress] = React.useState("");
   const [patientPermanentAddress, setPatientPermanentAddress] =
     React.useState("");
-  const [patientCity, setPatientCity] = React.useState("");
-  const [patientState, setPatientState] = React.useState("");
+  const [patientCity, setPatientCity] = React.useState({
+    value: "",
+    label: "",
+  });
+  const [patientState, setPatientState] = React.useState({
+    value: "",
+    label: "",
+  });
   const [patientCountry, setPatientCountry] = React.useState("");
   const [patientZipCode, setPatientZipCode] = React.useState("");
   const [patientImage, setPatientImage] = React.useState();
-  const [patientGender, setPatientGender] = React.useState("Female");
+  const [patientGender, setPatientGender] = React.useState();
+
+  const [relativeCategory, setRelativeCategory] = React.useState("Father");
 
   const [sameAsLocalAddress, setSameAsLocalAddress] = React.useState(false);
+
+  const [allStates, setAllStates] = React.useState([]);
+  const [allCitiesByStates, setAllCitiesByStates] = React.useState([]);
+
+  // console.log(allCitiesByStates);
+  React.useEffect(() => {
+    setAllStates(State.getStatesOfCountry("IN"));
+  }, []);
+
+  React.useEffect(() => {
+    setAllCitiesByStates(City.getCitiesOfState("IN", patientState.value));
+  }, [patientState]);
+
+  const renderedStatesForDropdown = allStates?.map((data) => {
+    return {
+      value: data.isoCode,
+      label: `${data.name} (${data.isoCode})`,
+    };
+  });
+
+  const renderedCitiesByStateForDropdown = allCitiesByStates?.map((data) => {
+    return {
+      value: data.name,
+      label: `${data.name}`,
+    };
+  });
 
   React.useEffect(() => {
     // console.log(sameAsLocalAddress);
@@ -146,17 +209,17 @@ export default function PatientTable() {
 
   // console.log(patientDateOfBirth);
 
-  const date = (dateTime) => {
-    const newdate = new Date(dateTime);
+  // const date = (dateTime) => {
+  //   const newdate = new Date(dateTime);
 
-    return newdate.toLocaleDateString();
-  };
+  //   return newdate.toLocaleDateString();
+  // };
 
-  const time = (dateTime) => {
-    const newDate = new Date(dateTime);
+  // const time = (dateTime) => {
+  //   const newDate = new Date(dateTime);
 
-    return newDate.toLocaleTimeString();
-  };
+  //   return newDate.toLocaleTimeString();
+  // };
 
   const {
     register,
@@ -190,120 +253,137 @@ export default function PatientTable() {
   const handleCloseViewModal = () => setOpenViewModal(false);
 
   const modalViewPatientDetails = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <div className='border-b flex gap-[1rem] py-[1rem] w-full'>
-        <h3 className='font-[500]'>Patient ID: </h3>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+        <h3 className="font-[500]">Patient ID: </h3>
         <h3>{patientData?.patientId}</h3>
       </div>
-      <div className='flex w-full'>
-        <div className='w-[25%] flex flex-col items-center'>
+      <div className="flex w-full">
+        <div className="w-[25%] flex flex-col items-center">
           <img
-            className='w-[200px] h-[200px] object-contain'
+            className="w-[200px] h-[200px] object-contain"
             src={
               patientData.patientImage
                 ? process.env.React_App_Base_Image_Url +
                   patientData.patientImage
                 : placeholder
             }
-            alt='patientImage'
+            alt="patientImage"
           />
-          <button className='buttonFilled w-fit'>Button</button>
+          <button className="buttonFilled w-fit">Button</button>
         </div>
-        <div className='w-[75%] flex flex-col gap-[10px] text-[14px]'>
-          <div className='grid grid-cols-2 gap-[10px]'>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Name: </p>
+        <div className="w-[75%] flex flex-col gap-[10px] text-[14px]">
+          <div className="grid grid-cols-2 gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Name: </p>
               <p>{patientData.patientName}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Gender: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Gender: </p>
               <p>{patientData.patientGender}</p>
             </div>
-            {patientData.patientFatherName !== "" && (
-              <div className='flex'>
-                <p className='font-[600] w-[150px]'>Father Name: </p>
-                <p>{patientData.patientFatherName}</p>
-              </div>
-            )}
-            {patientData.patientHusbandName !== "" && (
-              <div className='flex'>
-                <p className='font-[600] w-[150px]'>Husband Name: </p>
-                <p>{patientData.patientHusbandName}</p>
-              </div>
-            )}
+
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Date Of Birth: </p>
               <p>{date(patientData.patientDateOfBirth)}</p>
             </div> */}
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Age: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Age: </p>
               <p>{patientData.patientAge}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Phone: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Phone: </p>
               <p>{patientData.patientPhone}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Attendent Phone: </p>
-              <p>{patientData.patientPhone2}</p>
-            </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Height: </p>
+            {patientData.patientFatherName !== "" && (
+              <div className="flex">
+                <p className="font-[600] w-[150px]">Father Name: </p>
+                <p>{patientData.patientFatherName}</p>
+              </div>
+            )}
+            {patientData.patientHusbandName !== "" && (
+              <div className="flex">
+                <p className="font-[600] w-[150px]">Husband Name: </p>
+                <p>{patientData.patientHusbandName}</p>
+              </div>
+            )}
+            {patientData.patientCareOfName !== "" && (
+              <div className="flex">
+                <p className="font-[600] w-[150px]">Care Of Name: </p>
+                <p>{patientData.patientCareOfName}</p>
+              </div>
+            )}
+            {patientData.patientFatherName !== "" && (
+              <div className="flex">
+                <p className="font-[600] w-[150px]">Father Name: </p>
+                <p>{patientData.patientFatherName}</p>
+              </div>
+            )}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Height: </p>
               <p>{patientData.patientHeight}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Weight: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Weight: </p>
               <p>{patientData.patientWeight}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Blood Group: </p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Blood Group: </p>
               <p>{patientData.patientBloodGroup}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>City: </p>
-              <p>{patientData.patientCity}</p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">City: </p>
+              <p>
+                {patientData?.patientCityNew
+                  ? JSON.parse(patientData?.patientCityNew)?.value
+                  : patientData.patientCity}
+              </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>State: </p>
-              <p>{patientData.patientState}</p>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">State: </p>
+              <p>
+                {patientData?.patientStateNew
+                  ? JSON.parse(patientData?.patientStateNew)?.label
+                  : patientData.patientState}
+              </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Country: </p>
+            {/* <div className="flex">
+              <p className="font-[600] w-[150px]">Country: </p>
               <p>{patientData.patientCountry}</p>
-            </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Zipcode: </p>
+            </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Zipcode: </p>
               <p>{patientData.patientZipCode}</p>
             </div>
           </div>
-          <div className='flex flex-col gap-[10px]'>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Email Id: </p>
-              <p className='text-[14px]'>{patientData.patientEmail}</p>
+          <div className="flex flex-col gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Email Id: </p>
+              <p className="text-[14px]">{patientData.patientEmail}</p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Local Address: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Local Address: </p>
+              <p className="break-word text-[14px]">
                 {patientData.patientLocalAddress}
               </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Permanent Address: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Permanent Address: </p>
+              <p className="break-word text-[14px]">
                 {patientData.patientPermanentAddress}
               </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Created On: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Created On: </p>
+              <p className="break-word text-[14px]">
                 {`${date(patientData?.createdAt)} ${time(
                   patientData?.createdAt
                 )}`}
               </p>
             </div>
-            <div className='flex'>
-              <p className='font-[600] w-[150px]'>Updated On: </p>
-              <p className='break-word text-[14px]'>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Updated On: </p>
+              <p className="break-word text-[14px]">
                 {`${date(patientData?.updatedAt)} ${time(
                   patientData?.updatedAt
                 )}`}
@@ -326,8 +406,10 @@ export default function PatientTable() {
     setPatientId("");
     setPatientName("");
     setPatientEmail("");
+    setRelativeCategory("Father");
     setPatientFatherName("");
     setPatientHusbandName("");
+    setPatientCareOfName("");
     // setPatientDateOfBirth(data?.patientDateOfBirth);
     setPatientAge("");
     setPatientPhone("");
@@ -341,7 +423,7 @@ export default function PatientTable() {
     setPatientState("");
     setPatientCountry("");
     setPatientZipCode("");
-    setPatientGender("Female");
+    setPatientGender();
 
     setSameAsLocalAddress(false);
     setOpen(true);
@@ -356,6 +438,8 @@ export default function PatientTable() {
     setPatientEmail(data?.patientEmail);
     setPatientFatherName(data?.patientFatherName);
     setPatientHusbandName(data?.patientHusbandName);
+    setPatientCareOfName(data?.patientCareOfName);
+    setRelativeCategory(data?.relativeCategory);
     // setPatientDateOfBirth(data?.patientDateOfBirth);
     setPatientAge(data?.patientAge);
     setPatientPhone(data?.patientPhone);
@@ -365,9 +449,18 @@ export default function PatientTable() {
     setPatientBloodGroup(data?.patientBloodGroup);
     setPatientLocalAddress(data?.patientLocalAddress);
     setPatientPermanentAddress(data?.patientPermanentAddress);
-    setPatientCity(data?.patientCity);
-    setPatientState(data?.patientState);
-    setPatientCountry(data?.patientCountry);
+    if (data?.patientCityNew) {
+      setPatientCity(JSON.parse(data?.patientCityNew));
+    } else {
+      setPatientCity(data?.patientCity);
+    }
+    if (data?.patientStateNew) {
+      setPatientState(JSON.parse(data?.patientStateNew));
+    } else {
+      setPatientState(data?.patientState);
+    }
+
+    // setPatientCountry(data?.patientCountry);
     setPatientZipCode(data?.patientZipCode);
     setPatientGender(data?.patientGender);
     setOpenUpdateModal(true);
@@ -384,7 +477,9 @@ export default function PatientTable() {
       handleClose();
 
       setPatientImage();
-      setPatientGender("Female");
+      setPatientGender();
+
+      setRelativeCategory("Father");
       reset();
     } else if (responseAddPatient.isError) {
       setSnackBarSuccessWarning(responseAddPatient?.error?.data?.error);
@@ -402,6 +497,9 @@ export default function PatientTable() {
       patientAge,
       patientLocalAddress,
       patientPermanentAddress,
+      relativeCategory,
+      patientCity,
+      patientState,
       // patientDateOfBirth,
     };
 
@@ -409,8 +507,19 @@ export default function PatientTable() {
 
     formData.append("patientName", patientData?.patientName);
     formData.append("patientEmail", patientData?.patientEmail);
-    formData.append("patientFatherName", patientData?.patientFatherName);
-    formData.append("patientHusbandName", patientData?.patientHusbandName);
+    formData.append("relativeCategory", patientData?.relativeCategory);
+    formData.append(
+      "patientFatherName",
+      patientData?.patientFatherName ? patientData?.patientFatherName : ""
+    );
+    formData.append(
+      "patientHusbandName",
+      patientData?.patientHusbandName ? patientData?.patientHusbandName : ""
+    );
+    formData.append(
+      "patientCareOfName",
+      patientData?.patientCareOfName ? patientData?.patientCareOfName : ""
+    );
     // formData.append(
     //   "patientDateOfBirth",
     //   patientData?.patientDateOfBirth?.startDate
@@ -418,7 +527,7 @@ export default function PatientTable() {
     formData.append("patientDateOfBirth", "NODATA");
     formData.append("patientAge", patientData?.patientAge);
     formData.append("patientPhone", patientData?.patientPhone);
-    formData.append("patientPhone2", patientData?.patientPhone2);
+    // formData.append("patientPhone2", patientData?.patientPhone2);
     formData.append("patientHeight", patientData?.patientHeight);
     formData.append("patientWeight", patientData?.patientWeight);
     formData.append("patientGender", patientData?.patientGender);
@@ -428,9 +537,12 @@ export default function PatientTable() {
       "patientPermanentAddress",
       patientData?.patientPermanentAddress
     );
-    formData.append("patientCity", patientData?.patientCity);
-    formData.append("patientState", patientData?.patientState);
-    formData.append("patientCountry", patientData?.patientCountry);
+    formData.append("patientCityNew", JSON.stringify(patientData?.patientCity));
+    formData.append(
+      "patientStateNew",
+      JSON.stringify(patientData?.patientState)
+    );
+    // formData.append("patientCountry", patientData?.patientCountry);
     formData.append("patientZipCode", patientData?.patientZipCode);
     formData.append("patientImage", patientData?.patientImage);
     formData.append(
@@ -452,67 +564,127 @@ export default function PatientTable() {
       })
     );
 
+    // console.log(formData);
     addPatient(formData);
   };
 
   // console.log(patientPermanentAddress);
 
   const modalADDPatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Add Patient Information</h2>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Add Patient Information</h2>
       <form
-        className='flex flex-col gap-[1rem]'
-        onSubmit={handleSubmit(handleAddPatient)}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patients Name *</label>
+        className="flex flex-col gap-[1rem]"
+        onSubmit={handleSubmit(handleAddPatient)}
+      >
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patients Name *</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
-              placeholder='Enter patient name'
+              placeholder="Enter patient name"
               {...register("patientName", { required: true })}
             />
             {errors.patientName && (
-              <span className='text-[red]'>This field is required</span>
+              <span className="text-[red]">This field is required</span>
             )}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Email</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Email</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='email'
-              placeholder='Enter patient email'
+              className="py-[10px] outline-none border-b"
+              type="email"
+              placeholder="Enter patient email"
               {...register("patientEmail")}
             />
             {/* {errors.patientEmail && (
               <span className="text-[red]">This field is required</span>
             )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Father Name</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Age </label>
+            {/* <DatePicker
+              className="py-[10px] outline-none border-b"
+              required
+              selected={patientDateOfBirth.startDate}
+              maxDate={new Date()}
+              onChange={(date) =>
+                setPatientDateOfBirth({
+                  startDate: date,
+                })
+              }
+            /> */}
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient father name'
-              {...register("patientFatherName")}
+              className="py-[10px] outline-none border-b"
+              // type='number'
+              placeholder="Enter age"
+              // {...register("patientAge", { required: true })}
+              required
+              value={patientAge}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                setPatientAge(value);
+              }}
             />
-            {errors.patientFatherName && (
+            {/* {errors.patientAge && (
               <span className='text-[red]'>This field is required</span>
-            )}
+            )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Husband Name</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient husband name'
-              {...register("patientHusbandName")}
-            />
-            {errors.patientHusbandName && (
-              <span className='text-[red]'>This field is required</span>
-            )}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Relative category *</label>
+            <select
+              className="py-[11.5px] outline-none border-b bg-transparent"
+              onChange={(e) => setRelativeCategory(e.target.value)}
+            >
+              <option>Father</option>
+              <option>Husband</option>
+              <option>Care Of</option>
+            </select>
           </div>
+          {relativeCategory === "Father" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Father Name</label>
+              <input
+                className="py-[10px] outline-none border-b"
+                type="text"
+                placeholder="Enter patient father name"
+                {...register("patientFatherName")}
+              />
+              {errors.patientFatherName && (
+                <span className="text-[red]">This field is required</span>
+              )}
+            </div>
+          )}
+          {relativeCategory === "Husband" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Husband Name</label>
+              <input
+                className="py-[10px] outline-none border-b"
+                type="text"
+                placeholder="Enter patient husband name"
+                {...register("patientHusbandName")}
+              />
+              {errors.patientHusbandName && (
+                <span className="text-[red]">This field is required</span>
+              )}
+            </div>
+          )}
+          {relativeCategory === "Care Of" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Care Of Name</label>
+              <input
+                className="py-[10px] outline-none border-b"
+                type="text"
+                placeholder="Enter patient (care of) name"
+                {...register("patientCareOfName")}
+              />
+              {errors.patientCareOfName && (
+                <span className="text-[red]">This field is required</span>
+              )}
+            </div>
+          )}
           {/* <div className='flex flex-col gap-[6px]'>
             <label className='text-[14px]'>Date Of Birth *</label>
             <DatePicker
@@ -535,39 +707,11 @@ export default function PatientTable() {
               <span className='text-[red]'>This field is required</span>
             )}
           </div> */}
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Age </label>
-            {/* <DatePicker
+
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Phone *</label>
+            <input
               className="py-[10px] outline-none border-b"
-              required
-              selected={patientDateOfBirth.startDate}
-              maxDate={new Date()}
-              onChange={(date) =>
-                setPatientDateOfBirth({
-                  startDate: date,
-                })
-              }
-            /> */}
-            <input
-              className='py-[10px] outline-none border-b'
-              // type='number'
-              placeholder='Enter age'
-              // {...register("patientAge", { required: true })}
-              required
-              value={patientAge}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                setPatientAge(value);
-              }}
-            />
-            {/* {errors.patientAge && (
-              <span className='text-[red]'>This field is required</span>
-            )} */}
-          </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Phone *</label>
-            <input
-              className='py-[10px] outline-none border-b'
               // type='number'
               required
               minLength={10}
@@ -577,7 +721,7 @@ export default function PatientTable() {
                 const value = e.target.value.replace(/\D/g, "");
                 setPatientPhone(value);
               }}
-              placeholder='Enter patient phone number'
+              placeholder="Enter patient phone number"
               // {...register("patientPhone", {
               //   required: true,
               //   minLength: 10,
@@ -590,12 +734,11 @@ export default function PatientTable() {
               </span>
             )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Phone Number of Attendent</label>
+          {/* <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Phone Number of Attendent</label>
             <input
-              className='py-[10px] outline-none border-b'
-              // type='number'
-              // required
+              className="py-[10px] outline-none border-b"
+              
               minLength={10}
               maxLength={10}
               value={patientPhone2}
@@ -603,62 +746,65 @@ export default function PatientTable() {
                 const value = e.target.value.replace(/\D/g, "");
                 setPatientPhone2(value);
               }}
-              placeholder='Enter phone number of attendent'
-              // {...register("patientPhone2", {
-              //   minLength: 10,
-              //   maxLength: 10,
-              // })}
+              placeholder="Enter phone number of attendent"
+              
             />
-            {/* {errors.patientPhone2 && (
-              <span className='text-[red]'>
-                This field is required with 10 digits
-              </span>
-            )} */}
-          </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Height</label>
+            
+          </div> */}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Height</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter height'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter height"
               {...register("patientHeight")}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Weight</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Weight</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter weight'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter weight"
               {...register("patientWeight")}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Gender *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Gender *</label>
             <RadioGroup
-              aria-labelledby='demo-radio-buttons-group-label'
+              aria-labelledby="demo-radio-buttons-group-label"
               value={patientGender}
-              name='radio-buttons-group'
+              name="radio-buttons-group"
               onChange={(e) => setPatientGender(e.target.value)}
-              sx={{ display: "flex", flexDirection: "row" }}>
+              sx={{ display: "flex", flexDirection: "row" }}
+            >
               <FormControlLabel
-                value='Female'
+                value="Female"
                 control={<Radio />}
-                label='Female'
+                label="Female"
+                required={true}
               />
-              <FormControlLabel value='Male' control={<Radio />} label='Male' />
               <FormControlLabel
-                value='Other'
+                value="Male"
                 control={<Radio />}
-                label='Other'
+                label="Male"
+                required={true}
+              />
+              <FormControlLabel
+                value="Other"
+                control={<Radio />}
+                label="Other"
+                required={true}
               />
             </RadioGroup>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Blood Group *</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Blood Group *</label>
             <select
-              className='py-[11.5px] outline-none border-b bg-transparent'
-              {...register("patientBloodGroup", { required: true })}>
+              className="py-[11.5px] outline-none border-b bg-transparent"
+              {...register("patientBloodGroup", { required: true })}
+            >
+              <option>Not Available</option>
               <option>O positive</option>
               <option>O negative</option>
               <option>A positive</option>
@@ -669,34 +815,34 @@ export default function PatientTable() {
               <option>AB negative</option>
             </select>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Photo</label>
-            <div className='flex flex-col gap-[1rem]'>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Photo</label>
+            <div className="flex flex-col gap-[1rem]">
               <input
-                type='file'
-                accept='image/png, image/gif, image/jpeg'
+                type="file"
+                accept="image/png, image/gif, image/jpeg"
                 onChange={(e) => setPatientImage(e.target.files[0])}
               />
 
               <img
-                className='object-contain w-[100px] h-[100px]'
+                className="object-contain w-[100px] h-[100px]"
                 src={
                   patientImage ? URL.createObjectURL(patientImage) : placeholder
                 }
-                alt='placeholderimg'
+                alt="placeholderimg"
               />
             </div>
           </div>
         </div>
 
-        <h3 className='border-b py-[1rem]'>Patient Address Details</h3>
-        <div className='grid grid-cols-2 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Local Address</label>
+        <h3 className="border-b py-[1rem]">Patient Address Details</h3>
+        <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Local Address</label>
             <textarea
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient local address'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient local address"
               value={patientLocalAddress}
               // {...register("patientLocalAddress")}
               onChange={(e) => setPatientLocalAddress(e.target.value)}
@@ -705,23 +851,30 @@ export default function PatientTable() {
               <span className="text-[red]">This field is required</span>
             )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <div className='flex gap-[1rem]'>
-              <label className='text-[14px]'>Permanent Address</label>
-              <div className='flex gap-[10px] items-center'>
+          <div className="flex flex-col gap-[6px]">
+            <div className="flex gap-[1rem]">
+              <label className="text-[14px]">Permanent Address</label>
+              <div className="flex gap-[10px] items-center">
                 <input
-                  type='checkbox'
-                  onChange={(e) => setSameAsLocalAddress(e.target.checked)}
+                  type="checkbox"
+                  onChange={(e) => {
+                    setSameAsLocalAddress(e.target.checked);
+                    if (e.target.checked === true) {
+                      setPatientPermanentAddress(patientLocalAddress);
+                    } else if (e.target.checked === false) {
+                      setPatientPermanentAddress("");
+                    }
+                  }}
                 />
-                <p className='text-[12px]'>Same as local address</p>
+                <p className="text-[12px]">Same as local address</p>
               </div>
             </div>
             <textarea
-              className='py-[10px] outline-none border-b'
-              type='text'
-              defaultValue={patientPermanentAddress}
+              className="py-[10px] outline-none border-b"
+              type="text"
+              value={patientPermanentAddress}
               disabled={sameAsLocalAddress === true ? true : false}
-              placeholder='Enter patient permanent address'
+              placeholder="Enter patient permanent address"
               // {...register("patientPermanentAddress")}
               onChange={(e) => setPatientPermanentAddress(e.target.value)}
             />
@@ -729,48 +882,55 @@ export default function PatientTable() {
               <span className="text-[red]">This field is required</span>
             )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>City</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient city'
-              {...register("patientCity")}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">State</label>
+            <Select
+              options={renderedStatesForDropdown}
+              onChange={setPatientState}
             />
-            {/* {errors.patientCity && (
-              <span className="text-[red]">This field is required</span>
-            )} */}
-          </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>State</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient state'
+            {/* <input
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient state"
               {...register("patientState")}
-            />
+            /> */}
             {/* {errors.patientState && (
               <span className="text-[red]">This field is required</span>
             )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Country</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient country'
-              {...register("patientCountry")}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">City</label>
+            <Select
+              options={renderedCitiesByStateForDropdown}
+              onChange={setPatientCity}
             />
-            {/* {errors.patientCountry && (
+            {/* <input
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient city"
+              {...register("patientCity")}
+            /> */}
+            {/* {errors.patientCity && (
               <span className="text-[red]">This field is required</span>
             )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Zipcode</label>
+
+          {/* <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Country</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
-              placeholder='Enter patient zipcode'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient country"
+              {...register("patientCountry")}
+            />
+            
+          </div> */}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Zipcode</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="number"
+              placeholder="Enter patient zipcode"
               {...register("patientZipCode")}
             />
             {/* {errors.patientZipcode && (
@@ -778,11 +938,12 @@ export default function PatientTable() {
             )} */}
           </div>
         </div>
-        <div className='flex gap-[1rem] items-center'>
+        <div className="flex gap-[1rem] items-center">
           <button
-            type='submit'
-            className='buttonFilled'>{`Save & Print >`}</button>
-          <button className='buttonOutlined'>{`Save >`}</button>
+            type="submit"
+            className="buttonFilled"
+          >{`Save & Print >`}</button>
+          <button className="buttonOutlined">{`Save >`}</button>
         </div>
       </form>
     </div>
@@ -797,7 +958,7 @@ export default function PatientTable() {
       handleCloseUpdateModal();
 
       setPatientImage();
-      setPatientGender("Female");
+      setPatientGender();
       reset();
     } else if (responseUpdatePatientById.isError) {
       setSnackBarSuccessWarning(responseUpdatePatientById?.error?.data?.error);
@@ -814,22 +975,34 @@ export default function PatientTable() {
 
     formData.append("patientName", patientName);
     formData.append("patientEmail", patientEmail);
-    formData.append("patientFatherName", patientFatherName);
-    formData.append("patientHusbandName", patientHusbandName);
+    formData.append("relativeCategory", relativeCategory);
+    formData.append(
+      "patientFatherName",
+      relativeCategory !== "Father" ? "" : patientFatherName
+    );
+    formData.append(
+      "patientHusbandName",
+      relativeCategory !== "Husband" ? "" : patientHusbandName
+    );
+    formData.append(
+      "patientCareOfName",
+      relativeCategory !== "Care Of" ? "" : patientCareOfName
+    );
     // formData.append("patientDateOfBirth", patientDateOfBirth?.startDate);
     formData.append("patientDateOfBirth", "NODATA");
     formData.append("patientAge", patientAge);
     formData.append("patientPhone", patientPhone);
-    formData.append("patientPhone2", patientPhone2);
+    // formData.append("patientPhone2", patientPhone2);
     formData.append("patientHeight", patientHeight);
     formData.append("patientWeight", patientWeight);
     formData.append("patientGender", patientGender);
     formData.append("patientBloodGroup", patientBloodGroup);
     formData.append("patientLocalAddress", patientLocalAddress);
     formData.append("patientPermanentAddress", patientPermanentAddress);
-    formData.append("patientCity", patientCity);
-    formData.append("patientState", patientState);
-    formData.append("patientCountry", patientCountry);
+
+    formData.append("patientCityNew", JSON.stringify(patientCity));
+    formData.append("patientStateNew", JSON.stringify(patientState));
+    // formData.append("patientCountry", patientCountry);
     formData.append("patientZipCode", patientZipCode);
     formData.append("patientImage", patientImage);
     formData.append(
@@ -847,56 +1020,109 @@ export default function PatientTable() {
       data: formData,
     };
 
+    // console.log(updateData);
+
     updatePatientById(updateData);
   };
 
   const modalUpdatePatient = (
-    <div className='flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]'>
-      <h2 className='border-b py-[1rem]'>Update Patient Information</h2>
-      <form className='flex flex-col gap-[1rem]' onSubmit={handleUpdatePatient}>
-        <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patients Name</label>
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <h2 className="border-b py-[1rem]">Update Patient Information</h2>
+      <form className="flex flex-col gap-[1rem]" onSubmit={handleUpdatePatient}>
+        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patients Name</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               required
               value={patientName}
-              placeholder='Enter patient name'
+              placeholder="Enter patient name"
               onChange={(e) => setPatientName(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Email</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Email</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='email'
+              className="py-[10px] outline-none border-b"
+              type="email"
               value={patientEmail}
-              placeholder='Enter patient email'
+              placeholder="Enter patient email"
               onChange={(e) => setPatientEmail(e.target.value)}
             />
           </div>
-          {patientFatherName !== "" && (
-            <div className='flex flex-col gap-[6px]'>
-              <label className='text-[14px]'>Father Name</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Age</label>
+            {/* <DatePicker
+              className="py-[10px] outline-none border-b"
+              required
+              selected={patientDateOfBirth.startDate}
+              maxDate={new Date()}
+              onChange={(date) =>
+                setPatientDateOfBirth({
+                  startDate: date,
+                })
+              }
+            /> */}
+            <input
+              className="py-[10px] outline-none border-b"
+              // type='number'
+              placeholder="Enter age"
+              // value={patientAge}
+              // onChange={(e) => setPatientAge(e.target.value)}
+              required
+              value={patientAge}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                setPatientAge(value);
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Relative category *</label>
+            <select
+              value={relativeCategory}
+              className="py-[11.5px] outline-none border-b bg-transparent"
+              onChange={(e) => setRelativeCategory(e.target.value)}
+            >
+              <option>Father</option>
+              <option>Husband</option>
+              <option>Care Of</option>
+            </select>
+          </div>
+          {relativeCategory === "Father" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Father Name</label>
               <input
-                className='py-[10px] outline-none border-b'
-                type='text'
+                className="py-[10px] outline-none border-b"
+                type="text"
+                placeholder="Enter patient father name"
                 value={patientFatherName}
-                placeholder='Enter patient father name'
                 onChange={(e) => setPatientFatherName(e.target.value)}
               />
             </div>
           )}
-          {patientHusbandName !== "" && (
-            <div className='flex flex-col gap-[6px]'>
-              <label className='text-[14px]'>Husband Name</label>
+          {relativeCategory === "Husband" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Husband Name</label>
               <input
-                className='py-[10px] outline-none border-b'
-                type='text'
+                className="py-[10px] outline-none border-b"
+                type="text"
+                placeholder="Enter patient husband name"
                 value={patientHusbandName}
-                placeholder='Enter patient husband name'
                 onChange={(e) => setPatientHusbandName(e.target.value)}
+              />
+            </div>
+          )}
+          {relativeCategory === "Care Of" && (
+            <div className="flex flex-col gap-[6px]">
+              <label className="text-[14px]">Care Of Name</label>
+              <input
+                className="py-[10px] outline-none border-b"
+                type="text"
+                placeholder="Enter patient (care of) name"
+                value={patientCareOfName}
+                onChange={(e) => setPatientCareOfName(e.target.value)}
               />
             </div>
           )}
@@ -920,42 +1146,16 @@ export default function PatientTable() {
               onChange={(e) => setPatientDateOfBirth(e.target.value)}
             />
           </div> */}
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Age</label>
-            {/* <DatePicker
+
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Phone</label>
+            <input
               className="py-[10px] outline-none border-b"
-              required
-              selected={patientDateOfBirth.startDate}
-              maxDate={new Date()}
-              onChange={(date) =>
-                setPatientDateOfBirth({
-                  startDate: date,
-                })
-              }
-            /> */}
-            <input
-              className='py-[10px] outline-none border-b'
-              // type='number'
-              placeholder='Enter age'
-              // value={patientAge}
-              // onChange={(e) => setPatientAge(e.target.value)}
-              required
-              value={patientAge}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                setPatientAge(value);
-              }}
-            />
-          </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Phone</label>
-            <input
-              className='py-[10px] outline-none border-b'
               // type='number'
               required
               minLength={10}
               maxLength={10}
-              placeholder='Enter patient phone number'
+              placeholder="Enter patient phone number"
               value={patientPhone}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
@@ -964,14 +1164,14 @@ export default function PatientTable() {
               // onChange={(e) => setPatientPhone(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Phone number of attendent</label>
+          {/* <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Phone number of attendent</label>
             <input
-              className='py-[10px] outline-none border-b'
+              className="py-[10px] outline-none border-b"
               // type='number'
               minLength={10}
               maxLength={10}
-              placeholder='Enter phone number of attendent'
+              placeholder="Enter phone number of attendent"
               value={patientPhone2}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
@@ -979,54 +1179,64 @@ export default function PatientTable() {
               }}
               // onChange={(e) => setPatientPhone2(e.target.value)}
             />
-          </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Height</label>
+          </div> */}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Height</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter height'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter height"
               value={patientHeight}
               onChange={(e) => setPatientHeight(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Weight</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Weight</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter weight'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter weight"
               value={patientWeight}
               onChange={(e) => setPatientWeight(e.target.value)}
             />
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Gender</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Gender</label>
             <RadioGroup
-              aria-labelledby='demo-radio-buttons-group-label'
+              aria-labelledby="demo-radio-buttons-group-label"
               value={patientGender}
-              name='radio-buttons-group'
+              name="radio-buttons-group"
               onChange={(e) => setPatientGender(e.target.value)}
-              sx={{ display: "flex", flexDirection: "row" }}>
+              sx={{ display: "flex", flexDirection: "row" }}
+            >
               <FormControlLabel
-                value='Female'
+                value="Female"
                 control={<Radio />}
-                label='Female'
+                label="Female"
+                required={true}
               />
-              <FormControlLabel value='Male' control={<Radio />} label='Male' />
               <FormControlLabel
-                value='Other'
+                value="Male"
                 control={<Radio />}
-                label='Other'
+                label="Male"
+                required={true}
+              />
+              <FormControlLabel
+                value="Other"
+                control={<Radio />}
+                label="Other"
+                required={true}
               />
             </RadioGroup>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Blood Group</label>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Blood Group</label>
             <select
-              className='py-[11.5px] outline-none border-b bg-transparent'
+              className="py-[11.5px] outline-none border-b bg-transparent"
               value={patientBloodGroup}
-              onChange={(e) => setPatientBloodGroup(e.target.value)}>
+              onChange={(e) => setPatientBloodGroup(e.target.value)}
+            >
+              <option>Not Available</option>
               <option>O positive</option>
               <option>O negative</option>
               <option>A positive</option>
@@ -1037,34 +1247,34 @@ export default function PatientTable() {
               <option>AB negative</option>
             </select>
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Patient Photo</label>
-            <div className='flex flex-col gap-[1rem]'>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Patient Photo</label>
+            <div className="flex flex-col gap-[1rem]">
               <input
-                type='file'
-                accept='image/png, image/gif, image/jpeg'
+                type="file"
+                accept="image/png, image/gif, image/jpeg"
                 onChange={(e) => setPatientImage(e.target.files[0])}
               />
 
               <img
-                className='object-contain w-[100px] h-[100px]'
+                className="object-contain w-[100px] h-[100px]"
                 src={
                   patientImage ? URL.createObjectURL(patientImage) : placeholder
                 }
-                alt='placeholderimg'
+                alt="placeholderimg"
               />
             </div>
           </div>
         </div>
 
-        <h3 className='border-b py-[1rem]'>Patient Address Details</h3>
-        <div className='grid grid-cols-2 gap-[2rem] border-b pb-[3rem]'>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Local Address</label>
+        <h3 className="border-b py-[1rem]">Patient Address Details</h3>
+        <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Local Address</label>
             <textarea
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient local address'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient local address"
               value={patientLocalAddress}
               // {...register("patientLocalAddress")}
               onChange={(e) => setPatientLocalAddress(e.target.value)}
@@ -1073,23 +1283,30 @@ export default function PatientTable() {
               <span className="text-[red]">This field is required</span>
             )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <div className='flex gap-[1rem]'>
-              <label className='text-[14px]'>Permanent Address</label>
-              <div className='flex gap-[10px] items-center'>
+          <div className="flex flex-col gap-[6px]">
+            <div className="flex gap-[1rem]">
+              <label className="text-[14px]">Permanent Address</label>
+              <div className="flex gap-[10px] items-center">
                 <input
-                  type='checkbox'
-                  onChange={(e) => setSameAsLocalAddress(e.target.checked)}
+                  type="checkbox"
+                  onChange={(e) => {
+                    setSameAsLocalAddress(e.target.checked);
+                    if (e.target.checked === true) {
+                      setPatientPermanentAddress(patientLocalAddress);
+                    } else if (e.target.checked === false) {
+                      setPatientPermanentAddress("");
+                    }
+                  }}
                 />
-                <p className='text-[12px]'>Same as local address</p>
+                <p className="text-[12px]">Same as local address</p>
               </div>
             </div>
             <textarea
-              className='py-[10px] outline-none border-b'
-              type='text'
+              className="py-[10px] outline-none border-b"
+              type="text"
               value={patientPermanentAddress}
               disabled={sameAsLocalAddress === true ? true : false}
-              placeholder='Enter patient permanent address'
+              placeholder="Enter patient permanent address"
               // {...register("patientPermanentAddress")}
               onChange={(e) => setPatientPermanentAddress(e.target.value)}
             />
@@ -1117,67 +1334,84 @@ export default function PatientTable() {
               onChange={(e) => setPatientPermanentAddress(e.target.value)}
             />
           </div> */}
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>City</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient city'
-              value={patientCity}
-              onChange={(e) => setPatientCity(e.target.value)}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">State</label>
+            <Select
+              options={renderedStatesForDropdown}
+              onChange={setPatientState}
+              defaultValue={patientState}
             />
+            {/* <input
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient state"
+              {...register("patientState")}
+            /> */}
+            {/* {errors.patientState && (
+              <span className="text-[red]">This field is required</span>
+            )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>State</label>
-            <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient state'
-              value={patientState}
-              onChange={(e) => setPatientState(e.target.value)}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">City</label>
+            <Select
+              options={renderedCitiesByStateForDropdown}
+              onChange={setPatientCity}
+              defaultValue={patientCity}
             />
+            {/* <input
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient city"
+              {...register("patientCity")}
+            /> */}
+            {/* {errors.patientCity && (
+              <span className="text-[red]">This field is required</span>
+            )} */}
           </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Country</label>
+
+          {/* <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Country</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='text'
-              placeholder='Enter patient country'
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient country"
               value={patientCountry}
               onChange={(e) => setPatientCountry(e.target.value)}
             />
-          </div>
-          <div className='flex flex-col gap-[6px]'>
-            <label className='text-[14px]'>Zipcode</label>
+          </div> */}
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Zipcode</label>
             <input
-              className='py-[10px] outline-none border-b'
-              type='number'
-              placeholder='Enter patient zipcode'
+              className="py-[10px] outline-none border-b"
+              type="number"
+              placeholder="Enter patient zipcode"
               value={patientZipCode}
               onChange={(e) => setPatientZipCode(e.target.value)}
             />
           </div>
         </div>
-        <div className='flex gap-[1rem] items-center'>
-          <button type='submit' className='buttonFilled'>{`Save >`}</button>
+        <div className="flex gap-[1rem] items-center">
+          <button type="submit" className="buttonFilled">{`Save >`}</button>
         </div>
       </form>
     </div>
   );
 
   const [search, setSearch] = React.useState("");
+  const [search2, setSearch2] = React.useState("");
+  const [search3, setSearch3] = React.useState("");
 
-  const filteredArray = patients?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.patientName?.toLowerCase();
+  // const filteredArray = patients?.filter((data) => {
+  //   if (search !== "") {
+  //     const userSearch = search.toLowerCase();
+  //     const searchInData = data?.patientName?.toLowerCase();
 
-      return searchInData?.startsWith(userSearch);
-    }
-    return data;
-  });
+  //     return searchInData?.startsWith(userSearch);
+  //   }
+  //   return data;
+  // });
 
-  const mappedBillData = filteredArray;
+  const mappedPatientData = patients;
 
   const config = [
     {
@@ -1207,16 +1441,18 @@ export default function PatientTable() {
     {
       label: "Action",
       render: (list) => (
-        <div className='flex gap-[10px] justify-center'>
+        <div className="flex gap-[10px] justify-center">
           <div
             onClick={() => handleOpenViewModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer'>
-            <MdViewKanban className='text-[25px] text-[#96999C]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+          >
+            <MdViewKanban className="text-[25px] text-[#96999C]" />
           </div>
           <div
             onClick={() => handleOpenUpdateModal(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer'>
-            <RiEdit2Fill className='text-[25px] text-[#3497F9]' />
+            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+          >
+            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
           {/* <div
             onClick={() => handleClickOpenDialogBox(list)}
@@ -1231,44 +1467,175 @@ export default function PatientTable() {
   const keyFn = (list) => {
     return list.patientName;
   };
+
+  const handleSearch = useCallback(
+    debounce((searchTerm) => {
+      dispatch(patientUHIDforSearchChange(searchTerm));
+    }, 1000),
+    [search]
+  );
+  const handleSearch1 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(patientNameForSearchChange(searchTerm));
+    }, 1000),
+    [search2]
+  );
+  const handleSearch2 = useCallback(
+    debounce((searchTerm) => {
+      dispatch(patientMobileNumberForSearchChange(searchTerm));
+    }, 1000),
+    [search3]
+  );
+
   return (
     <Suspense fallback={<>...</>}>
-      <div className='flex flex-col gap-[1rem] p-[1rem]'>
-        <div className='flex justify-between'>
-          <h2 className='border-b-[4px] border-[#3497F9]'>Patient</h2>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">Patient</h2>
           <button
             onClick={handleOpen}
-            className='bg-[#3497F9] text-white p-[10px] rounded-md'>
+            className="bg-[#3497F9] text-white p-[10px] rounded-md"
+          >
             + Add Patient
           </button>
         </div>
-        <div className='flex justify-between'>
-          <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
-            <FaSearch className='text-[#56585A]' />
-            <input
-              className='bg-transparent outline-none'
-              placeholder='Search by patient name'
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="grid grid-cols-2 gap-[1rem]">
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search}
+                className="bg-transparent outline-none"
+                placeholder="Search by UHID"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSearch2("");
+                  setSearch3("");
+                  // const searchTerm = e.target.value;
+                  handleSearch(e.target.value);
+                  dispatch(patientNameForSearchChange(""));
+                  dispatch(patientMobileNumberForSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(opdPatientIdChange(search))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
           </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search2}
+                className="bg-transparent outline-none"
+                placeholder="Search by patient name"
+                onChange={(e) => {
+                  setSearch2(e.target.value);
+                  setSearch("");
+                  setSearch3("");
+                  // handleSearch1(e.target.value);
+                  handleSearch1(e.target.value);
+                  dispatch(patientMobileNumberForSearchChange(""));
+                  dispatch(patientUHIDforSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search3}
+                className="bg-transparent outline-none"
+                placeholder="Search by mobile number"
+                onChange={(e) => {
+                  setSearch3(e.target.value);
+                  setSearch("");
+                  setSearch2("");
+                  handleSearch2(e.target.value);
+                  dispatch(patientNameForSearchChange(""));
+                  dispatch(patientUHIDforSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={mappedBillData} config={config} keyFn={keyFn} />
+        <TableWithApi
+          data={mappedPatientData}
+          config={config}
+          keyFn={keyFn}
+          pageChange={pageChange}
+          limitChange={limitChange}
+          page={page}
+          limit={limit}
+          totalPages={totalPages}
+        />
       </div>
       <Modal
         open={open}
         onClose={handleClose}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Add Patient
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalADDPatient}
           </Typography>
         </Box>
@@ -1276,15 +1643,16 @@ export default function PatientTable() {
       <Modal
         open={openUpdateModal}
         onClose={handleCloseUpdateModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
               Update Patient
             </h1>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalUpdatePatient}
           </Typography>
         </Box>
@@ -1292,27 +1660,29 @@ export default function PatientTable() {
       <Modal
         open={openViewModal}
         onClose={handleCloseViewModal}
-        aria-labelledby='modal-modal-title'
-        aria-describedby='modal-modal-description'>
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
         <Box sx={style}>
-          <Typography id='modal-modal-title' variant='h6' component='h2'>
-            <div className='flex justify-between items-center'>
-              <h1 className='headingBottomUnderline w-fit pb-[10px]'>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center">
+              <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Patient Details
               </h1>
               <Link
                 // onClick={handleGeneratePdf}
-                target='_blank'
+                target="_blank"
                 to={patientData?.patientId}
                 // to={opdPatientData?.data?.mainId}
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
-                className='buttonFilled flex items-center gap-[10px]'>
+                className="buttonFilled flex items-center gap-[10px]"
+              >
                 <LuHardDriveDownload />
                 <p>Download</p>
               </Link>
             </div>
           </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewPatientDetails}
           </Typography>
         </Box>
@@ -1321,14 +1691,14 @@ export default function PatientTable() {
       <Snackbars
         open={openSnackbarSuccess}
         setOpen={setOpenSnackBarSuccess}
-        severity='success'
+        severity="success"
         message={snackBarMessageSuccess}
       />
       {/* Warning Snackbar */}
       <Snackbars
         open={openSnackbarWarning}
         setOpen={setOpenSnackBarWarning}
-        severity='warning'
+        severity="warning"
         message={snackBarMessageWarning}
       />
       <DialogBoxToDelete

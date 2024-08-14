@@ -73,53 +73,55 @@ export default function IPD_PatientReciept() {
           {responseGetIPDPatientById.isSuccess &&
           responseGetDoctorById.isSuccess &&
           responseGetPatientById.isSuccess ? (
-            <div className='w-full'>
-              <button onClick={() => handlePrint()} className='buttonFilled'>
+            <div className="w-full">
+              <button onClick={() => handlePrint()} className="buttonFilled">
                 Print
               </button>
               <div
                 // ref={reportTemplateRef}
                 ref={componentRef}
-                className='w-full p-[1rem] flex flex-col gap-[1rem]'>
+                className="w-full p-[1rem] flex flex-col gap-[1rem]"
+              >
                 <style>{getPageMargins()}</style>
-                <div className='flex justify-between items-end'>
-                  <div className='flex items-end gap-[1rem]'>
-                    <img src={logoImage} alt='chtclogo' className='w-[150px]' />
-                    <div className='flex flex-col items-start'>
-                      <p className='text-[16px]'>
+                <div className="flex justify-between items-end">
+                  <div className="flex items-end gap-[1rem]">
+                    <img src={logoImage} alt="chtclogo" className="w-[150px]" />
+                    <div className="flex flex-col items-start">
+                      <p className="text-[16px]">
                         City Hospital and Trauma Centre
                       </p>
-                      <p className='text-[14px]'>
+                      <p className="text-[14px]">
                         Contact no. 9119900861, 9119900862
                       </p>
                     </div>
                   </div>
-                  <div className='flex text-[12px] gap-[10px]'>
-                    <p className='w-[250px]'>
+                  <div className="flex text-[12px] gap-[10px]">
+                    <p className="w-[250px]">
                       C1-C2 Cinder Dump Complex, near Alambagh bus stand, Kanpur
                       road, Lucknow 226005
                     </p>
                   </div>
                 </div>
-                <p className='text-center text-[12px]'>Billing</p>
+                <p className="text-center text-[12px]">Billing</p>
                 <h3
-                  className='text-center'
+                  className="text-center"
                   style={{
                     borderTop: "2px solid #373737",
                     borderBottom: "2px solid #373737",
-                  }}>
+                  }}
+                >
                   Payment Receipt
                 </h3>
 
-                <div className='grid grid-cols-2 gap-[10px] text-[14px]'>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>UHID</p>
+                <div className="grid grid-cols-2 gap-[10px] text-[14px]">
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">UHID</p>
                     <p>
                       {responseGetIPDPatientById?.currentData?.ipdPatientId}
                     </p>
                   </div>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">
                       Visit Date
                     </p>
                     {/* <p className="border-b-[2px] border-dotted border-black w-[200px]">{``}</p> */}
@@ -134,18 +136,26 @@ export default function IPD_PatientReciept() {
                       02-04-2024 04:00 AM (Test)
                     </p>
                   </div>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">
                       Patient Name
                     </p>
                     <p>{responseGetPatientById?.currentData?.patientName}</p>
                   </div>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>Address</p>
-                    <p>{responseGetPatientById?.currentData?.patientCity}</p>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">Address</p>
+                    <p>
+                      {" "}
+                      {responseGetPatientById?.currentData?.patientCity ===
+                        "" || responseGetPatientById?.currentData?.patientCity
+                        ? responseGetPatientById?.currentData?.patientCity
+                        : JSON.parse(
+                            responseGetPatientById?.currentData?.patientCityNew
+                          ).value}
+                    </p>
                   </div>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>Doctor</p>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">Doctor</p>
                     <p>
                       {
                         responseGetDoctorById?.currentData?.DoctorDetails
@@ -153,8 +163,8 @@ export default function IPD_PatientReciept() {
                       }
                     </p>
                   </div>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>Gender</p>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">Gender</p>
                     <p>{responseGetPatientById?.currentData?.patientGender}</p>
                   </div>
                   {/* <div className="flex">
@@ -165,21 +175,21 @@ export default function IPD_PatientReciept() {
               )}
             </p>
           </div> */}
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>Age</p>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">Age</p>
                     <p>{responseGetPatientById?.currentData?.patientAge}</p>
                   </div>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>Phone</p>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">Phone</p>
                     <p>{responseGetPatientById?.currentData?.patientPhone}</p>
                   </div>
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>Bill No.</p>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">Bill No.</p>
                     <p>{ipdPatientId}</p>
                   </div>
 
-                  <div className='flex'>
-                    <p className='font-[500] w-[130px] text-start'>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">
                       Payment Mode
                     </p>
                     <p>
@@ -192,11 +202,12 @@ export default function IPD_PatientReciept() {
                   </div>
                 </div>
                 <div
-                  className='flex justify-between p-[1rem]'
+                  className="flex justify-between p-[1rem]"
                   style={{
                     borderTop: "2px solid #373737",
                     borderBottom: "2px solid #373737",
-                  }}>
+                  }}
+                >
                   <h3>Consultation Fees:</h3>
                   <p>
                     {/* {`₹ ${responseGetOPDPatientById?.currentData?.opdPatientStandardCharges}`} */}
@@ -204,11 +215,12 @@ export default function IPD_PatientReciept() {
                   </p>
                 </div>
                 <div
-                  className='flex justify-end items-center px-[1rem] pb-[10px]'
+                  className="flex justify-end items-center px-[1rem] pb-[10px]"
                   style={{
                     // borderTop: "2px solid #373737",
                     borderBottom: "2px solid #373737",
-                  }}>
+                  }}
+                >
                   <p>
                     {/* {`₹ ${toWords.convert(
             responseGetOPDPatientById?.currentData

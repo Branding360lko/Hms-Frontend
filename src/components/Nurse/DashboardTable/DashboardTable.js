@@ -7,8 +7,14 @@ import parse from "html-react-parser";
 
 import Checkbox from "@mui/material/Checkbox";
 
+import TableWithApi from "../../TableWithApi";
+
+import { pageChange, limitChange } from "../../../Store/Slices/PatientSlice";
+
 export default function DashboardTable() {
-  const { patients } = useSelector((state) => state.PatientState);
+  const { patients, page, limit, totalPages } = useSelector(
+    (state) => state.PatientState
+  );
   const date = (dateTime) => {
     const newdate = new Date(dateTime);
 
@@ -92,7 +98,16 @@ export default function DashboardTable() {
           <h2 className="border-b-[4px] border-[#3497F9]">Patients</h2>
         </div>
 
-        <Table data={mappedPatientData} config={config} keyFn={keyFn} />
+        <TableWithApi
+          data={mappedPatientData}
+          config={config}
+          keyFn={keyFn}
+          pageChange={pageChange}
+          limitChange={limitChange}
+          page={page}
+          limit={limit}
+          totalPages={totalPages}
+        />
       </div>
     </Suspense>
   );

@@ -32,21 +32,63 @@ import DialogBoxToDelete from "../../DialogBoxToDelete";
 
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import {
+  createTestOfPatientChange,
+  updateTestOfPatientChange,
+  deleteTestOfPatientChange,
+} from "../../../Store/Slices/TestPatientSlice";
+import {
+  useCreateTestOfPatientMutation,
+  useUpdateTestOfPatientByIdMutation,
+} from "../../../Store/Services/TestPatient";
+
+import axios from "axios";
 
 export default function TestPatientTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const [allTests, setAllTests] = React.useState([]);
+
+  const getAllTests = async () => {
+    return await axios
+      .get(`${process.env.React_App_Base_url}/GET-ALL-Test`)
+      .then((data) => setAllTests(data.data))
+      .catch((error) => console.log(error));
+  };
+
+  React.useEffect(() => {
+    getAllTests();
+  }, []);
+
+  const [createTestOfPatient, responseCreateTestOfPatient] =
+    useCreateTestOfPatientMutation();
+  const [updateTestOfPatientById, responseUpdateTestOfPatientById] =
+    useUpdateTestOfPatientByIdMutation();
+
+  const [mainId, setMainId] = React.useState();
+
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
+  const { testOfPatients } = useSelector((state) => state.TestPatientState);
 
-  const data = [
-    {
-      UHID: "234344566",
-      testName: "Test 1",
-      prescribedByDoctor: "Dr. Dank",
-      patientType: "OPD Patient",
-    },
-  ];
+  const date = (dateTime) => {
+    const newdate = new Date(dateTime);
+
+    const day = String(newdate.getDate()).padStart(2, "0");
+    const month = String(newdate.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-based
+    const year = newdate.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  };
+
+  const time = (dateTime) => {
+    const newDate = new Date(dateTime);
+
+    return newDate.toLocaleTimeString();
+  };
+
+  const [testPatientData, setTestPatientData] = React.useState();
 
   const [testPatientUHID, setTestPatientUHID] = React.useState({
     value: "",
@@ -57,7 +99,10 @@ export default function TestPatientTable() {
     label: "",
   });
 
-  const [tests, setTests] = React.useState("");
+  const [tests, setTests] = React.useState({
+    value: "",
+    label: "",
+  });
   const [patientType, setPatientType] = React.useState("OPD");
   const [notes, setNotes] = React.useState("");
 
@@ -76,6 +121,25 @@ export default function TestPatientTable() {
     p: 4,
   };
 
+  // Snackbar--------------------
+  // ----Succcess
+  const [openSnackbarSuccess, setOpenSnackBarSuccess] = React.useState(false);
+  const [snackBarMessageSuccess, setSnackBarSuccessMessage] =
+    React.useState("");
+
+  const handleClickSnackbarSuccess = () => {
+    setOpenSnackBarSuccess(true);
+  };
+  // ----Warning
+  const [openSnackbarWarning, setOpenSnackBarWarning] = React.useState(false);
+  const [snackBarMessageWarning, setSnackBarSuccessWarning] =
+    React.useState("");
+
+  const handleClickSnackbarWarning = () => {
+    setOpenSnackBarWarning(true);
+  };
+  // ----------------------------
+
   const renderedPatientIDForDropdown = patients?.map((data) => {
     return {
       value: data.patientId,
@@ -87,6 +151,16 @@ export default function TestPatientTable() {
     return {
       value: data.doctorId,
       label: `${data.doctorId} / ${data.doctorName}`,
+    };
+  });
+
+  const filteredTest = allTests?.data?.filter((data) => {
+    return data.Availability === true;
+  });
+  const renderedTestsForDropdown = filteredTest?.map((data) => {
+    return {
+      value: data._id,
+      label: `${data.Name}`,
     };
   });
 
@@ -107,20 +181,36 @@ export default function TestPatientTable() {
   };
   const handleCloseAddModal = () => setOpenAddModal(false);
 
+  React.useEffect(() => {
+    if (responseCreateTestOfPatient.isSuccess) {
+      dispatch(createTestOfPatientChange(Math.random()));
+      setSnackBarSuccessMessage(responseCreateTestOfPatient?.data?.message);
+      handleClickSnackbarSuccess();
+      handleCloseAddModal();
+    } else if (responseCreateTestOfPatient.isError) {
+      setSnackBarSuccessWarning(responseCreateTestOfPatient?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responseCreateTestOfPatient.isSuccess,
+    responseCreateTestOfPatient.isError,
+  ]);
+
   const handleAddOPDPatient = (e) => {
     e.preventDefault();
 
     const submitData = {
-      testPatientId: testPatientUHID.value,
-      prescribedByDoctor: prescribedByDoctorTest.value,
-      test: tests,
+      testPatientId: testPatientUHID?.value,
+      prescribedByDoctor: prescribedByDoctorTest?.value,
+      test: tests?.value,
       patientType: patientType,
+      notes: notes,
     };
 
-    console.log(submitData);
+    createTestOfPatient(submitData);
   };
 
-  const modalAddEmergencyPatient = (
+  const modalAddPatientTest = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Add Test</h2>
       <form className="flex flex-col gap-[1rem]" onSubmit={handleAddOPDPatient}>
@@ -155,7 +245,16 @@ export default function TestPatientTable() {
               />
             </div> */}
 
-          <div className="flex flex-col gap-[6px]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Test</label>
+            <Select
+              required
+              options={renderedTestsForDropdown}
+              onChange={setTests}
+            />
+          </div>
+
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Tests</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -169,7 +268,7 @@ export default function TestPatientTable() {
               //     // setEmergencyBedNo(value);
               //   }}
             />
-          </div>
+          </div> */}
 
           <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Patient Type</label>
@@ -210,10 +309,62 @@ export default function TestPatientTable() {
   );
 
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
-  const handleOpenUpdateModal = () => setOpenUpdateModal(true);
+  const handleOpenUpdateModal = (list) => {
+    setMainId(list?.data?.mainId);
+
+    setTestPatientUHID({
+      value: list.data.patientData.patientId,
+      label: `${list.data.patientData.patientId} / ${list.data.patientData.patientName}`,
+    });
+    setPrescribedByDoctorTest({
+      value: list.data.doctorData.doctorId,
+      label: `${list.data.doctorData.doctorId} / ${list.data.doctorData.doctorName}`,
+    });
+    setTests({
+      value: list.data.testData._id,
+      label: `${list.data.testData.Name}`,
+    });
+    setPatientType(list?.data?.patientType);
+    setNotes(list?.data?.notes);
+
+    // console.log(data, "helllllll");
+
+    setOpenUpdateModal(true);
+  };
   const handleCloseUpdateModal = () => setOpenUpdateModal(false);
 
-  const handleUpdateOPDPatient = () => {};
+  React.useEffect(() => {
+    if (responseUpdateTestOfPatientById.isSuccess) {
+      dispatch(updateTestOfPatientChange(Math.random()));
+      setSnackBarSuccessMessage(responseUpdateTestOfPatientById?.data);
+      handleClickSnackbarSuccess();
+
+      handleCloseUpdateModal();
+    } else if (responseUpdateTestOfPatientById.isError) {
+      setSnackBarSuccessWarning(responseUpdateTestOfPatientById?.error?.data);
+      handleClickSnackbarWarning();
+    }
+  }, [
+    responseUpdateTestOfPatientById.isSuccess,
+    responseUpdateTestOfPatientById.isError,
+  ]);
+
+  const handleUpdateOPDPatient = (e) => {
+    e.preventDefault();
+
+    const submitData = {
+      testPatientId: testPatientUHID?.value,
+      prescribedByDoctor: prescribedByDoctorTest?.value,
+      test: tests?.value,
+      patientType: patientType,
+      notes: notes,
+    };
+
+    updateTestOfPatientById({
+      id: mainId,
+      data: submitData,
+    });
+  };
 
   const modalUpdateEmergencyPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -227,6 +378,7 @@ export default function TestPatientTable() {
             <label className="text-[14px]">UHID</label>
             <Select
               required
+              value={testPatientUHID}
               options={renderedPatientIDForDropdown}
               onChange={setTestPatientUHID}
             />
@@ -238,6 +390,7 @@ export default function TestPatientTable() {
               required
               options={renderedDoctorIDForDropdown}
               onChange={setPrescribedByDoctorTest}
+              value={prescribedByDoctorTest}
             />
           </div>
 
@@ -253,7 +406,17 @@ export default function TestPatientTable() {
               />
             </div> */}
 
-          <div className="flex flex-col gap-[6px]">
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Test</label>
+            <Select
+              required
+              options={renderedTestsForDropdown}
+              onChange={setTests}
+              value={tests}
+            />
+          </div>
+
+          {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Tests</label>
             <input
               className="py-[10px] outline-none border-b"
@@ -268,11 +431,12 @@ export default function TestPatientTable() {
               //     // setEmergencyBedNo(value);
               //   }}
             />
-          </div>
+          </div> */}
 
           <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Patient Type</label>
             <select
+              value={patientType}
               onChange={(e) => setPatientType(e.target.value)}
               className="py-[11.5px] outline-none border-b bg-transparent"
             >
@@ -289,8 +453,8 @@ export default function TestPatientTable() {
             className="border-b py-[10px] outline-none"
             placeholder="Enter notes"
             rows={3}
-            // value={opdPatientNotes}
-            // onChange={(e) => setOpdPatientNotes(e.target.value)}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
         <div className="flex gap-[1rem] items-center">
@@ -305,35 +469,152 @@ export default function TestPatientTable() {
   );
 
   const [openViewModal, setOpenViewModal] = React.useState(false);
-  const handleOpenViewModal = () => setOpenViewModal(true);
+  const handleOpenViewModal = (list) => {
+    setTestPatientData(list);
+    setOpenViewModal(true);
+  };
   const handleCloseViewModal = () => setOpenViewModal(false);
 
-  const modalViewEmergencyPatient = <div>Hello</div>;
+  const modalViewEmergencyPatient = (
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+        <h3 className="font-[500]">ID: </h3>
+        <h3>{testPatientData?.data?.mainId}</h3>
+      </div>
+      <div className="flex w-full">
+        <div className="w-[25%] flex flex-col items-center">
+          <img
+            className="w-[200px] h-[200px] object-contain"
+            src={
+              testPatientData?.data?.patientData?.patientImage
+                ? process.env.React_App_Base_Image_Url +
+                  testPatientData?.data?.patientData?.patientImage
+                : placeholder
+            }
+            alt="patientImage"
+          />
+          {/* <button className='buttonFilled w-fit'>Button</button> */}
+        </div>
+        <div className="w-[75%] flex flex-col gap-[10px] text-[14px]">
+          <div className="grid grid-cols-2 gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Id: </p>
+              <p>{testPatientData?.data?.testPatientId}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Prescribed Doctor Id: </p>
+              <p>{testPatientData?.data?.prescribedByDoctor}</p>
+            </div>
+
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Name: </p>
+              <p>{testPatientData?.data?.patientData?.patientName}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Name: </p>
+              <p>{testPatientData?.data?.doctorData?.doctorName}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Blood Group: </p>
+              <p>{testPatientData?.data?.patientData?.patientBloodGroup}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Phone: </p>
+              <p>{testPatientData?.data?.doctorData?.doctorPhone}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Gender: </p>
+              <p>{testPatientData?.data?.patientData?.patientGender}</p>
+            </div>
+            {/* <div className='flex'>
+              <p className='font-[600] w-[150px]'>Case No: </p>
+              <p>{opdPatientData?.data?.opdCaseId}</p>
+            </div> */}
+            {/* <div className="flex">
+              <p className="font-[600] w-[150px]">Patient DOB: </p>
+              <p>{date(opdPatientData?.patientData?.patientDateOfBirth)}</p>
+            </div> */}
+            {/* <div className='flex'>
+              <p className='font-[600] w-[150px]'>OPD No: </p>
+              <p>{opdPatientData?.data?.opdId}</p>
+            </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Phone: </p>
+              <p>{testPatientData?.data?.patientData?.patientPhone}</p>
+            </div>
+            {/* <div className='flex'>
+              <p className='font-[600] w-[150px]'>Blood Pressure: </p>
+              <p>{opdPatientData?.data?.opdPatientBloodPressure}</p>
+            </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Height: </p>
+              <p>{testPatientData?.data?.patientData?.patientHeight}</p>
+            </div>
+
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Weight: </p>
+              <p>{testPatientData?.data?.patientData?.patientWeight}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Type: </p>
+              <p>{testPatientData?.data?.patientType}</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-[10px]">
+            <div className="flex flex-col">
+              <p className="font-[600] w-[150px]">Test Name: </p>
+              <p className="text-[16px]">
+                {testPatientData?.data?.testData?.Name}
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <p className="font-[600] w-[150px]">Test Cost: </p>
+              <p className="text-[14px]">
+                ₹ {testPatientData?.data?.testData?.Cost}
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <p className="font-[600] w-[150px]">Notes: </p>
+              <p className="text-[14px]">{testPatientData?.data?.notes}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Created On: </p>
+              <p className="break-word text-[14px]">
+                {`${date(testPatientData?.data?.createdAt)} ${time(
+                  testPatientData?.data?.createdAt
+                )}`}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Updated On: </p>
+              <p className="break-word text-[14px]">
+                {`${date(testPatientData?.data?.updatedAt)} ${time(
+                  testPatientData?.data?.updatedAt
+                )}`}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   const [search, setSearch] = React.useState("");
 
-  const filteredArray = data?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.emergencyRegId?.toLowerCase();
+  // const filteredArray = testOfPatients?.filter((data) => {
+  //   if (search !== "") {
+  //     const userSearch = search.toLowerCase();
+  //     const searchInData = data?.testPatientId?.toLowerCase();
 
-      return searchInData?.startsWith(userSearch);
-    }
-    return data;
-  });
+  //     return searchInData?.startsWith(userSearch);
+  //   }
+  //   return data;
+  // });
 
-  const mappedEmergencyRegTableData = filteredArray?.map((data, index) => {
-    //   const filteredPatientData = patients?.find(
-    //     (patient) => data?.opdPatientId === patient?.patientId
-    //   );
-    //   const filteredDoctorData = doctors?.find(
-    //     (doctor) => doctor?.doctorId === data?.opdDoctorId
-    //   );
+  const mappedEmergencyRegTableData = testOfPatients?.map((data, index) => {
     return {
       id: index + 1,
       data,
-      // patientData: filteredPatientData,
-      // doctorData: filteredDoctorData,
     };
   });
 
@@ -358,15 +639,19 @@ export default function TestPatientTable() {
     },
     {
       label: "UHID",
-      render: (list) => list?.data?.UHID,
+      render: (list) => list?.data?.testPatientId,
+    },
+    {
+      label: "Patient Name",
+      render: (list) => list?.data?.patientData?.patientName,
     },
     {
       label: "Test Name",
-      render: (list) => list?.data?.testName,
+      render: (list) => list?.data?.testData?.Name,
     },
     {
       label: "Prescribed by Doctor",
-      render: (list) => list?.data?.prescribedByDoctor,
+      render: (list) => list?.data?.doctorData?.doctorName,
     },
     {
       label: "Patient Type",
@@ -445,7 +730,7 @@ export default function TestPatientTable() {
             </h1>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            {modalAddEmergencyPatient}
+            {modalAddPatientTest}
           </Typography>
         </Box>
       </Modal>
@@ -481,7 +766,7 @@ export default function TestPatientTable() {
               <Link
                 // onClick={handleGeneratePdf}
                 target="_blank"
-                to={"01"}
+                to={testPatientData?.data?.mainId}
                 // to={opdPatientData?.data?.mainId}
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
                 className="buttonFilled flex items-center gap-[10px]"
@@ -496,6 +781,19 @@ export default function TestPatientTable() {
           </Typography>
         </Box>
       </Modal>
+      <Snackbars
+        open={openSnackbarSuccess}
+        setOpen={setOpenSnackBarSuccess}
+        severity="success"
+        message={snackBarMessageSuccess}
+      />
+      {/* Warning Snackbar */}
+      <Snackbars
+        open={openSnackbarWarning}
+        setOpen={setOpenSnackBarWarning}
+        severity="warning"
+        message={snackBarMessageWarning}
+      />
     </Suspense>
   );
 }

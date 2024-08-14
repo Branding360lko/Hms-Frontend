@@ -5,10 +5,17 @@ export const NurseService = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: process.env.React_App_Base_url }),
   endpoints: (builder) => ({
     getAllNurses: builder.query({
-      query: () => {
+      query: (params) => {
         return {
           url: `Nurse-GET-ALL`,
           method: "GET",
+          params: {
+            page: params?.page,
+            limit: params?.limit,
+            nurseIdForSearching: params?.nurseIdForSearching,
+            nurseNameForSearching: params?.nurseNameForSearching,
+            nurseMobileNoForSearching: params?.nurseMobileNoForSearching,
+          },
         };
       },
     }),

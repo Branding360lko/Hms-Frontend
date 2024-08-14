@@ -6,10 +6,17 @@ export const OPDPatientService = createApi({
 
   endpoints: (builder) => ({
     getAllOPDPatient: builder.query({
-      query: () => {
+      query: (params) => {
         return {
           url: "OPDPatient-GET-ALL",
           method: "GET",
+          params: {
+            page: params?.page,
+            limit: params?.limit,
+            opdPatientId: params?.opdPatientId,
+            patientName: params?.patientName,
+            patientMobileNumber: params?.patientMobileNumber,
+          },
         };
       },
     }),

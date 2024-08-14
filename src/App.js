@@ -97,6 +97,12 @@ const SuperAdminOPDPage = lazy(() => import("./pages/superadmin/OPD/OPD"));
 const SuperAdminDepartmentPage = lazy(() =>
   import("./pages/superadmin/Departments/Departments")
 );
+const SuperAdminEmergencyPage = lazy(() =>
+  import("./pages/superadmin/EmergencyPatient/EmergencyPatientLIst")
+);
+const SuperAdminTestPatientPage = lazy(() =>
+  import("./pages/superadmin/TestPatient/TestPatient")
+);
 
 const BillDownloadPage = lazy(() =>
   import("./components/superadmin/BillingTable/BillDownload/BillDownload")
@@ -192,17 +198,16 @@ const ReceptionistPanelIPDPatientViewPage = lazy(() =>
     "./components/Receptionist/IPDPatientListTable/IPDPatientViewPage/IPDPatientViewPage"
   )
 );
-
+const EmergencyDischargePatientsNurse = lazy(() =>
+  import(
+    "./pages/Receptionist/EmegencyPatientsDischarge/EmegencyPatientsDischarge"
+  )
+);
 const ReferPatientsNurse = lazy(() =>
   import("./pages/Receptionist/ReferPatients/ReferPatients")
 );
 const DischargePatientsNurse = lazy(() =>
   import("./pages/Receptionist/DischargePatients/DischargePatients")
-);
-const EmergencyDischargePatientsNurse = lazy(() =>
-  import(
-    "./pages/Receptionist/EmegencyPatientsDischarge/EmegencyPatientsDischarge"
-  )
 );
 const EmergencyPatientsNurse = lazy(() =>
   import("./pages/Receptionist/EmergencyPatients/EmergencyPatients")
@@ -248,15 +253,14 @@ const EmergencyPanelEmergencyPrescription = lazy(() =>
 );
 
 // Doctors
-
-const Doctors = lazy(() => import("./pages/Doctors/DoctorDashboard/Doctors"));
-const DoctorsDischarge = lazy(() =>
-  import("./pages/Doctors/DoctorDischargePatients/DoctorDischargePatients")
-);
 const DoctorsEmergencyDischarge = lazy(() =>
   import(
     "./pages/Doctors/EmergencyPatientsDischarge/EmergencyPatientsDischarge"
   )
+);
+const Doctors = lazy(() => import("./pages/Doctors/DoctorDashboard/Doctors"));
+const DoctorsDischarge = lazy(() =>
+  import("./pages/Doctors/DoctorDischargePatients/DoctorDischargePatients")
 );
 const DoctorsRefer = lazy(() =>
   import("./pages/Doctors/DoctorReferPatients/DoctorReferPatients")
@@ -622,6 +626,102 @@ function App() {
                         }
                       >
                         <SuperAdminIPDPatient />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.superadmin.category
+                    }/${browserLinks.superadmin.internalPages.ipdPatients
+                      .split(" ")
+                      .join("")}/:ipdPatientId`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <IPDPatientReciept />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.superadmin.category
+                    }/${browserLinks.superadmin.internalPages.ipdPatients
+                      .split(" ")
+                      .join("")}/:ipdPatientId/:dateTime`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <IPD_PatientPaymentReciept />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.superadmin.category
+                    }/${browserLinks.superadmin.internalPages.opdPatients
+                      .split(" ")
+                      .join("")}/:opdPatientId`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <OPDPatientRecieptDownloadPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.emergencyPatient
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminEmergencyPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.testPatient
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminTestPatientPage />
                       </Suspense>
                     }
                   />
@@ -1925,26 +2025,6 @@ function App() {
                   <Route
                     path={`${
                       browserLinks.receptionist.category
-                    }/${browserLinks?.receptionist?.internalPages?.emergencyPatienDischarge
-                      ?.split(" ")
-                      .join("")}`}
-                    element={
-                      <Suspense
-                        fallback={
-                          <>
-                            <Box sx={{ width: "100%" }}>
-                              <LinearProgress />
-                            </Box>
-                          </>
-                        }
-                      >
-                        <EmergencyDischargePatientsNurse />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={`${
-                      browserLinks.receptionist.category
                     }/${browserLinks?.receptionist?.internalPages?.emergency
                       ?.split(" ")
                       .join("")}`}
@@ -1979,6 +2059,26 @@ function App() {
                         }
                       >
                         <ReferPatientsDailyVisitNurse />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={`${
+                      browserLinks.receptionist.category
+                    }/${browserLinks?.receptionist?.internalPages?.emergencyPatienDischarge
+                      ?.split(" ")
+                      .join("")}`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <EmergencyDischargePatientsNurse />
                       </Suspense>
                     }
                   />

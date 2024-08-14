@@ -18,9 +18,9 @@ import { getAllEmergencyPatient } from "../../../Store/Slices/EmergencyPatientSl
 import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
 import { getAllBeds } from "../../../Store/Slices/BedSlice";
 
-const SideNav = lazy(() => import("../../../components/Nurse/SideNav"));
+const SideNav = lazy(() => import("../../../components/superadmin/SideNav"));
 const UpperNav = lazy(() =>
-  import("../../../components/Nurse/UpperNav/UpperNav")
+  import("../../../components/superadmin/UpperNav/UpperNav")
 );
 
 const NurseEmergencyTable = lazy(() =>
@@ -208,7 +208,7 @@ export default function EmergencyPatientLIst() {
         <div className="superadmin-main flex flex-row w-full h-screen">
           <div className="superadmin-main-left w-[20%] shadow-lg">
             <SideNav
-              activePage={`${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.emergencyPatientList}`}
+              activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.emergencyPatient}`}
             />
           </div>
           <div className="superadmin-main-right flex flex-col w-[80%]">

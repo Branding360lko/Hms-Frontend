@@ -19,6 +19,8 @@ import { updatePatientChange } from "../../../../Store/Slices/PatientSlice";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
+import { Country, State, City } from "country-state-city";
+
 import Select from "react-select";
 
 export default function EditPatientForm({ patientId, setViewEditForm }) {
@@ -61,6 +63,7 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
   const [patientEmail, setPatientEmail] = React.useState("");
   const [patientFatherName, setPatientFatherName] = React.useState("");
   const [patientHusbandName, setPatientHusbandName] = React.useState("");
+  const [patientCareOfName, setPatientCareOfName] = React.useState("");
   const [patientAge, setPatientAge] = React.useState("");
   const [patientPhone, setPatientPhone] = React.useState("");
   const [patientPhone2, setPatientPhone2] = React.useState("");
@@ -70,16 +73,50 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
   const [patientLocalAddress, setPatientLocalAddress] = React.useState("");
   const [patientPermanentAddress, setPatientPermanentAddress] =
     React.useState("");
-  const [patientCity, setPatientCity] = React.useState("");
-  const [patientState, setPatientState] = React.useState("");
+  const [patientCity, setPatientCity] = React.useState({
+    value: "",
+    label: "",
+  });
+  const [patientState, setPatientState] = React.useState({
+    value: "",
+    label: "",
+  });
   const [patientCountry, setPatientCountry] = React.useState("");
   const [patientZipCode, setPatientZipCode] = React.useState("");
   const [patientImage, setPatientImage] = React.useState();
   const [patientGender, setPatientGender] = React.useState("Female");
 
+  const [relativeCategory, setRelativeCategory] = React.useState("Father");
+
   const [sameAsLocalAddress, setSameAsLocalAddress] = React.useState(false);
 
   const [submitButton, setSubmitButton] = React.useState("");
+
+  const [allStates, setAllStates] = React.useState([]);
+  const [allCitiesByStates, setAllCitiesByStates] = React.useState([]);
+
+  // console.log(allCitiesByStates);
+  React.useEffect(() => {
+    setAllStates(State.getStatesOfCountry("IN"));
+  }, []);
+
+  React.useEffect(() => {
+    setAllCitiesByStates(City.getCitiesOfState("IN", patientState.value));
+  }, [patientState]);
+
+  const renderedStatesForDropdown = allStates?.map((data) => {
+    return {
+      value: data.isoCode,
+      label: `${data.name} (${data.isoCode})`,
+    };
+  });
+
+  const renderedCitiesByStateForDropdown = allCitiesByStates?.map((data) => {
+    return {
+      value: data.name,
+      label: `${data.name}`,
+    };
+  });
 
   React.useEffect(() => {
     // console.log(sameAsLocalAddress);
@@ -103,9 +140,15 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
       setPatientHusbandName(
         responseGetPatientById?.currentData?.patientHusbandName
       );
+      setPatientCareOfName(
+        responseGetPatientById?.currentData?.patientCareOfName
+      );
+      setRelativeCategory(
+        responseGetPatientById?.currentData?.relativeCategory
+      );
       setPatientAge(responseGetPatientById?.currentData?.patientAge);
       setPatientPhone(responseGetPatientById?.currentData?.patientPhone);
-      setPatientPhone2(responseGetPatientById?.currentData?.patientPhone2);
+      // setPatientPhone2(responseGetPatientById?.currentData?.patientPhone2);
       setPatientHeight(responseGetPatientById?.currentData?.patientHeight);
       setPatientWeight(responseGetPatientById?.currentData?.patientWeight);
       setPatientBloodGroup(
@@ -118,12 +161,28 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
       setPatientPermanentAddress(
         responseGetPatientById?.currentData?.patientPermanentAddress
       );
-      setPatientCity(responseGetPatientById?.currentData?.patientCity);
-      setPatientState(responseGetPatientById?.currentData?.patientState);
+      // setPatientCity(responseGetPatientById?.currentData?.patientCity);
+      // setPatientState(responseGetPatientById?.currentData?.patientState);
+      if (responseGetPatientById?.currentData?.patientCityNew) {
+        setPatientCity(
+          JSON.parse(responseGetPatientById?.currentData?.patientCityNew)
+        );
+      } else {
+        setPatientCity(responseGetPatientById?.currentData?.patientCity);
+      }
+      if (responseGetPatientById?.currentData?.patientStateNew) {
+        setPatientState(
+          JSON.parse(responseGetPatientById?.currentData?.patientStateNew)
+        );
+      } else {
+        setPatientState(responseGetPatientById?.currentData?.patientState);
+      }
       setPatientCountry(responseGetPatientById?.currentData?.patientCountry);
       setPatientZipCode(responseGetPatientById?.currentData?.patientZipCode);
     }
   }, [responseGetPatientById.isSuccess]);
+
+  console.log(patientCity);
 
   // Snackbar--------------------
   // ----Succcess
@@ -188,8 +247,19 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
 
     formData.append("patientName", patientName);
     formData.append("patientEmail", patientEmail);
-    formData.append("patientFatherName", patientFatherName);
-    formData.append("patientHusbandName", patientHusbandName);
+    formData.append("relativeCategory", relativeCategory);
+    formData.append(
+      "patientFatherName",
+      relativeCategory !== "Father" ? "" : patientFatherName
+    );
+    formData.append(
+      "patientHusbandName",
+      relativeCategory !== "Husband" ? "" : patientHusbandName
+    );
+    formData.append(
+      "patientCareOfName",
+      relativeCategory !== "Care Of" ? "" : patientCareOfName
+    );
     // formData.append("patientDateOfBirth", patientDateOfBirth?.startDate);
     formData.append("patientDateOfBirth", "NODATA");
     formData.append("patientAge", patientAge);
@@ -201,9 +271,9 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
     formData.append("patientBloodGroup", patientBloodGroup);
     formData.append("patientLocalAddress", patientLocalAddress);
     formData.append("patientPermanentAddress", patientPermanentAddress);
-    formData.append("patientCity", patientCity);
-    formData.append("patientState", patientState);
-    formData.append("patientCountry", patientCountry);
+    formData.append("patientCityNew", JSON.stringify(patientCity));
+    formData.append("patientStateNew", JSON.stringify(patientState));
+    // formData.append("patientCountry", patientCountry);
     formData.append("patientZipCode", patientZipCode);
     formData.append("patientImage", patientImage);
     formData.append(
@@ -235,71 +305,128 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
   return (
     <Suspense fallback={<>...</>}>
       <>
-        <div className='flex justify-start'>
+        <div className="flex justify-start">
           <button
-            className='buttonOutlined'
-            onClick={() => setViewEditForm(false)}>
+            className="buttonOutlined"
+            onClick={() => setViewEditForm(false)}
+          >
             {`< Back`}
           </button>
         </div>
         {responseGetPatientById.isLoading ? (
           "Loading..."
         ) : (
-          <div className='flex flex-col gap-[1rem] p-[1rem]'>
-            <div className='flex justify-between'>
-              <h2 className='border-b-[4px] border-[#3497F9]'>Edit Patient</h2>
+          <div className="flex flex-col gap-[1rem] p-[1rem]">
+            <div className="flex justify-between">
+              <h2 className="border-b-[4px] border-[#3497F9]">Edit Patient</h2>
             </div>
-            <div className='flex flex-col w-full text-[#3E454D] items-start text-start gap-[1rem] px-[10px] pb-[2rem]'>
+            <div className="flex flex-col w-full text-[#3E454D] items-start text-start gap-[1rem] px-[10px] pb-[2rem]">
               {loading ? (
                 "Loading..."
               ) : (
                 <form
-                  className='flex flex-col gap-[1rem]'
-                  onSubmit={handleUpdatePatient}>
-                  <div className='grid grid-cols-3 gap-[2rem] border-b pb-[3rem]'>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Patients Name</label>
+                  className="flex flex-col gap-[1rem]"
+                  onSubmit={handleUpdatePatient}
+                >
+                  <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Patients Name</label>
                       <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
+                        className="py-[10px] outline-none border-b"
+                        type="text"
                         required
                         value={patientName}
-                        placeholder='Enter patient name'
+                        placeholder="Enter patient name"
                         onChange={(e) => setPatientName(e.target.value)}
                       />
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Email</label>
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Email</label>
                       <input
-                        className='py-[10px] outline-none border-b'
-                        type='email'
+                        className="py-[10px] outline-none border-b"
+                        type="email"
                         value={patientEmail}
-                        placeholder='Enter patient email'
+                        placeholder="Enter patient email"
                         onChange={(e) => setPatientEmail(e.target.value)}
                       />
                     </div>
-
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Father Name</label>
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Age</label>
+                      {/* <DatePicker
+              className="py-[10px] outline-none border-b"
+              required
+              selected={patientDateOfBirth.startDate}
+              maxDate={new Date()}
+              onChange={(date) =>
+                setPatientDateOfBirth({
+                  startDate: date,
+                })
+              }
+            /> */}
                       <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        value={patientFatherName}
-                        placeholder='Enter patient father name'
-                        onChange={(e) => setPatientFatherName(e.target.value)}
+                        className="py-[10px] outline-none border-b"
+                        // type='number'
+                        placeholder="Enter age"
+                        // value={patientAge}
+                        // onChange={(e) => setPatientAge(e.target.value)}
+                        required
+                        value={patientAge}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          setPatientAge(value);
+                        }}
                       />
                     </div>
-
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Husband Name</label>
-                      <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        value={patientHusbandName}
-                        placeholder='Enter patient husband name'
-                        onChange={(e) => setPatientHusbandName(e.target.value)}
-                      />
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Relative category *</label>
+                      <select
+                        value={relativeCategory}
+                        className="py-[11.5px] outline-none border-b bg-transparent"
+                        onChange={(e) => setRelativeCategory(e.target.value)}
+                      >
+                        <option>Father</option>
+                        <option>Husband</option>
+                        <option>Care Of</option>
+                      </select>
                     </div>
+                    {relativeCategory === "Father" && (
+                      <div className="flex flex-col gap-[6px]">
+                        <label className="text-[14px]">Father Name</label>
+                        <input
+                          className="py-[10px] outline-none border-b"
+                          type="text"
+                          placeholder="Enter patient father name"
+                          value={patientFatherName}
+                          onChange={(e) => setPatientFatherName(e.target.value)}
+                        />
+                      </div>
+                    )}
+                    {relativeCategory === "Husband" && (
+                      <div className="flex flex-col gap-[6px]">
+                        <label className="text-[14px]">Husband Name</label>
+                        <input
+                          className="py-[10px] outline-none border-b"
+                          type="text"
+                          placeholder="Enter patient husband name"
+                          value={patientHusbandName}
+                          onChange={(e) =>
+                            setPatientHusbandName(e.target.value)
+                          }
+                        />
+                      </div>
+                    )}
+                    {relativeCategory === "Care Of" && (
+                      <div className="flex flex-col gap-[6px]">
+                        <label className="text-[14px]">Care Of Name</label>
+                        <input
+                          className="py-[10px] outline-none border-b"
+                          type="text"
+                          placeholder="Enter patient (care of) name"
+                          value={patientCareOfName}
+                          onChange={(e) => setPatientCareOfName(e.target.value)}
+                        />
+                      </div>
+                    )}
 
                     {/* <div className='flex flex-col gap-[6px]'>
             <label className='text-[14px]'>Date Of Birth</label>
@@ -321,42 +448,16 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
               onChange={(e) => setPatientDateOfBirth(e.target.value)}
             />
           </div> */}
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Age</label>
-                      {/* <DatePicker
-              className="py-[10px] outline-none border-b"
-              required
-              selected={patientDateOfBirth.startDate}
-              maxDate={new Date()}
-              onChange={(date) =>
-                setPatientDateOfBirth({
-                  startDate: date,
-                })
-              }
-            /> */}
+
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Phone</label>
                       <input
-                        className='py-[10px] outline-none border-b'
-                        // type='number'
-                        placeholder='Enter age'
-                        // value={patientAge}
-                        // onChange={(e) => setPatientAge(e.target.value)}
-                        required
-                        value={patientAge}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, "");
-                          setPatientAge(value);
-                        }}
-                      />
-                    </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Phone</label>
-                      <input
-                        className='py-[10px] outline-none border-b'
+                        className="py-[10px] outline-none border-b"
                         // type='number'
                         required
                         minLength={10}
                         maxLength={10}
-                        placeholder='Enter patient phone number'
+                        placeholder="Enter patient phone number"
                         value={patientPhone}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, "");
@@ -365,16 +466,16 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
                         // onChange={(e) => setPatientPhone(e.target.value)}
                       />
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>
+                    {/* <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">
                         Phone number of attendent
                       </label>
                       <input
-                        className='py-[10px] outline-none border-b'
+                        className="py-[10px] outline-none border-b"
                         // type='number'
                         minLength={10}
                         maxLength={10}
-                        placeholder='Enter phone number of attendent'
+                        placeholder="Enter phone number of attendent"
                         value={patientPhone2}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, "");
@@ -382,58 +483,64 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
                         }}
                         // onChange={(e) => setPatientPhone2(e.target.value)}
                       />
-                    </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Height</label>
+                    </div> */}
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Height</label>
                       <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        placeholder='Enter height'
+                        className="py-[10px] outline-none border-b"
+                        type="text"
+                        placeholder="Enter height"
                         value={patientHeight}
                         onChange={(e) => setPatientHeight(e.target.value)}
                       />
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Weight</label>
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Weight</label>
                       <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        placeholder='Enter weight'
+                        className="py-[10px] outline-none border-b"
+                        type="text"
+                        placeholder="Enter weight"
                         value={patientWeight}
                         onChange={(e) => setPatientWeight(e.target.value)}
                       />
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Patient Gender</label>
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Patient Gender</label>
                       <RadioGroup
-                        aria-labelledby='demo-radio-buttons-group-label'
+                        aria-labelledby="demo-radio-buttons-group-label"
                         value={patientGender}
-                        name='radio-buttons-group'
+                        name="radio-buttons-group"
                         onChange={(e) => setPatientGender(e.target.value)}
-                        sx={{ display: "flex", flexDirection: "row" }}>
+                        sx={{ display: "flex", flexDirection: "row" }}
+                      >
                         <FormControlLabel
-                          value='Female'
+                          value="Female"
                           control={<Radio />}
-                          label='Female'
+                          label="Female"
+                          required={true}
                         />
                         <FormControlLabel
-                          value='Male'
+                          value="Male"
                           control={<Radio />}
-                          label='Male'
+                          label="Male"
+                          required={true}
                         />
                         <FormControlLabel
-                          value='Other'
+                          value="Other"
                           control={<Radio />}
-                          label='Other'
+                          label="Other"
+                          required={true}
                         />
                       </RadioGroup>
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Blood Group</label>
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Blood Group</label>
                       <select
-                        className='py-[11.5px] outline-none border-b bg-transparent'
+                        className="py-[11.5px] outline-none border-b bg-transparent"
                         value={patientBloodGroup}
-                        onChange={(e) => setPatientBloodGroup(e.target.value)}>
+                        onChange={(e) => setPatientBloodGroup(e.target.value)}
+                      >
+                        <option>Not Available</option>
                         <option>O positive</option>
                         <option>O negative</option>
                         <option>A positive</option>
@@ -444,38 +551,38 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
                         <option>AB negative</option>
                       </select>
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Patient Photo</label>
-                      <div className='flex flex-col gap-[1rem]'>
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Patient Photo</label>
+                      <div className="flex flex-col gap-[1rem]">
                         <input
-                          type='file'
-                          accept='image/png, image/gif, image/jpeg'
+                          type="file"
+                          accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => setPatientImage(e.target.files[0])}
                         />
 
                         <img
-                          className='object-contain w-[100px] h-[100px]'
+                          className="object-contain w-[100px] h-[100px]"
                           src={
                             patientImage
                               ? URL.createObjectURL(patientImage)
                               : placeholder
                           }
-                          alt='placeholderimg'
+                          alt="placeholderimg"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <h3 className='border-b py-[1rem]'>
+                  <h3 className="border-b py-[1rem]">
                     Patient Address Details
                   </h3>
-                  <div className='grid grid-cols-2 gap-[2rem] border-b pb-[3rem]'>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Local Address</label>
+                  <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Local Address</label>
                       <textarea
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        placeholder='Enter patient local address'
+                        className="py-[10px] outline-none border-b"
+                        type="text"
+                        placeholder="Enter patient local address"
                         value={patientLocalAddress}
                         // {...register("patientLocalAddress")}
                         onChange={(e) => setPatientLocalAddress(e.target.value)}
@@ -484,25 +591,30 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
               <span className="text-[red]">This field is required</span>
             )} */}
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <div className='flex gap-[1rem]'>
-                        <label className='text-[14px]'>Permanent Address</label>
-                        <div className='flex gap-[10px] items-center'>
+                    <div className="flex flex-col gap-[6px]">
+                      <div className="flex gap-[1rem]">
+                        <label className="text-[14px]">Permanent Address</label>
+                        <div className="flex gap-[10px] items-center">
                           <input
-                            type='checkbox'
-                            onChange={(e) =>
-                              setSameAsLocalAddress(e.target.checked)
-                            }
+                            type="checkbox"
+                            onChange={(e) => {
+                              setSameAsLocalAddress(e.target.checked);
+                              if (e.target.checked === true) {
+                                setPatientPermanentAddress(patientLocalAddress);
+                              } else if (e.target.checked === false) {
+                                setPatientPermanentAddress("");
+                              }
+                            }}
                           />
-                          <p className='text-[12px]'>Same as local address</p>
+                          <p className="text-[12px]">Same as local address</p>
                         </div>
                       </div>
                       <textarea
-                        className='py-[10px] outline-none border-b'
-                        type='text'
+                        className="py-[10px] outline-none border-b"
+                        type="text"
                         value={patientPermanentAddress}
                         disabled={sameAsLocalAddress === true ? true : false}
-                        placeholder='Enter patient permanent address'
+                        placeholder="Enter patient permanent address"
                         // {...register("patientPermanentAddress")}
                         onChange={(e) =>
                           setPatientPermanentAddress(e.target.value)
@@ -532,52 +644,81 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
               onChange={(e) => setPatientPermanentAddress(e.target.value)}
             />
           </div> */}
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>City</label>
-                      <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        placeholder='Enter patient city'
-                        value={patientCity}
-                        onChange={(e) => setPatientCity(e.target.value)}
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">State</label>
+                      <Select
+                        options={renderedStatesForDropdown}
+                        onChange={setPatientState}
+                        defaultValue={
+                          responseGetPatientById?.currentData?.patientStateNew
+                            ? JSON.parse(
+                                responseGetPatientById?.currentData
+                                  ?.patientStateNew
+                              )
+                            : patientState
+                        }
                       />
+                      {/* <input
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient state"
+              {...register("patientState")}
+            /> */}
+                      {/* {errors.patientState && (
+              <span className="text-[red]">This field is required</span>
+            )} */}
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>State</label>
-                      <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        placeholder='Enter patient state'
-                        value={patientState}
-                        onChange={(e) => setPatientState(e.target.value)}
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">City</label>
+                      <Select
+                        options={renderedCitiesByStateForDropdown}
+                        onChange={setPatientCity}
+                        defaultValue={
+                          responseGetPatientById?.currentData?.patientCityNew
+                            ? JSON.parse(
+                                responseGetPatientById?.currentData
+                                  ?.patientCityNew
+                              )
+                            : patientCity
+                        }
                       />
+                      {/* <input
+              className="py-[10px] outline-none border-b"
+              type="text"
+              placeholder="Enter patient city"
+              {...register("patientCity")}
+            /> */}
+                      {/* {errors.patientCity && (
+              <span className="text-[red]">This field is required</span>
+            )} */}
                     </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Country</label>
+                    {/* <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Country</label>
                       <input
-                        className='py-[10px] outline-none border-b'
-                        type='text'
-                        placeholder='Enter patient country'
+                        className="py-[10px] outline-none border-b"
+                        type="text"
+                        placeholder="Enter patient country"
                         value={patientCountry}
                         onChange={(e) => setPatientCountry(e.target.value)}
                       />
-                    </div>
-                    <div className='flex flex-col gap-[6px]'>
-                      <label className='text-[14px]'>Zipcode</label>
+                    </div> */}
+                    <div className="flex flex-col gap-[6px]">
+                      <label className="text-[14px]">Zipcode</label>
                       <input
-                        className='py-[10px] outline-none border-b'
-                        type='number'
-                        placeholder='Enter patient zipcode'
+                        className="py-[10px] outline-none border-b"
+                        type="number"
+                        placeholder="Enter patient zipcode"
                         value={patientZipCode}
                         onChange={(e) => setPatientZipCode(e.target.value)}
                       />
                     </div>
                   </div>
-                  <div className='flex gap-[1rem] items-center'>
+                  <div className="flex gap-[1rem] items-center">
                     <button
-                      type='submit'
-                      className='buttonFilled'>{`Save & Print >`}</button>
-                    <button className='buttonOutlined'>{`Save >`}</button>
+                      type="submit"
+                      className="buttonFilled"
+                    >{`Save >`}</button>
+                    {/* <button className='buttonOutlined'>{`Save >`}</button> */}
                   </div>
                 </form>
               )}
@@ -588,14 +729,14 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
         <Snackbars
           open={openSnackbarSuccess}
           setOpen={setOpenSnackBarSuccess}
-          severity='success'
+          severity="success"
           message={snackBarMessageSuccess}
         />
         {/* Warning Snackbar */}
         <Snackbars
           open={openSnackbarWarning}
           setOpen={setOpenSnackBarWarning}
-          severity='warning'
+          severity="warning"
           message={snackBarMessageWarning}
         />
       </>
