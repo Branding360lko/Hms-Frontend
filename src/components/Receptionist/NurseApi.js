@@ -424,3 +424,14 @@ export const getInvestigationORProcedureEmergencyData = async (Id) => {
     throw new Error(error);
   }
 };
+export const giveDiscountToOPDPatientData = async (Id, formData) => {
+  try {
+    const response = await axios.post(
+      `${process.env.React_App_Base_url + "OPDPatient-Refund-by-doctor/" + Id}`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};

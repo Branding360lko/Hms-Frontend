@@ -27,6 +27,7 @@ import Snackbars from "../../SnackBar";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
 import PaginationForApi from "../../PaginationForApi";
 import useDebounce from "../../../utils/DebounceHook";
+import { giveDiscountToOPDPatientData } from "../../Receptionist/NurseApi";
 const indicatorSeparatorStyle = {
   alignSelf: "stretch",
   backgroundColor: "",
@@ -359,6 +360,23 @@ function DoctorTable() {
       setOpenSnackBarSuccess(true);
     }
   };
+  const giveDiscountToOPDPatientDataHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append(
+      "refundPercentage",
+      discountAmount ? Number(discountAmount) : Number(customDiscount)
+    );
+    formData.append("refundAlotedByDoctor", adminLoggedInData?.adminUniqueId);
+    const result = await giveDiscountToOPDPatientData(opdpatientId, formData);
+    if (result) {
+      // getAllOpdPatientsDoctorDataHandle();
+      getSearchResultDoctorPanelDataHandle(adminLoggedInData?.adminUniqueId);
+      handleClose2();
+      setSnackBarSuccessMessage(result?.data?.message);
+      setOpenSnackBarSuccess(true);
+    }
+  };
   const getOneOpdDoctorCheckDataHandle = async (Id) => {
     const result = await getOneOpdDoctorCheckData(Id?.[0]?._id);
 
@@ -490,8 +508,8 @@ function DoctorTable() {
     setTest(result);
   }, [testData]);
   useEffect(() => {
-    console.log(discountAmount, "patientData");
-  }, [discountAmount]);
+    console.log(opdPatients, "opdPatients");
+  }, [opdPatients]);
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -604,6 +622,7 @@ function DoctorTable() {
                           getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
                             item?._id
                           ),
+                          setOpdpatientId(item?.mainId),
                         ]}
                       >
                         <CiDiscount1 className="text-[20px] text-[#000080]" />
@@ -1044,22 +1063,33 @@ function DoctorTable() {
               </div>
               <div>
                 <h2>Discount Offered By Doctor</h2>
-                <form className=" flex items-start justify-start flex-col w-full gap-3 mt-4">
+                <form
+                  className=" flex items-start justify-start flex-col w-full gap-3 mt-4"
+                  onSubmit={giveDiscountToOPDPatientDataHandle}
+                >
                   <div className="w-full flex items-center justify-start gap-2 ">
                     <select
                       className="border-2 w-[20rem] p-2 outline-none"
-                      onChange={(e) => setDiscountAmount(e.target.value)}
+                      value={discountAmount}
+                      onChange={(e) => [
+                        setDiscountAmount(e.target.value),
+                        setCustomDiscount(""),
+                      ]}
                     >
-                      <option>Select a Refund</option>
-                      <option value={"100"}>Full Refund</option>
+                      <option value="">Select a Refund</option>
                       <option value={"50"}>Partial Refund</option>
+                      <option value={"100"}>Full Refund</option>
                     </select>
                     <p>OR</p>
                     <input
                       type="text"
                       placeholder="Enter Custom Percentage(ex:75%)"
                       className="border-2 w-[20rem] p-2 outline-none"
-                      onChange={(e) => [setDiscountAmount(e.target.value)]}
+                      value={customDiscount}
+                      onChange={(e) => [
+                        setDiscountAmount(""),
+                        setCustomDiscount(e.target.value),
+                      ]}
                     />
                   </div>
 
