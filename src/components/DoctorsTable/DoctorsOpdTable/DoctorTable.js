@@ -1,5 +1,13 @@
-import { Backdrop, Box, Fade, Modal, Switch, Typography } from "@mui/material";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Backdrop,
+  Box,
+  Fade,
+  LinearProgress,
+  Modal,
+  Switch,
+  Typography,
+} from "@mui/material";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import img from "../../../assets/20180125_001_1_.jpg";
 import { CiDiscount1, CiViewList } from "react-icons/ci";
 import { RiEdit2Fill } from "react-icons/ri";
@@ -87,15 +95,8 @@ function DoctorTable() {
     setPage(0);
   };
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (medicineData?.data?.length === 0) {
-      dispatch(getMedicineDataHandle());
-    }
-    if (testData?.data?.length === 0) {
-      dispatch(getTestDataHandle());
-    }
-  }, []);
-  const [customDiscount, setCustomDiscount] = useState(false);
+
+  const [customDiscount, setCustomDiscount] = useState("");
   const [discountAmount, setDiscountAmount] = useState();
   const { medicineData } = useSelector((state) => state.MedicineData);
   const { testData } = useSelector((state) => state.TestData);
@@ -104,6 +105,7 @@ function DoctorTable() {
   const [previousTest, setPreviousTest] = useState([]);
   const [opdPatients, setOpdPatients] = useState([]);
   const [previousPatientsList, setoldPreviousPatientsList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isMedicineLoading, setIsMedicineLoading] = useState(false);
   const [isTestLoading, setIsTestLoading] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState({
@@ -300,8 +302,10 @@ function DoctorTable() {
               Next Appoiment :
             </h6>
             <p className="w-11/12 text-start">
-              {/* {selectedPatient?.NextAppoiment} */}
-              <p>20/08/2024</p>
+              {selectedPatient?.NextAppoiment
+                ? selectedPatient?.NextAppoiment
+                : ""}
+              {/* <p>20/08/2024</p> */}
             </p>
           </div>
         </div>
@@ -315,6 +319,7 @@ function DoctorTable() {
   const [totalData, setTotalData] = useState(0);
   const [visitedPages, setVisitedPages] = useState([]);
   const [opdPatientAlreadyExist, setOpdPatientAlreadyExist] = useState(false);
+  const [discountAlreadyAlloted, setDiscountAlreadyAlloted] = useState();
   const [opdpatientId, setOpdpatientId] = useState("");
   const [searchVisitedPages, setSearchVisitedPages] = useState([]);
   const getAllOpdPatientsDataHandle = async () => {
@@ -450,10 +455,12 @@ function DoctorTable() {
         rowsPerPage,
         debouncedSearchTerm
       );
+      setIsLoading(true);
       // setFilteredData(result && [...filteredData, ...result?.data?.searchData]);
       setOpdPatients(result && [...opdPatients, ...result?.data?.searchData]);
       setTotalData(result && result?.data?.totalDocuments);
       setVisitedPages((prevVisitedPages) => [...prevVisitedPages, page]);
+      setIsLoading(false);
       // setOpdPatients(result && result?.data?.searchData);
     }
   };
@@ -508,24 +515,30 @@ function DoctorTable() {
     setTest(result);
   }, [testData]);
   useEffect(() => {
-    console.log(opdPatients, "opdPatients");
-  }, [opdPatients]);
+    if (!medicineData || !medicineData.data || medicineData.data.length === 0) {
+      dispatch(getMedicineDataHandle());
+    }
+    if (!testData || !testData.data || testData.data.length === 0) {
+      dispatch(getTestDataHandle());
+    }
+  }, [medicineData, testData]);
   return (
-    <div className="flex flex-col gap-[1rem] p-[1rem]">
-      <div className="flex justify-between">
-        <h2 className="border-b-[4px] border-[#3497F9]">
-          OPD Patient Table Data
-        </h2>
-      </div>
-      <div className="flex justify-between">
-        <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
-          <FaSearch className="text-[#56585A]" />
-          <input
-            className="bg-transparent outline-none w-[27rem]"
-            placeholder="Search by Patient Name Or Phone Number Or Uhid"
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {/* <button
+    <Suspense fallback={<>...</>}>
+      <div className="flex flex-col gap-[1rem] p-[1rem]">
+        <div className="flex justify-between">
+          <h2 className="border-b-[4px] border-[#3497F9]">
+            OPD Patient Table Data
+          </h2>
+        </div>
+        <div className="flex justify-between">
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none w-[27rem]"
+              placeholder="Search by Patient Name Or Phone Number Or Uhid"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {/* <button
             className="buttonFilled"
             disabled={search?.length > 0 ? false : true}
             onClick={() =>
@@ -536,369 +549,191 @@ function DoctorTable() {
           >
             Search
           </button> */}
+          </div>
         </div>
-      </div>
-      <div className="w-full">
-        <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
-          <thead>
-            <th className="border-[1px] p-1 font-semibold">
-              <p>S_N</p>
-            </th>
-            <th className="border-[1px] p-1 font-semibold">
-              <p>UHID</p>
-            </th>
-            <th className="border-[1px] p-1 font-semibold">
-              <p>Patient Name</p>
-            </th>
-            <th className="border-[1px] p-1 font-semibold">
-              <p>Patient Checked</p>
-            </th>
+        {isLoading && (
+          <div>
+            <Box sx={{ width: "100%" }}>
+              <LinearProgress />
+            </Box>
+          </div>
+        )}
+        <div className="w-full">
+          <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+            <thead>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>S_N</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>UHID</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Patient Name</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Patient Checked</p>
+              </th>
 
-            <th className="border-[1px] p-1 font-semibold">
-              <p>Action</p>
-            </th>
-          </thead>
-          <tbody>
-            {opdPatients
-              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              ?.map((item, index) => (
-                <tr key={item?._id}>
-                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                    {index + 1}
-                  </td>
-                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                    {"uhid" + item?.opdPatientId}
-                  </td>
-                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                    {item?.patientName}
-                  </td>
-                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
-                    <Switch
-                      {...label}
-                      checked={
-                        item?.opdPatientCheckData?.[0]?.isPatientsChecked ===
-                        true
-                          ? true
-                          : false
-                      }
-                    />
-                  </td>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Action</p>
+              </th>
+            </thead>
+            <tbody>
+              {opdPatients
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                ?.map((item, index) => (
+                  <tr key={item?._id}>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
+                      {index + 1}
+                    </td>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
+                      {"uhid" + item?.opdPatientId}
+                    </td>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
+                      {item?.patientName}
+                    </td>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px]">
+                      <Switch
+                        {...label}
+                        checked={
+                          item?.opdPatientCheckData?.[0]?.isPatientsChecked ===
+                          true
+                            ? true
+                            : false
+                        }
+                      />
+                    </td>
 
-                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px] flex-row">
-                    <div className="flex gap-[10px] justify-center">
-                      <div
-                        className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-                        onClick={() => [
-                          handleOpen1(),
-                          getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
-                            item?._id
-                          ),
-                        ]}
-                      >
-                        <CiViewList className="text-[20px] text-[#96999C]" />
-                      </div>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-[1px] flex-row">
+                      <div className="flex gap-[10px] justify-center">
+                        <div
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                          onClick={() => [
+                            handleOpen1(),
+                            getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
+                              item?._id
+                            ),
+                          ]}
+                        >
+                          <CiViewList className="text-[20px] text-[#96999C]" />
+                        </div>
 
-                      <div
-                        className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
-                        onClick={() => [
-                          handleOpen(),
-                          setSelectedPatient({
-                            ...selectedPatient,
-                            opdPatientId: item?._id,
-                            patientId: item?.opdPatientId,
-                          }),
-                          setOpdpatientId(item?._id),
-                          getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
-                            item?._id
-                          ),
-                        ]}
-                      >
-                        <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                        <div
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                          onClick={() => [
+                            handleOpen(),
+                            setSelectedPatient({
+                              ...selectedPatient,
+                              opdPatientId: item?._id,
+                              patientId: item?.opdPatientId,
+                            }),
+                            setOpdpatientId(item?._id),
+                            getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
+                              item?._id
+                            ),
+                          ]}
+                        >
+                          <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                        </div>
+                        <div
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#000080] rounded-[12px] cursor-pointer"
+                          onClick={() => [
+                            handleOpen2(),
+                            getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
+                              item?._id
+                            ),
+                            setOpdpatientId(item?.mainId),
+                            setDiscountAlreadyAlloted(
+                              item?.opdPatientDiscountAlloted
+                                ? item?.opdPatientDiscountAlloted
+                                : false
+                            ),
+                          ]}
+                        >
+                          <CiDiscount1 className="text-[20px] text-[#000080]" />
+                        </div>
                       </div>
-                      <div
-                        className="p-[4px] h-fit w-fit border-[2px] border-[#000080] rounded-[12px] cursor-pointer"
-                        onClick={() => [
-                          handleOpen2(),
-                          getOneOpdDoctorCheckWithOpdPatientIdDataHandle(
-                            item?._id
-                          ),
-                          setOpdpatientId(item?.mainId),
-                        ]}
-                      >
-                        <CiDiscount1 className="text-[20px] text-[#000080]" />
-                      </div>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+
+          <PaginationForApi
+            page={page}
+            rowsPerPage={rowsPerPage}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+            data={totalData ? totalData : 0}
+          />
+        </div>
+        {printView}
+        <Modal
+          aria-labelledby="transition-modal-title"
+          aria-describedby="transition-modal-description"
+          open={open}
+          onClose={handleClose}
+          closeAfterTransition
+          slots={{ backdrop: Backdrop }}
+          slotProps={{
+            backdrop: {
+              timeout: 500,
+            },
+          }}
+        >
+          <Fade in={open}>
+            <Box sx={style}>
+              <Typography
+                id="transition-modal-title"
+                variant="h6"
+                component="h2"
+                className="border-b-[4px] border-[#3497F9] w-fit"
+              >
+                OPD Patient Table Data
+              </Typography>
+              <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+                <div className="flex pt-[10px] pb-[10px] gap-[10%]">
+                  <span>
+                    <img src={img} alt="patients " className="w-[15rem] " />
+                  </span>
+                  <div class="grid grid-cols-2 gap-1">
+                    <div className="flex gap-[10px]">
+                      <span>Patients Uhid</span>:
+                      <p>{"Uhid" + patientData?.patientId}</p>
                     </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                    <div className="flex gap-[10px]">
+                      <span>Admission Date / Time</span>:
+                      <p>
+                        {date(patientData?.createdAt)}-
+                        {time(patientData?.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Name</span>:<p>{patientData?.patientName}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Gender</span>:<p>{patientData?.patientGender}</p>
+                    </div>
 
-        <PaginationForApi
-          page={page}
-          rowsPerPage={rowsPerPage}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-          data={totalData ? totalData : 0}
-        />
-      </div>
-      {printView}
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={open}>
-          <Box sx={style}>
-            <Typography
-              id="transition-modal-title"
-              variant="h6"
-              component="h2"
-              className="border-b-[4px] border-[#3497F9] w-fit"
-            >
-              OPD Patient Table Data
-            </Typography>
-            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              <div className="flex pt-[10px] pb-[10px] gap-[10%]">
-                <span>
-                  <img src={img} alt="patients " className="w-[15rem] " />
-                </span>
-                <div class="grid grid-cols-2 gap-4">
-                  <div className="flex gap-[10px]">
-                    <span>Patients Reg ID</span>:<p>{patientData?.patientId}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Admission Date / Time</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Name</span>:<p>{patientData?.patientName}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Discharge Date / Time</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Gender</span>:<p>{patientData?.patientGender}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Categ</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Age</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Tarilt Catrg</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>IPD NO</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>MR and IP No</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Bill Bed Catrg</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Admitting Doctor</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>OCC bed categ</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Room and bed NO</span>:<p>19</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Bill Date and Time</span>:<p>19</p>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Phone NO</span>:
+                      <p>{patientData?.patientPhone}</p>
+                    </div>
+
+                    <div className="flex gap-[10px]">
+                      <span>Patient Blood Group</span>:
+                      <p>{patientData?.patientBloodGroup}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Gender</span>:
+                      <p>{patientData?.patientGender}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Age</span>:<p>{patientData?.patientAge}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <form className="w-full flex flex-col justify-start gap-2">
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Patient Uhid</p>
-                  <input
-                    type="text"
-                    placeholder="Patient Uhid"
-                    value={"UHID" + patientData?.patientId}
-                    className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] cursor-not-allowed"
-                    disabled
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Medicine</p>
-                  {!isMedicineLoading && (
-                    <Select
-                      closeMenuOnSelect={false}
-                      components={{ IndicatorSeparator }}
-                      isMulti
-                      defaultValue={previousMedicine}
-                      options={medicine}
-                      onChange={(e) =>
-                        setSelectedPatient({
-                          ...selectedPatient,
-                          medicine: e,
-                        })
-                      }
-                      className="border-[2px] w-full rounded"
-                    />
-                  )}
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Select Test</p>
-                  {!isTestLoading && (
-                    <Select
-                      closeMenuOnSelect={false}
-                      components={{ IndicatorSeparator }}
-                      isMulti
-                      defaultValue={previousTest}
-                      options={test}
-                      onChange={(e) =>
-                        setSelectedPatient({ ...selectedPatient, test: e })
-                      }
-                      className="border-[2px] w-full rounded"
-                    />
-                  )}
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Symptoms</p>
-                  <input
-                    type="text"
-                    placeholder="Add Symptoms"
-                    value={selectedPatient?.Symptoms}
-                    onChange={(e) =>
-                      setSelectedPatient({
-                        ...selectedPatient,
-                        Symptoms: e.target.value,
-                      })
-                    }
-                    className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] "
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Note's</p>
-                  <textarea
-                    rows={5}
-                    placeholder="Note"
-                    value={selectedPatient?.Note}
-                    onChange={(e) =>
-                      setSelectedPatient({
-                        ...selectedPatient,
-                        Note: e.target.value,
-                      })
-                    }
-                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                  />
-                </span>
-                <span className="flex flex-col justify-start gap-1">
-                  <p>Next Appoiment</p>
-                  <input
-                    type="text"
-                    placeholder="Next Appoiment"
-                    value={selectedPatient?.NextAppoiment}
-                    onChange={(e) =>
-                      setSelectedPatient({
-                        ...selectedPatient,
-                        NextAppoiment: e.target.value,
-                      })
-                    }
-                    className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                  />
-                </span>
-                {opdPatientAlreadyExist ? (
-                  <button
-                    className="buttonFilled"
-                    onClick={(e) =>
-                      updateOpdDoctorCheckDataHandle(e, selectedPatient?._id)
-                    }
-                  >
-                    Update
-                  </button>
-                ) : (
-                  <button
-                    className="buttonFilled"
-                    onClick={(e) => addOpdDoctorCheckDataHandle(e)}
-                  >
-                    Add
-                  </button>
-                )}
-              </form>
-            </Typography>
-          </Box>
-        </Fade>
-      </Modal>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={open1}
-        onClose={handleClose1}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={open1}>
-          <Box sx={style}>
-            <Typography
-              id="transition-modal-title"
-              variant="h6"
-              component="h2"
-              className="border-b-[4px] border-[#3497F9] w-fit"
-            >
-              OPD Patient Table Data
-            </Typography>
-            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              <div className="flex pt-[10px] pb-[10px] gap-[10%]">
-                <span>
-                  <img src={img} alt="patients " className="w-[15rem] " />
-                </span>
-                <div class="grid grid-cols-2 gap-1">
-                  <div className="flex gap-[10px]">
-                    <span>Patients Uhid</span>:
-                    <p>{"Uhid" + patientData?.patientId}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Admission Date / Time</span>:
-                    <p>
-                      {date(patientData?.createdAt)}-
-                      {time(patientData?.createdAt)}
-                    </p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Name</span>:<p>{patientData?.patientName}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Gender</span>:<p>{patientData?.patientGender}</p>
-                  </div>
-
-                  <div className="flex gap-[10px]">
-                    <span>Patient Phone NO</span>:
-                    <p>{patientData?.patientPhone}</p>
-                  </div>
-
-                  <div className="flex gap-[10px]">
-                    <span>Patient Blood Group</span>:
-                    <p>{patientData?.patientBloodGroup}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Gender</span>:
-                    <p>{patientData?.patientGender}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Age</span>:<p>{patientData?.patientAge}</p>
-                  </div>
-                </div>
-              </div>
-              {opdPatientAlreadyExist ? (
-                <div className="w-full flex flex-col justify-start gap-2">
+                <form className="w-full flex flex-col justify-start gap-2">
                   <span className="flex flex-col justify-start gap-1">
                     <p>Patient Uhid</p>
                     <input
@@ -911,7 +746,6 @@ function DoctorTable() {
                   </span>
                   <span className="flex flex-col justify-start gap-1">
                     <p>Select Medicine</p>
-
                     {!isMedicineLoading && (
                       <Select
                         closeMenuOnSelect={false}
@@ -925,7 +759,6 @@ function DoctorTable() {
                             medicine: e,
                           })
                         }
-                        isDisabled
                         className="border-[2px] w-full rounded"
                       />
                     )}
@@ -942,7 +775,6 @@ function DoctorTable() {
                         onChange={(e) =>
                           setSelectedPatient({ ...selectedPatient, test: e })
                         }
-                        isDisabled
                         className="border-[2px] w-full rounded"
                       />
                     )}
@@ -951,10 +783,15 @@ function DoctorTable() {
                     <p>Symptoms</p>
                     <input
                       type="text"
-                      placeholder="Symptoms"
+                      placeholder="Add Symptoms"
                       value={selectedPatient?.Symptoms}
+                      onChange={(e) =>
+                        setSelectedPatient({
+                          ...selectedPatient,
+                          Symptoms: e.target.value,
+                        })
+                      }
                       className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] "
-                      disabled
                     />
                   </span>
                   <span className="flex flex-col justify-start gap-1">
@@ -963,8 +800,13 @@ function DoctorTable() {
                       rows={5}
                       placeholder="Note"
                       value={selectedPatient?.Note}
+                      onChange={(e) =>
+                        setSelectedPatient({
+                          ...selectedPatient,
+                          Note: e.target.value,
+                        })
+                      }
                       className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                      disabled
                     />
                   </span>
                   <span className="flex flex-col justify-start gap-1">
@@ -973,148 +815,326 @@ function DoctorTable() {
                       type="text"
                       placeholder="Next Appoiment"
                       value={selectedPatient?.NextAppoiment}
+                      onChange={(e) =>
+                        setSelectedPatient({
+                          ...selectedPatient,
+                          NextAppoiment: e.target.value,
+                        })
+                      }
                       className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
-                      disabled
                     />
                   </span>
-                  <button
-                    className="buttonFilled"
-                    onClick={() => [
-                      handlePrint(),
-                      updateOpdDoctorVisitCompletedStatusDataHandle(
-                        selectedPatient?._id
-                      ),
-                    ]}
-                  >
-                    Print
-                  </button>
-                </div>
-              ) : (
-                "Patient Not Checked Yet"
-              )}
-            </Typography>
-          </Box>
-        </Fade>
-      </Modal>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={open2}
-        onClose={handleClose2}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={open2}>
-          <Box sx={style}>
-            <Typography
-              id="transition-modal-title"
-              variant="h6"
-              component="h2"
-              className="border-b-[4px] border-[#3497F9] w-fit"
-            >
-              OPD Patient Table Data
-            </Typography>
-            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              <div className="flex pt-[10px] pb-[10px] gap-[10%]">
-                <span>
-                  <img src={img} alt="patients " className="w-[15rem] " />
-                </span>
-                <div class="grid grid-cols-2 gap-1">
-                  <div className="flex gap-[10px]">
-                    <span>Patients Uhid</span>:
-                    <p>{"Uhid" + patientData?.patientId}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Admission Date / Time</span>:
-                    <p>
-                      {date(patientData?.createdAt)}-
-                      {time(patientData?.createdAt)}
-                    </p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Name</span>:<p>{patientData?.patientName}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Gender</span>:<p>{patientData?.patientGender}</p>
-                  </div>
+                  {opdPatientAlreadyExist ? (
+                    <button
+                      className="buttonFilled"
+                      onClick={(e) =>
+                        updateOpdDoctorCheckDataHandle(e, selectedPatient?._id)
+                      }
+                    >
+                      Update
+                    </button>
+                  ) : (
+                    <button
+                      className="buttonFilled"
+                      onClick={(e) => addOpdDoctorCheckDataHandle(e)}
+                    >
+                      Add
+                    </button>
+                  )}
+                </form>
+              </Typography>
+            </Box>
+          </Fade>
+        </Modal>
+        <Modal
+          aria-labelledby="transition-modal-title"
+          aria-describedby="transition-modal-description"
+          open={open1}
+          onClose={handleClose1}
+          closeAfterTransition
+          slots={{ backdrop: Backdrop }}
+          slotProps={{
+            backdrop: {
+              timeout: 500,
+            },
+          }}
+        >
+          <Fade in={open1}>
+            <Box sx={style}>
+              <Typography
+                id="transition-modal-title"
+                variant="h6"
+                component="h2"
+                className="border-b-[4px] border-[#3497F9] w-fit"
+              >
+                OPD Patient Table Data
+              </Typography>
+              <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+                <div className="flex pt-[10px] pb-[10px] gap-[10%]">
+                  <span>
+                    <img src={img} alt="patients " className="w-[15rem] " />
+                  </span>
+                  <div class="grid grid-cols-2 gap-1">
+                    <div className="flex gap-[10px]">
+                      <span>Patients Uhid</span>:
+                      <p>{"Uhid" + patientData?.patientId}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Admission Date / Time</span>:
+                      <p>
+                        {date(patientData?.createdAt)}-
+                        {time(patientData?.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Name</span>:<p>{patientData?.patientName}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Gender</span>:<p>{patientData?.patientGender}</p>
+                    </div>
 
-                  <div className="flex gap-[10px]">
-                    <span>Patient Phone NO</span>:
-                    <p>{patientData?.patientPhone}</p>
-                  </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Phone NO</span>:
+                      <p>{patientData?.patientPhone}</p>
+                    </div>
 
-                  <div className="flex gap-[10px]">
-                    <span>Patient Blood Group</span>:
-                    <p>{patientData?.patientBloodGroup}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Gender</span>:
-                    <p>{patientData?.patientGender}</p>
-                  </div>
-                  <div className="flex gap-[10px]">
-                    <span>Patient Age</span>:<p>{patientData?.patientAge}</p>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Blood Group</span>:
+                      <p>{patientData?.patientBloodGroup}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Gender</span>:
+                      <p>{patientData?.patientGender}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Age</span>:<p>{patientData?.patientAge}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                <h2>Discount Offered By Doctor</h2>
-                <form
-                  className=" flex items-start justify-start flex-col w-full gap-3 mt-4"
-                  onSubmit={giveDiscountToOPDPatientDataHandle}
-                >
-                  <div className="w-full flex items-center justify-start gap-2 ">
-                    <select
-                      className="border-2 w-[20rem] p-2 outline-none"
-                      value={discountAmount}
-                      onChange={(e) => [
-                        setDiscountAmount(e.target.value),
-                        setCustomDiscount(""),
+
+                {opdPatientAlreadyExist ? (
+                  <div className="w-full flex flex-col justify-start gap-2">
+                    <span className="flex flex-col justify-start gap-1">
+                      <p>Patient Uhid</p>
+                      <input
+                        type="text"
+                        placeholder="Patient Uhid"
+                        value={"UHID" + patientData?.patientId}
+                        className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] cursor-not-allowed"
+                        disabled
+                      />
+                    </span>
+                    <span className="flex flex-col justify-start gap-1">
+                      <p>Select Medicine</p>
+
+                      {!isMedicineLoading && (
+                        <Select
+                          closeMenuOnSelect={false}
+                          components={{ IndicatorSeparator }}
+                          isMulti
+                          defaultValue={previousMedicine}
+                          options={medicine}
+                          onChange={(e) =>
+                            setSelectedPatient({
+                              ...selectedPatient,
+                              medicine: e,
+                            })
+                          }
+                          isDisabled
+                          className="border-[2px] w-full rounded"
+                        />
+                      )}
+                    </span>
+                    <span className="flex flex-col justify-start gap-1">
+                      <p>Select Test</p>
+                      {!isTestLoading && (
+                        <Select
+                          closeMenuOnSelect={false}
+                          components={{ IndicatorSeparator }}
+                          isMulti
+                          defaultValue={previousTest}
+                          options={test}
+                          onChange={(e) =>
+                            setSelectedPatient({ ...selectedPatient, test: e })
+                          }
+                          isDisabled
+                          className="border-[2px] w-full rounded"
+                        />
+                      )}
+                    </span>
+                    <span className="flex flex-col justify-start gap-1">
+                      <p>Symptoms</p>
+                      <input
+                        type="text"
+                        placeholder="Symptoms"
+                        value={selectedPatient?.Symptoms}
+                        className="border-[2px] w-full rounded outline-none w-full h-[2.2rem]  pl-[5px] "
+                        disabled
+                      />
+                    </span>
+                    <span className="flex flex-col justify-start gap-1">
+                      <p>Note's</p>
+                      <textarea
+                        rows={5}
+                        placeholder="Note"
+                        value={selectedPatient?.Note}
+                        className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
+                        disabled
+                      />
+                    </span>
+                    <span className="flex flex-col justify-start gap-1">
+                      <p>Next Appoiment</p>
+                      <input
+                        type="text"
+                        placeholder="Next Appoiment"
+                        value={selectedPatient?.NextAppoiment}
+                        className="border-[2px] w-full rounded outline-none w-full   pl-[5px] pt-[5px]"
+                        disabled
+                      />
+                    </span>
+                    <button
+                      className="buttonFilled"
+                      onClick={() => [
+                        handlePrint(),
+                        updateOpdDoctorVisitCompletedStatusDataHandle(
+                          selectedPatient?._id
+                        ),
                       ]}
                     >
-                      <option value="">Select a Refund</option>
-                      <option value={"50"}>Partial Refund</option>
-                      <option value={"100"}>Full Refund</option>
-                    </select>
-                    <p>OR</p>
-                    <input
-                      type="text"
-                      placeholder="Enter Custom Percentage(ex:75%)"
-                      className="border-2 w-[20rem] p-2 outline-none"
-                      value={customDiscount}
-                      onChange={(e) => [
-                        setDiscountAmount(""),
-                        setCustomDiscount(e.target.value),
-                      ]}
-                    />
+                      Print
+                    </button>
                   </div>
+                ) : (
+                  "Patient Not Checked Yet"
+                )}
+              </Typography>
+            </Box>
+          </Fade>
+        </Modal>
+        <Modal
+          aria-labelledby="transition-modal-title"
+          aria-describedby="transition-modal-description"
+          open={open2}
+          onClose={handleClose2}
+          closeAfterTransition
+          slots={{ backdrop: Backdrop }}
+          slotProps={{
+            backdrop: {
+              timeout: 500,
+            },
+          }}
+        >
+          <Fade in={open2}>
+            <Box sx={style}>
+              <Typography
+                id="transition-modal-title"
+                variant="h6"
+                component="h2"
+                className="border-b-[4px] border-[#3497F9] w-fit"
+              >
+                OPD Patient Table Data
+              </Typography>
+              <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+                <div className="flex pt-[10px] pb-[10px] gap-[10%]">
+                  <span>
+                    <img src={img} alt="patients " className="w-[15rem] " />
+                  </span>
+                  <div class="grid grid-cols-2 gap-1">
+                    <div className="flex gap-[10px]">
+                      <span>Patients Uhid</span>:
+                      <p>{"Uhid" + patientData?.patientId}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Admission Date / Time</span>:
+                      <p>
+                        {date(patientData?.createdAt)}-
+                        {time(patientData?.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Name</span>:<p>{patientData?.patientName}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Gender</span>:<p>{patientData?.patientGender}</p>
+                    </div>
 
-                  <button className="buttonFilled">Proceed</button>
-                </form>
-              </div>
-            </Typography>
-          </Box>
-        </Fade>
-      </Modal>
-      {/* Success Snackbar */}
-      <Snackbars
-        open={openSnackbarSuccess}
-        setOpen={setOpenSnackBarSuccess}
-        severity="success"
-        message={snackBarMessageSuccess}
-      />
-      {/* Warning Snackbar */}
-      <Snackbars
-        open={openSnackbarWarning}
-        setOpen={setOpenSnackBarWarning}
-        severity="warning"
-        message={snackBarMessageWarning}
-      />
-    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Phone NO</span>:
+                      <p>{patientData?.patientPhone}</p>
+                    </div>
+
+                    <div className="flex gap-[10px]">
+                      <span>Patient Blood Group</span>:
+                      <p>{patientData?.patientBloodGroup}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Gender</span>:
+                      <p>{patientData?.patientGender}</p>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span>Patient Age</span>:<p>{patientData?.patientAge}</p>
+                    </div>
+                  </div>
+                </div>
+                {discountAlreadyAlloted === false ? (
+                  <div>
+                    <h2>Discount Offered By Doctor</h2>
+                    <form
+                      className=" flex items-start justify-start flex-col w-full gap-3 mt-4"
+                      onSubmit={giveDiscountToOPDPatientDataHandle}
+                    >
+                      <div className="w-full flex items-center justify-start gap-2 ">
+                        <select
+                          className="border-2 w-[20rem] p-2 outline-none"
+                          value={discountAmount}
+                          onChange={(e) => [
+                            setDiscountAmount(e.target.value),
+                            setCustomDiscount(""),
+                          ]}
+                        >
+                          <option value="">Select a Refund</option>
+                          <option value={"50"}>Partial Refund</option>
+                          <option value={"100"}>Full Refund</option>
+                        </select>
+                        <p>OR</p>
+                        <input
+                          type="text"
+                          placeholder="Enter Custom Percentage(ex:75%)"
+                          className="border-2 w-[20rem] p-2 outline-none"
+                          value={customDiscount}
+                          onChange={(e) => [
+                            setDiscountAmount(""),
+                            setCustomDiscount(e.target.value),
+                          ]}
+                        />
+                      </div>
+
+                      <button className="buttonFilled">Proceed</button>
+                    </form>
+                  </div>
+                ) : (
+                  <p>Already Discount Allotted</p>
+                )}
+              </Typography>
+            </Box>
+          </Fade>
+        </Modal>
+        {/* Success Snackbar */}
+        <Snackbars
+          open={openSnackbarSuccess}
+          setOpen={setOpenSnackBarSuccess}
+          severity="success"
+          message={snackBarMessageSuccess}
+        />
+        {/* Warning Snackbar */}
+        <Snackbars
+          open={openSnackbarWarning}
+          setOpen={setOpenSnackBarWarning}
+          severity="warning"
+          message={snackBarMessageWarning}
+        />
+      </div>
+    </Suspense>
   );
 }
 

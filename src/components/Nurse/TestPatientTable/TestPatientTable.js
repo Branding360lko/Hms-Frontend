@@ -4,7 +4,7 @@ import "./TestPatientTable.css";
 import Table from "../../Table";
 
 import { FaSearch } from "react-icons/fa";
-import { MdViewKanban } from "react-icons/md";
+import { MdDeleteForever, MdViewKanban } from "react-icons/md";
 import { RiEdit2Fill } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { LuHardDriveDownload } from "react-icons/lu";
@@ -43,6 +43,8 @@ import {
 } from "../../../Store/Services/TestPatient";
 
 import axios from "axios";
+import { getTestDataHandle } from "../../../Store/Slices/Test";
+import { useState } from "react";
 
 export default function TestPatientTable() {
   const navigate = useNavigate();
@@ -71,7 +73,73 @@ export default function TestPatientTable() {
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
   const { testOfPatients } = useSelector((state) => state.TestPatientState);
+  const [selectedTest, setSelectedTest] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [searchTest, setSearchTest] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const selectRef = React.useRef(null);
+  const addTestTableHandle = (e) => {
+    e.preventDefault();
+    setSelectedTest([
+      ...selectedTest,
+      { name: "", quantity: 1, price: 0, total: 0 },
+    ]);
+  };
+  const addSelectedTestDataHandle = (index, item) => {
+    let oldValue = [...selectedTest];
+    oldValue[index] = {
+      ...oldValue[index],
+      name: item?.Name,
+      price: item?.Cost,
+      total: item?.Cost * oldValue[index].quantity,
+    };
+    setSelectedTest(oldValue && oldValue);
+    setSearchTest([]);
+  };
+  const getTestData = (e, index) => {
+    let oldValue = [...selectedTest];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+    oldValue[index] = {
+      ...oldValue[index],
+      total: oldValue[index].quantity * oldValue[index].price,
+    };
+    setSelectedTest(oldValue && oldValue);
+  };
+  const { testData } = useSelector((state) => state.TestData);
+  const selectTestHandle = (e) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      const filter = testData?.data?.filter((item) => {
+        if (e.target.value !== "") {
+          return item?.Name?.toLowerCase()?.includes(
+            e.target.value?.toLowerCase()
+          );
+        }
+      });
+      setSearchTest(filter && filter);
+    }, 100);
+    setIsLoading(false);
+  };
+  const deleteTestHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...selectedTest];
 
+    oldValue.splice(index, 1);
+
+    setSelectedTest(oldValue && oldValue);
+  };
+  React.useEffect(() => {
+    // if (!doctors || doctors.length === 0) {
+    //   dispatch(GetAllDoctorsHandle());
+    // }
+
+    if (!testData || !testData.data || testData.data.length === 0) {
+      dispatch(getTestDataHandle());
+    }
+  }, [testData]);
   const date = (dateTime) => {
     const newdate = new Date(dateTime);
 
@@ -214,7 +282,7 @@ export default function TestPatientTable() {
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Add Test</h2>
       <form className="flex flex-col gap-[1rem]" onSubmit={handleAddOPDPatient}>
-        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+        <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID</label>
             <Select
@@ -245,14 +313,15 @@ export default function TestPatientTable() {
               />
             </div> */}
 
-          <div className="flex flex-col gap-[6px] relative w-full">
+          {/* <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">Test</label>
             <Select
               required
+              isMulti
               options={renderedTestsForDropdown}
               onChange={setTests}
             />
-          </div>
+          </div> */}
 
           {/* <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Tests</label>
@@ -275,14 +344,141 @@ export default function TestPatientTable() {
             <select
               onChange={(e) => setPatientType(e.target.value)}
               className="py-[11.5px] outline-none border-b bg-transparent"
+              required
             >
-              <option>OPD</option>
-              <option>IPD</option>
-              <option>Emergency</option>
+              <option value="">Select Patient Type</option>
+              <option value="opd">OPD</option>
+              <option value="ipd">IPD</option>
+              <option value="emergency">Emergency</option>
             </select>
           </div>
         </div>
+        <div className="w-full flex flex-col gap-[6px]">
+          <span className="w-full flex items-center justify-between p-4">
+            <h6>Test</h6>
+            <button className="buttonFilled" onClick={addTestTableHandle}>
+              Add Test
+            </button>
+          </span>
+          <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+            <thead>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>S_N</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Test</p>
+              </th>
 
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Quantity</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Price</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Total</p>
+              </th>
+
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Action</p>
+              </th>
+            </thead>
+            <tbody>
+              {selectedTest?.map((item, index) => (
+                <tr key={index} className="border-b-[1px]">
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    {index + 1}
+                  </td>
+                  <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                    <input
+                      type="text"
+                      className="w-full  outline-none px-4"
+                      placeholder="Test"
+                      name="name"
+                      value={item?.name}
+                      onFocus={() => setActiveIndex(index)}
+                      onChange={(e) => [
+                        getTestData(e, index),
+                        selectTestHandle(e),
+                      ]}
+                      autocomplete="off"
+                      required
+                    />
+
+                    {activeIndex === index && (
+                      <span
+                        ref={selectRef}
+                        className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                      >
+                        {searchTest?.length > 0 ? (
+                          searchTest?.map((item) => (
+                            <p
+                              key={index}
+                              className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                              onClick={() => [
+                                addSelectedTestDataHandle(index, item),
+                                setActiveIndex(null),
+                              ]}
+                            >
+                              {item?.Name}
+                            </p>
+                          ))
+                        ) : (
+                          <p className="w-full flex items-center justify-center">
+                            {isLoading === true
+                              ? "Loading...."
+                              : "No Result Found"}
+                          </p>
+                        )}
+                        {/* <Select
+                                name="colors"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              /> */}
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <input
+                      type="text"
+                      className="w-[5rem]  outline-none"
+                      placeholder="quantity"
+                      name="quantity"
+                      value={item?.quantity}
+                      onChange={(e) => getTestData(e, index)}
+                    />
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <input
+                      type="text"
+                      className="w-[5rem]  outline-none"
+                      placeholder="price"
+                      name="price"
+                      value={item?.price}
+                    />
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <input
+                      type="text"
+                      className="w-[5rem]  outline-none"
+                      placeholder="price"
+                      name="price"
+                      value={item?.total}
+                    />
+                  </td>
+
+                  <td
+                    className="justify-center text-[16px] py-4 px-[4px] text-center border-r flex items-center justify-center"
+                    onClick={(e) => deleteTestHandle(e, index)}
+                  >
+                    <MdDeleteForever className="text-[red] text-[1.5rem] cursor-pointer" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <div className="flex flex-col gap-[6px]">
           <label className="text-[14px]">Notes</label>
           <textarea
@@ -373,7 +569,7 @@ export default function TestPatientTable() {
         className="flex flex-col gap-[1rem]"
         onSubmit={handleUpdateOPDPatient}
       >
-        <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
+        <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID</label>
             <Select
@@ -393,45 +589,16 @@ export default function TestPatientTable() {
               value={prescribedByDoctorTest}
             />
           </div>
-
-          {/* <div className='flex flex-col gap-[6px]'>
-              <label className='text-[14px]'>Blood Pressure *</label>
-              <input
-                className='py-[10px] outline-none border-b'
-                type='text'
-                required
-                placeholder='Enter blood pressure'
-                value={opdPatientBloodPressure}
-                onChange={(e) => setOpdPatientBloodPressure(e.target.value)}
-              />
-            </div> */}
-
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">Test</label>
             <Select
               required
+              isMulti
               options={renderedTestsForDropdown}
               onChange={setTests}
               value={tests}
             />
           </div>
-
-          {/* <div className="flex flex-col gap-[6px]">
-            <label className="text-[14px]">Tests</label>
-            <input
-              className="py-[10px] outline-none border-b"
-              type="text"
-              required
-              placeholder="Enter tests"
-              value={tests}
-              onChange={(e) => setTests(e.target.value)}
-              //   value={emergencyBedNo}
-              //   onChange={(e) => {
-              //     const value = e.target.value.replace(/\D/g, "");
-              //     // setEmergencyBedNo(value);
-              //   }}
-            />
-          </div> */}
 
           <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Patient Type</label>
@@ -439,6 +606,7 @@ export default function TestPatientTable() {
               value={patientType}
               onChange={(e) => setPatientType(e.target.value)}
               className="py-[11.5px] outline-none border-b bg-transparent"
+              required
             >
               <option>OPD</option>
               <option>IPD</option>

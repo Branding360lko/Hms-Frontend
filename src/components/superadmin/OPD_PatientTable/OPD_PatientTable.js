@@ -650,6 +650,7 @@ export default function OPD_PatientTable() {
   };
   // console.log(opdPatientData);
   const handleCloseViewModal = () => setOpenViewModal(false);
+  console.log(opdPatientData);
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -728,7 +729,17 @@ export default function OPD_PatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Standard Charge: </p>
-              <p>{opdPatientData?.opdPatientStandardCharges}</p>
+              <p>₹{opdPatientData?.opdPatientStandardCharges}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Refund Given By Doctor: </p>
+              <p>₹{opdPatientData?.opdPatientRefundedAmount}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">
+                Final Amount Charged From Patient:{" "}
+              </p>
+              <p>₹{opdPatientData?.opdPatientFinalChargedAmount}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Weight: </p>
