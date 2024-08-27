@@ -3,7 +3,7 @@ import axios from "axios";
 
 function AddOtherCharges({ handleAddMedicalCharges, mainId }) {
   const [items, setItems] = useState([
-    { itemName: "", quantity: 0, price: 0, date: "" },
+    { itemName: "", quantity: "", price: "", date: "" },
   ]);
   const [formError, setFormError] = useState("");
 

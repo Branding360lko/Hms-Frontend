@@ -130,6 +130,15 @@ export const IPDPatientService = createApi({
         };
       },
     }),
+    ipdPatientChangeBedById: builder.mutation({
+      query: (data) => {
+        return {
+          url: `IPDPatient-PUT-ChangeBed/${data?.id}`,
+          method: "PUT",
+          body: data?.newBedId,
+        };
+      },
+    }),
   }),
 });
 
@@ -147,4 +156,5 @@ export const {
   useIpdPatientMedLabDocDetailByIdMutation,
   useIpdPatientFinalBalanceCalGetByIdMutation,
   useIpdPatientDischargeReceiptGetByIdMutation,
+  useIpdPatientChangeBedByIdMutation,
 } = IPDPatientService;

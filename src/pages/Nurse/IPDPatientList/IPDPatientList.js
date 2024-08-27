@@ -47,7 +47,7 @@ const IPDPatientTable = lazy(() =>
 );
 
 export default function IPDPatientList() {
-  const [pageLimit, setPageLimit] = useState(10);
+  const [pageLimit, setPageLimit] = useState(2);
   const [pageCount, setPageCount] = useState(1);
 
   // const pageContext = useContext(null);

@@ -35,6 +35,7 @@ export default function IPD_PatientReciept() {
   const [doctorId, setDoctorId] = useState("");
   const [patientId, setPatientId] = useState("");
   const [ipdBedId, setIpdBedId] = useState("");
+  const [patientDetails, setPatientDetails] = useState(null);
 
   const [ipdPatientNurseDischargeDetails, setIpdPatientNurseDischargeDetails] =
     useState(null);
@@ -67,6 +68,14 @@ export default function IPD_PatientReciept() {
     useIpdPatientFinalBalanceCalGetAllQuery();
 
   console.log("responseGetPatientById:", responseGetPatientById);
+
+  useEffect(() => {
+    if (responseGetPatientById?.data) {
+      setPatientDetails(responseGetPatientById?.data);
+    }
+  }, [responseGetPatientById]);
+
+  console.log("patientDetails:", patientDetails);
 
   useEffect(() => {
     if (responseGetIPDPatientById.isSuccess) {
@@ -502,57 +511,75 @@ export default function IPD_PatientReciept() {
                   <br />
                   <div className="pagebreak"></div>
                   <div>
-                    <h3>Nurse and Doctor Approval</h3>
+                    <h3>DISCHARGE SUMMARY</h3>
                     <br />
                     <div className=" ">
-                      <h4>Nurse's Approval</h4>
                       <br />
-                      <div className="grid grid-cols-2 gap-[10px] text-[14px]">
+                      <div className="grid grid-cols-3 gap-[10px] text-[14px] mb-5">
                         <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Nurse's Name
+                          <p className="font-[500] w-[200px] text-start">
+                            PATIENT'S NAME:
                           </p>
-                          <p>{ipdPatientNurseDischargeDetails?.nurse}</p>
+                          <p>{patientDetails?.patientName}</p>
                         </div>
                         <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Nurse Id
-                          </p>
-                          <p>{ipdPatientNurseDischargeDetails?.nurseId}</p>
-                        </div>
-                        <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Patient Name
+                          <p className="font-[500] w-[200px] text-start">
+                            AGE/SEX:
                           </p>
                           <p>
-                            {responseGetPatientById?.currentData?.patientName}
+                            {patientDetails?.age}Y/
+                            {patientDetails?.patientGender}
                           </p>
                         </div>
                         <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Patient ID
+                          <p className="font-[500] w-[200px] text-start">
+                            Patient ID:
                           </p>
-                          <p>
-                            {ipdPatientNurseDischargeDetails?.ipdPatientRegId}
+                          <p>{responseGetIPDPatientById?.data?.mainId}</p>
+                        </div>
+                        <div className="flex">
+                          <p className="font-[500] w-[200px] text-start">
+                            DATE OF ADMISSION:
                           </p>
+                          <p>{`${date(
+                            responseGetIPDPatientById?.data?.createdAt
+                          )}`}</p>
+                        </div>
+                        <div className="flex">
+                          <p className="font-[500] w-[200px] text-start">
+                            DATE OF DISCHARGE:
+                          </p>
+                          <p>{`${date(
+                            responseIpdPatientDischargeReceiptGetById?.data
+                              ?.ipdPatientDischargeRecieptData
+                              ?.dateAndTimeOfDischarge
+                          )}`}</p>
                         </div>
                       </div>
 
-                      <div className=" grid grid-cols-1 text-[14px]">
+                      <div className=" grid grid-cols-1 text-[14px] text-left">
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Admitted For:
                           </span>
                           <p>{ipdPatientNurseDischargeDetails?.admittedFor}</p>
                         </div>
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Indications:
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Disease / Diagnosis:
                           </span>
-                          <p>{ipdPatientNurseDischargeDetails?.indications}</p>
+                          <p>
+                            {ipdPatientDoctorDischargeDetails?.disease_Diagnose}
+                          </p>
                         </div>
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            ICD Code:
+                          </span>
+                          <p>{ipdPatientDoctorDischargeDetails?.ICD}</p>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Investigation / Procedure:
                           </span>
                           <p>
@@ -561,6 +588,45 @@ export default function IPD_PatientReciept() {
                             }
                           </p>
                         </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Treatment Given In Brief:
+                          </span>
+                          <p>{}</p>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Condition During Discharge:
+                          </span>
+                          <p>
+                            {
+                              ipdPatientNurseDischargeDetails?.conditionDuringDischarge
+                            }
+                          </p>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Advise During Discharge:
+                          </span>
+                          <p>
+                            {
+                              ipdPatientDoctorDischargeDetails?.adviseDuringDischarge
+                            }
+                          </p>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Summary:
+                          </span>
+                          <p>{}</p>
+                        </div>
+                        {/* <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                            Indications:
+                          </span>
+                          <p>{ipdPatientNurseDischargeDetails?.indications}</p>
+                        </div>
+
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
                             Operations:
@@ -592,23 +658,13 @@ export default function IPD_PatientReciept() {
                           <p>
                             {ipdPatientNurseDischargeDetails?.implantDetails}
                           </p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Condition During Discharge:
-                          </span>
-                          <p>
-                            {
-                              ipdPatientNurseDischargeDetails?.conditionDuringDischarge
-                            }
-                          </p>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
                   <br />
                   <div className="pagebreak"></div>
-                  <div className=" ">
+                  {/* <div className=" ">
                     <h4>Doctor's Approval</h4>
                     <br />
                     <div className="grid grid-cols-2 gap-[10px] text-[14px]">
@@ -659,14 +715,7 @@ export default function IPD_PatientReciept() {
                           }
                         </p>
                       </div>
-                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                          Disease Diagnose:
-                        </span>
-                        <p>
-                          {ipdPatientDoctorDischargeDetails?.disease_Diagnose}
-                        </p>
-                      </div>
+
                       <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                         <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
                           Final Diagnosis:
@@ -675,16 +724,7 @@ export default function IPD_PatientReciept() {
                           {ipdPatientDoctorDischargeDetails?.finalDiagnosis}
                         </p>
                       </div>
-                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                          Advise During Discharge:
-                        </span>
-                        <p>
-                          {
-                            ipdPatientDoctorDischargeDetails?.adviseDuringDischarge
-                          }
-                        </p>
-                      </div>
+
                       <div className=" flex justify-between items-center gap-5 border-2 px-2 h-[100px]">
                         <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
                           Physician In-charge:
@@ -710,7 +750,7 @@ export default function IPD_PatientReciept() {
                         <p>{ipdPatientDoctorDischargeDetails?.result}</p>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                   <div className=" w-full flex justify-between items-center">
                     <div className=" flex flex-col w-[300px] self-end justify-center items-start h-[100px]">
                       <span className=" px-2">Remarks (If Any):</span>

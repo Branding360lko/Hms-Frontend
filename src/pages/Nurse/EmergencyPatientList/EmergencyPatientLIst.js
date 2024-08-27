@@ -21,6 +21,12 @@ import { getAllNurses } from "../../../Store/Slices/NurseSlice";
 import { useGetAllBedsQuery } from "../../../Store/Services/BedService";
 import { getAllBeds } from "../../../Store/Slices/BedSlice";
 import { useGetAllEmergencyPatientBalanceQuery } from "../../../Store/Services/EmergencyPatientService";
+import {
+  getAllDoctorsData,
+  getAllNursesData,
+  getAllPatientsData,
+} from "../../../Store/Services/AxiosServices/DropDownDataServices";
+import { getAllEmergencyPatients } from "../../../Store/Services/AxiosServices/EmergencyPatientServices";
 
 const SideNav = lazy(() => import("../../../components/Nurse/SideNav"));
 const UpperNav = lazy(() =>
@@ -41,13 +47,75 @@ const NurseEmergencyTable = lazy(() =>
 //Branch Check
 
 export default function EmergencyPatientLIst() {
+  const [pageLimit, setPageLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(1);
+
+  // const pageContext = useContext(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
   const dispatch = useDispatch();
-  const responseGetAllPatients = useGetAllPatientsQuery();
-  const responseGetAllDoctors = useGetAllDoctorsQuery();
-  const responseGetAllEmergencyPatient = useGetAllEmergencyPatientQuery();
+
+  const [responseGetAllPatients, setResponseGetAllPatients] = useState(null);
+
+  const [responseGetAllNurses, setResponseGetAllNurses] = useState(null);
+
+  const [responseGetAllDoctors, setResponseGetAllDoctors] = useState(null);
+
+  const [responseGetAllEmergencyPatient, setResponseGetAllEmergencyPatient] =
+    useState(null);
+
+  // let responseGetAllNurses;
+
+  const fetcher = async () => {
+    try {
+      const responseGetEmergencyPatients = await getAllEmergencyPatients({
+        limit: pageLimit,
+        page: pageCount,
+        query: searchQuery,
+      });
+
+      if (responseGetEmergencyPatients) {
+        setResponseGetAllEmergencyPatient(
+          responseGetEmergencyPatients?.EmergencyPatientData
+        );
+      }
+
+      const responseNurses = await getAllNursesData();
+      if (responseNurses) {
+        setResponseGetAllNurses(responseNurses);
+      }
+
+      const responsePatients = await getAllPatientsData();
+      if (responsePatients) {
+        setResponseGetAllPatients(responsePatients);
+      }
+
+      const responseDoctors = await getAllDoctorsData();
+      if (responseDoctors) {
+        setResponseGetAllDoctors(responseDoctors);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // const responseGetAllPatients = useGetAllPatientsQuery();
+  // const responseGetAllDoctors = useGetAllDoctorsQuery();
+  // const responseGetAllNurses = useGetAllNursesQuery();
+
+  // const responseGetAllEmergencyPatient = useGetAllEmergencyPatientQuery({
+  //   limit: pageLimit,
+  //   page: pageCount,
+  //   query: searchQuery,
+  // });
+
   const responseGetAllBeds = useGetAllBedsQuery();
 
-  const responseGetAllNurses = useGetAllNursesQuery();
+  console.log(
+    "responseGetAllEmergencyPatient:",
+    responseGetAllEmergencyPatient
+  );
 
   const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
     (state) => state.BedState
@@ -82,62 +150,85 @@ export default function EmergencyPatientLIst() {
   );
 
   const apiRefetch = async () => {
+    fetcher();
     // Nurses
-    const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
-    if (responseGetAllNursesRefetch.isSuccess) {
-      const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
-        responseGetAllNursesRefetch?.data?.pop,
-        [...responseGetAllNursesRefetch?.data]
-      );
-      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllNurses(filteredArrayGetAllNurses));
+
+    // const responseGetAllNursesRefetch = await responseGetAllNurses.refetch();
+    // if (responseGetAllNursesRefetch.isSuccess) {
+    //   const reverseArrayGetAllNurses = responseGetAllNursesRefetch?.data?.map(
+    //     responseGetAllNursesRefetch?.data?.pop,
+    //     [...responseGetAllNursesRefetch?.data]
+    //   );
+    //   const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllNurses(filteredArrayGetAllNurses));
+    // }
+
+    if (responseGetAllNurses) {
+      dispatch(getAllNurses(responseGetAllNurses));
     }
 
     // Patients
-    const responseGetAllPatientsRefetch =
-      await responseGetAllPatients.refetch();
-    if (responseGetAllPatientsRefetch.isSuccess) {
-      const reverseArrayGetAllPatients =
-        responseGetAllPatientsRefetch?.data?.map(
-          responseGetAllPatientsRefetch?.data?.pop,
-          [...responseGetAllPatientsRefetch?.data]
-        );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllPatients(filteredArrayGetAllPatients));
+
+    // const responseGetAllPatientsRefetch =
+    //   await responseGetAllPatients.refetch();
+    // if (responseGetAllPatientsRefetch.isSuccess) {
+    //   const reverseArrayGetAllPatients =
+    //     responseGetAllPatientsRefetch?.data?.map(
+    //       responseGetAllPatientsRefetch?.data?.pop,
+    //       [...responseGetAllPatientsRefetch?.data]
+    //     );
+    //   const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllPatients(filteredArrayGetAllPatients));
+    // }
+
+    if (responseGetAllPatients) {
+      dispatch(getAllPatients(responseGetAllPatients));
     }
+
     //------------------
     // Doctors
-    const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
-    if (responseGetAllDoctorsRefetch.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctorsRefetch?.data?.map(
-        responseGetAllDoctorsRefetch?.data?.pop,
-        [...responseGetAllDoctorsRefetch?.data]
-      );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+
+    // const responseGetAllDoctorsRefetch = await responseGetAllDoctors.refetch();
+    // if (responseGetAllDoctorsRefetch.isSuccess) {
+    //   const reverseArrayGetAllDoctors = responseGetAllDoctorsRefetch?.data?.map(
+    //     responseGetAllDoctorsRefetch?.data?.pop,
+    //     [...responseGetAllDoctorsRefetch?.data]
+    //   );
+    //   const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
+
+    if (responseGetAllDoctors) {
+      dispatch(getAllDoctors(responseGetAllDoctors));
     }
+
     // ------------------
     // Emergency Patient
-    const responseGetAllEmergencyRefetch =
-      await responseGetAllEmergencyPatient.refetch();
-    if (responseGetAllEmergencyPatient.isSuccess) {
-      const reverseArrayGetAllEmergencyPatient =
-        responseGetAllEmergencyRefetch?.data?.map(
-          responseGetAllEmergencyRefetch?.data?.pop,
-          [...responseGetAllEmergencyRefetch?.data]
-        );
-      const filteredArrayGetAllEmergencyPatient =
-        reverseArrayGetAllEmergencyPatient?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(getAllEmergencyPatient(filteredArrayGetAllEmergencyPatient));
+    // const responseGetAllEmergencyRefetch =
+    //   await responseGetAllEmergencyPatient.refetch();
+    // if (responseGetAllEmergencyPatient.isSuccess) {
+    //   const reverseArrayGetAllEmergencyPatient =
+    //     responseGetAllEmergencyRefetch?.data?.map(
+    //       responseGetAllEmergencyRefetch?.data?.pop,
+    //       [...responseGetAllEmergencyRefetch?.data]
+    //     );
+    //   const filteredArrayGetAllEmergencyPatient =
+    //     reverseArrayGetAllEmergencyPatient?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllEmergencyPatient(filteredArrayGetAllEmergencyPatient));
+    // }
+
+    if (responseGetAllEmergencyPatient) {
+      dispatch(getAllEmergencyPatient(responseGetAllEmergencyPatient));
     }
+
     // ------------------
     // Beds
     const responseGetAllBedsRefetch = await responseGetAllBeds.refetch();
@@ -158,55 +249,66 @@ export default function EmergencyPatientLIst() {
 
     // Nurses
 
-    if (responseGetAllNurses.isSuccess) {
-      const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
-        responseGetAllNurses?.data?.pop,
-        [...responseGetAllNurses?.data]
-      );
-      const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllNurses(filteredArrayGetAllNurses));
-    }
+    // if (responseGetAllNurses.isSuccess) {
+    //   const reverseArrayGetAllNurses = responseGetAllNurses?.data?.map(
+    //     responseGetAllNurses?.data?.pop,
+    //     [...responseGetAllNurses?.data]
+    //   );
+    //   const filteredArrayGetAllNurses = reverseArrayGetAllNurses?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllNurses(filteredArrayGetAllNurses));
+    // }
+
+    dispatch(getAllNurses(responseGetAllNurses));
 
     // Patients
-    if (responseGetAllPatients.isSuccess) {
-      const reverseArrayGetAllPatients = responseGetAllPatients?.data?.map(
-        responseGetAllPatients?.data?.pop,
-        [...responseGetAllPatients?.data]
-      );
-      const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-        (data) => data.isDeleted === false && data
-      );
+    // if (responseGetAllPatients.isSuccess) {
+    //   const reverseArrayGetAllPatients = responseGetAllPatients?.data?.map(
+    //     responseGetAllPatients?.data?.pop,
+    //     [...responseGetAllPatients?.data]
+    //   );
+    //   const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
 
-      dispatch(getAllPatients(filteredArrayGetAllPatients));
-    }
+    //   dispatch(getAllPatients(filteredArrayGetAllPatients));
+    // }
+
+    dispatch(getAllPatients(responseGetAllPatients));
+
     // --------------
     // Doctors
-    if (responseGetAllDoctors.isSuccess) {
-      const reverseArrayGetAllDoctors = responseGetAllDoctors?.data?.map(
-        responseGetAllDoctors?.data?.pop,
-        [...responseGetAllDoctors?.data]
-      );
-      const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
-        (data) => data.isDeleted === false && data
-      );
-      dispatch(getAllDoctors(filteredArrayGetAllDoctors));
-    }
+    // if (responseGetAllDoctors.isSuccess) {
+    //   const reverseArrayGetAllDoctors = responseGetAllDoctors?.data?.map(
+    //     responseGetAllDoctors?.data?.pop,
+    //     [...responseGetAllDoctors?.data]
+    //   );
+    //   const filteredArrayGetAllDoctors = reverseArrayGetAllDoctors?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
+    //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
+    // }
+
+    dispatch(getAllDoctors(responseGetAllDoctors));
+
     // -----------------
     // EmergencyPatient
-    if (responseGetAllEmergencyPatient.isSuccess) {
-      const reverseArrayGetAllEmergencyPatient =
-        responseGetAllEmergencyPatient?.data?.map(
-          responseGetAllEmergencyPatient?.data?.pop,
-          [...responseGetAllEmergencyPatient?.data]
-        );
-      const filteredArrayGetAllEmergencyPatient =
-        reverseArrayGetAllEmergencyPatient?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(getAllEmergencyPatient(filteredArrayGetAllEmergencyPatient));
-    }
+    // if (responseGetAllEmergencyPatient.isSuccess) {
+    //   const reverseArrayGetAllEmergencyPatient =
+    //     responseGetAllEmergencyPatient?.data?.map(
+    //       responseGetAllEmergencyPatient?.data?.pop,
+    //       [...responseGetAllEmergencyPatient?.data]
+    //     );
+    //   const filteredArrayGetAllEmergencyPatient =
+    //     reverseArrayGetAllEmergencyPatient?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllEmergencyPatient(filteredArrayGetAllEmergencyPatient));
+    // }
+
+    dispatch(getAllEmergencyPatient(responseGetAllEmergencyPatient));
+
     // ---------------
     // Beds
     if (responseGetAllBeds.isSuccess) {
@@ -224,31 +326,40 @@ export default function EmergencyPatientLIst() {
     patientCreate,
     patientUpdate,
     patientDelete,
-    responseGetAllPatients.isSuccess,
+    // responseGetAllPatients,
     createDoctor,
     updateDoctor,
     deleteDoctor,
-    responseGetAllDoctors.isSuccess,
+    // responseGetAllDoctors,
     createNurse,
     updateNurse,
     deleteNurse,
-    responseGetAllNurses.isSuccess,
+    // responseGetAllNurses,
     createEmergencyPatient,
     updateEmergencyPatient,
     deleteEmergencyPatient,
-    responseGetAllEmergencyPatient.isSuccess,
+    // responseGetAllEmergencyPatient,
     responseGetAllBeds.isSuccess,
     createBeds,
     updateBeds,
     deleteBeds,
     updateEmergencyPatientDepositAmount,
   ]);
+
+  useEffect(() => {
+    dispatch(getAllEmergencyPatient(responseGetAllEmergencyPatient));
+    dispatch(getAllDoctors(responseGetAllDoctors));
+    dispatch(getAllPatients(responseGetAllPatients));
+    dispatch(getAllNurses(responseGetAllNurses));
+  }, [
+    responseGetAllPatients,
+    responseGetAllDoctors,
+    responseGetAllNurses,
+    responseGetAllEmergencyPatient,
+  ]);
   return (
     <>
-      {responseGetAllPatients.isLoading &&
-      responseGetAllDoctors.isLoading &&
-      responseGetAllEmergencyPatient.isLoading &&
-      responseGetAllBeds.isLoading ? (
+      {responseGetAllBeds.isLoading ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>

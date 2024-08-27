@@ -601,6 +601,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
     border: "none",
     outline: "none",
     boxShadow: 24,
+    overflowY: "scroll",
     p: 4,
   };
 
@@ -1269,14 +1270,6 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
           mainId={mainId}
         /> */}
       </div>
-      <ChangPatientBedModal
-        beds={beds}
-        // handleBedSelect={handleUpdatedBedSelect}
-        ipdPtientEdit={true}
-        bedModalOpen={setIsBedChange}
-        handleModalClose={handleBedChangeModalClose}
-        ipdPatientId={ipdPatientId}
-      />
     </div>
   );
 
@@ -1832,7 +1825,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: "90%",
-            height: "40%",
+            height: "60%",
             bgcolor: "background.paper",
             borderRadius: "12px",
             border: "none",
@@ -1859,7 +1852,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
                     className="py-[10px] outline-none border-b"
                     required
                     placeholder="Enter deposit amount"
-                    defaultValue={0}
+                    // defaultValue={0}
                     value={ipdDepositAmount}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, "");
@@ -2136,6 +2129,17 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
         setOpen={setOpenDialogBox}
         handleAgree={handleAgreeDialogBoxToDelete}
         message={dialogBoxMessage}
+      />
+
+      {/* Change Bed Modal */}
+
+      <ChangPatientBedModal
+        beds={beds}
+        // handleBedSelect={handleUpdatedBedSelect}
+        ipdPtientEdit={true}
+        bedModalOpen={isBedChange}
+        handleModalClose={handleBedChangeModalClose}
+        ipdPatientId={mainId}
       />
     </Suspense>
   );

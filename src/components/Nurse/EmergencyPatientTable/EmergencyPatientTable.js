@@ -177,7 +177,8 @@ export default function EmergencyPatientTable() {
   // const [emergencyBedNo, setEmergencyBedNo] = React.useState("");
   const [emergencyNotes, setEmergencyNotes] = React.useState("");
 
-  const [emergencyDepositAmount, setEmergencyDepositAmount] = React.useState(0);
+  const [emergencyDepositAmount, setEmergencyDepositAmount] =
+    React.useState("");
   const [emergencyPaymentMode, setEmergencyPaymentMode] = React.useState(null);
   const [emergencyDepositNote, setEmergencyDepositNote] = React.useState("");
 
@@ -193,6 +194,7 @@ export default function EmergencyPatientTable() {
     border: "none",
     outline: "none",
     boxShadow: 24,
+    overflowY: "scroll",
     p: 4,
   };
 
@@ -233,7 +235,7 @@ export default function EmergencyPatientTable() {
       label: "",
     });
     setEmergencyAdmittingTime("");
-    setEmergencyDepositAmount(0);
+    setEmergencyDepositAmount("");
     setEmergencyDepositNote("");
     setEmergencyPaymentMode("UPI");
 
@@ -254,7 +256,7 @@ export default function EmergencyPatientTable() {
         bedId: responseCreateEmergencyPatient?.data?.data?.bedId,
         data: { bedAvailableOrNot: false },
       });
-      setEmergencyDepositAmount(0);
+      setEmergencyDepositAmount("");
       setEmergencyDepositNote("");
       setEmergencyPaymentMode("UPI");
       handleCloseAddModal();
@@ -282,7 +284,7 @@ export default function EmergencyPatientTable() {
       notes: emergencyNotes,
       emergencyDepositAmount: emergencyDepositAmount
         ? emergencyDepositAmount
-        : 0,
+        : "",
       emergencyPaymentMode: emergencyPaymentMode,
       // emergencyFloorNo:emerge,
       balanceNote: emergencyDepositNote,
@@ -331,6 +333,7 @@ export default function EmergencyPatientTable() {
             <input
               className="py-[10px] outline-none border-b"
               placeholder="Enter deposit amount"
+              type="number"
               value={emergencyDepositAmount}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
@@ -929,6 +932,8 @@ export default function EmergencyPatientTable() {
   React.useEffect(() => {
     setAllPatientsFinalBalance(responseAllBalanceCallData?.balanceCalculation);
   }, [responseAllBalanceCallData?.balanceCalculation]);
+
+  // console.log("emergencyPatients:", emergencyPatients);
 
   const filteredArray = emergencyPatients?.filter((data) => {
     if (search !== "") {
@@ -1601,18 +1606,19 @@ export default function EmergencyPatientTable() {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: "90%",
-            height: "40%",
+            height: "60%",
             bgcolor: "background.paper",
             borderRadius: "12px",
             border: "none",
             outline: "none",
             boxShadow: 24,
+            overflowY: "scroll",
             p: 4,
           }}
         >
           <Typography id="modal-modal-title" variant="h6" component="h2">
             <h1 className="headingBottomUnderline w-fit pb-[10px]">
-              Update IPD Patient Balance
+              Update Emergency Patient Balance
             </h1>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
@@ -1628,7 +1634,7 @@ export default function EmergencyPatientTable() {
                     className="py-[10px] outline-none border-b"
                     required
                     placeholder="Enter deposit amount"
-                    defaultValue={0}
+                    // defaultValue={0}
                     value={addBalanceData?.depositAmount}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, "");

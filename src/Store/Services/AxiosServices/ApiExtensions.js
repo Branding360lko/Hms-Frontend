@@ -4,8 +4,12 @@ export const apiExt = {
   },
   patients: {
     getAllPatientsData: "DropdownData-Patient",
+    changeIpdBed: "IPDPatient-PUT-ChangeBed",
   },
   doctors: {
     getAllDoctors: "DropdownData-Doctor",
+  },
+  emergencyPatients: {
+    getAllEmergencyPatients: "EmergencyPatient-GET-ALL",
   },
 };

@@ -432,7 +432,7 @@ export default function ManageBeds({ setActivePage }) {
                   <input
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    // defaultValue={0}
                     required
                     onChange={(e) => setBedPrice(e.target.value)}
                     className="border rounded-lg w-full p-[8px] outline-none"
@@ -446,7 +446,7 @@ export default function ManageBeds({ setActivePage }) {
                   <input
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    // defaultValue={0}
                     required
                     onChange={(e) => setNursingCharges(e.target.value)}
                     className="border rounded-lg w-full p-[8px] outline-none"
@@ -459,7 +459,7 @@ export default function ManageBeds({ setActivePage }) {
                   <input
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    // defaultValue={0}
                     required
                     onChange={(e) => setEmoCharges(e.target.value)}
                     className="border rounded-lg w-full p-[8px] outline-none"
@@ -472,7 +472,7 @@ export default function ManageBeds({ setActivePage }) {
                   <input
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    // defaultValue={0}
                     required
                     onChange={(e) => setBioWasteCharges(e.target.value)}
                     className="border rounded-lg w-full p-[8px] outline-none"
@@ -485,7 +485,7 @@ export default function ManageBeds({ setActivePage }) {
                   <input
                     type="number"
                     min={0}
-                    defaultValue={0}
+                    // defaultValue={0}
                     required
                     onChange={(e) => setSanitizationCharges(e.target.value)}
                     className="border rounded-lg w-full p-[8px] outline-none"

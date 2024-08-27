@@ -176,7 +176,14 @@ export default function IPD_PatientPaymentReciept() {
                   </div>
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">Address</p>
-                    <p>{responseGetPatientById?.currentData?.patientCity}</p>
+                    <p>
+                      {responseGetPatientById?.currentData?.patientCity ===
+                        "" || responseGetPatientById?.currentData?.patientCity
+                        ? responseGetPatientById?.currentData?.patientCity
+                        : JSON.parse(
+                            responseGetPatientById?.currentData?.patientCityNew
+                          ).value}
+                    </p>
                   </div>
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">Doctor</p>
