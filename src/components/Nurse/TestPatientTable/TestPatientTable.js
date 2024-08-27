@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import "./TestPatientTable.css";
 
 import Table from "../../Table";
-
-import { FaSearch } from "react-icons/fa";
+import img1 from "../../../assets/logo.png";
+import { FaNotEqual, FaSearch } from "react-icons/fa";
 import { MdDeleteForever, MdViewKanban } from "react-icons/md";
 import { RiEdit2Fill } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
@@ -29,7 +29,7 @@ import placeholder from "../../../assets/imageplaceholder.png";
 import * as React from "react";
 import Snackbars from "../../SnackBar";
 import DialogBoxToDelete from "../../DialogBoxToDelete";
-
+import logoImage from "../../../assets/logo.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
@@ -45,11 +45,20 @@ import {
 import axios from "axios";
 import { getTestDataHandle } from "../../../Store/Slices/Test";
 import { useState } from "react";
-
+import { GetAllDoctorsHandle } from "../../../Store/Slices/DoctorSlice";
+import {
+  addPatientsTestData,
+  getAllPatientsTestData,
+  getSinglePatientsTestData,
+} from "../../Receptionist/NurseApi";
+import { CiViewList } from "react-icons/ci";
+import PaginationComponent from "../../Pagination";
+import { useReactToPrint } from "react-to-print";
+import { ToWords } from "to-words";
 export default function TestPatientTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const toWords = new ToWords();
   const [allTests, setAllTests] = React.useState([]);
 
   const getAllTests = async () => {
@@ -67,12 +76,24 @@ export default function TestPatientTable() {
     useCreateTestOfPatientMutation();
   const [updateTestOfPatientById, responseUpdateTestOfPatientById] =
     useUpdateTestOfPatientByIdMutation();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const [mainId, setMainId] = React.useState();
 
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
   const { testOfPatients } = useSelector((state) => state.TestPatientState);
+  const [allPatientsTest, setAllPatientsTest] = useState([]);
+  const [selectedPatientDetails, setSelectedPatientDetails] = useState();
+  const [testPriceTotal, setTestPriceTotal] = useState(0);
   const [selectedTest, setSelectedTest] = useState([]);
   const [activeIndex, setActiveIndex] = useState(null);
   const [searchTest, setSearchTest] = useState([]);
@@ -93,6 +114,7 @@ export default function TestPatientTable() {
       price: item?.Cost,
       total: item?.Cost * oldValue[index].quantity,
     };
+
     setSelectedTest(oldValue && oldValue);
     setSearchTest([]);
   };
@@ -106,6 +128,7 @@ export default function TestPatientTable() {
       ...oldValue[index],
       total: oldValue[index].quantity * oldValue[index].price,
     };
+
     setSelectedTest(oldValue && oldValue);
   };
   const { testData } = useSelector((state) => state.TestData);
@@ -131,6 +154,15 @@ export default function TestPatientTable() {
 
     setSelectedTest(oldValue && oldValue);
   };
+  const getTotalOfSelectedTest = React.useMemo(() => {
+    console.log(selectedTest, "selected patient");
+    const total = selectedTest?.reduce((acc, curr) => {
+      return acc + curr?.total;
+    }, 0);
+    setTestPriceTotal(total && total);
+  }, [selectedTest]);
+  // console.log(testPriceTotal, "sfgdgf");
+
   React.useEffect(() => {
     // if (!doctors || doctors.length === 0) {
     //   dispatch(GetAllDoctorsHandle());
@@ -172,6 +204,7 @@ export default function TestPatientTable() {
     label: "",
   });
   const [patientType, setPatientType] = React.useState("OPD");
+  const [paymentType, setPaymentType] = React.useState();
   const [notes, setNotes] = React.useState("");
 
   const style = {
@@ -281,7 +314,10 @@ export default function TestPatientTable() {
   const modalAddPatientTest = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Add Test</h2>
-      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddOPDPatient}>
+      <form
+        className="flex flex-col gap-[1rem]"
+        onSubmit={(e) => addPatientsTestDataHandle(e)}
+      >
         <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID</label>
@@ -350,6 +386,19 @@ export default function TestPatientTable() {
               <option value="opd">OPD</option>
               <option value="ipd">IPD</option>
               <option value="emergency">Emergency</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Payment Type</label>
+            <select
+              onChange={(e) => setPaymentType(e.target.value)}
+              className="py-[11.5px] outline-none border-b bg-transparent"
+              required
+            >
+              <option value="">Select Payment Type</option>
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="Check">Check</option>
             </select>
           </div>
         </div>
@@ -478,6 +527,10 @@ export default function TestPatientTable() {
               ))}
             </tbody>
           </table>
+          <div className="w-full flex items-end justify-end py-2 gap-1">
+            <p className="text-[1.2rem] font-semibold">Total</p>:
+            <strong className="text-[1.2rem] ">₹{testPriceTotal}</strong>
+          </div>
         </div>
         <div className="flex flex-col gap-[6px]">
           <label className="text-[14px]">Notes</label>
@@ -647,18 +700,13 @@ export default function TestPatientTable() {
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <div className="border-b flex gap-[1rem] py-[1rem] w-full">
         <h3 className="font-[500]">ID: </h3>
-        <h3>{testPatientData?.data?.mainId}</h3>
+        <h3>{selectedPatientDetails?.mainId}</h3>
       </div>
       <div className="flex w-full">
         <div className="w-[25%] flex flex-col items-center">
           <img
             className="w-[200px] h-[200px] object-contain"
-            src={
-              testPatientData?.data?.patientData?.patientImage
-                ? process.env.React_App_Base_Image_Url +
-                  testPatientData?.data?.patientData?.patientImage
-                : placeholder
-            }
+            src={placeholder}
             alt="patientImage"
           />
           {/* <button className='buttonFilled w-fit'>Button</button> */}
@@ -667,32 +715,28 @@ export default function TestPatientTable() {
           <div className="grid grid-cols-2 gap-[10px]">
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Id: </p>
-              <p>{testPatientData?.data?.testPatientId}</p>
+              <p>{selectedPatientDetails?.testPatientId}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Prescribed Doctor Id: </p>
-              <p>{testPatientData?.data?.prescribedByDoctor}</p>
+              <p>{selectedPatientDetails?.prescribedByDoctor}</p>
             </div>
 
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Name: </p>
-              <p>{testPatientData?.data?.patientData?.patientName}</p>
+              <p>{selectedPatientDetails?.patientData?.patientName}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Doctor Name: </p>
-              <p>{testPatientData?.data?.doctorData?.doctorName}</p>
+              <p>{selectedPatientDetails?.DoctorData?.doctorName}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Blood Group: </p>
-              <p>{testPatientData?.data?.patientData?.patientBloodGroup}</p>
-            </div>
-            <div className="flex">
-              <p className="font-[600] w-[150px]">Doctor Phone: </p>
-              <p>{testPatientData?.data?.doctorData?.doctorPhone}</p>
+              <p>{selectedPatientDetails?.patientData?.patientBloodGroup}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Gender: </p>
-              <p>{testPatientData?.data?.patientData?.patientGender}</p>
+              <p>{selectedPatientDetails?.patientData?.patientGender}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Case No: </p>
@@ -708,7 +752,7 @@ export default function TestPatientTable() {
             </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Phone: </p>
-              <p>{testPatientData?.data?.patientData?.patientPhone}</p>
+              <p>{selectedPatientDetails?.patientData?.patientPhone}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Blood Pressure: </p>
@@ -716,52 +760,243 @@ export default function TestPatientTable() {
             </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Height: </p>
-              <p>{testPatientData?.data?.patientData?.patientHeight}</p>
+              <p>{selectedPatientDetails?.patientData?.patientHeight}</p>
             </div>
 
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Weight: </p>
-              <p>{testPatientData?.data?.patientData?.patientWeight}</p>
+              <p>{selectedPatientDetails?.patientData?.patientWeight}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Type: </p>
-              <p>{testPatientData?.data?.patientType}</p>
+              <p>{selectedPatientDetails?.patientType}</p>
             </div>
           </div>
           <div className="flex flex-col gap-[10px]">
-            <div className="flex flex-col">
-              <p className="font-[600] w-[150px]">Test Name: </p>
-              <p className="text-[16px]">
-                {testPatientData?.data?.testData?.Name}
-              </p>
+            <div className="flex flex-col py-2">
+              <table>
+                <thead>
+                  <th className="border-[1px] p-1 font-semibold">
+                    <p>S_N</p>
+                  </th>
+                  <th className="border-[1px] p-1 font-semibold">
+                    <p>Test Name</p>
+                  </th>
+                  <th className="border-[1px] p-1 font-semibold">
+                    <p>Price</p>
+                  </th>
+                  <th className="border-[1px] p-1 font-semibold">
+                    <p>Quantity</p>
+                  </th>
+
+                  <th className="border-[1px] p-1 font-semibold">
+                    <p>Total</p>
+                  </th>
+                </thead>
+                <tbody>
+                  {selectedPatientDetails?.test?.map((item, index) => (
+                    <tr className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                      <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                        {index + 1}
+                      </td>
+                      <td>{item?.Name}</td>
+                      <td>{item?.Price}</td>
+                      <td>{item?.Quantity}</td>
+                      <td>{item?.Total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="flex flex-col">
-              <p className="font-[600] w-[150px]">Test Cost: </p>
-              <p className="text-[14px]">
-                ₹ {testPatientData?.data?.testData?.Cost}
-              </p>
+            <div className="w-full flex  items-end justify-end gap-2">
+              <p className="font-[600] ">Test Cost: </p>
+              <strong className="text-[14px]">
+                ₹ {selectedPatientDetails?.total}
+              </strong>
             </div>
-            <div className="flex flex-col">
-              <p className="font-[600] w-[150px]">Notes: </p>
-              <p className="text-[14px]">{testPatientData?.data?.notes}</p>
+            <div className="flex gap-2">
+              <p className="font-[600]">Notes: </p>
+              <p className="text-[14px]">{selectedPatientDetails?.note}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Created On: </p>
               <p className="break-word text-[14px]">
-                {`${date(testPatientData?.data?.createdAt)} ${time(
-                  testPatientData?.data?.createdAt
+                {`${date(selectedPatientDetails?.createdAt)} ${time(
+                  selectedPatientDetails?.createdAt
                 )}`}
               </p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Updated On: </p>
               <p className="break-word text-[14px]">
-                {`${date(testPatientData?.data?.updatedAt)} ${time(
-                  testPatientData?.data?.updatedAt
+                {`${date(selectedPatientDetails?.updatedAt)} ${time(
+                  selectedPatientDetails?.updatedAt
                 )}`}
               </p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+  const componentRef = React.useRef();
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
+
+  const printView = (
+    <div className="print-hide">
+      <div className="print-show w-full" ref={componentRef}>
+        <div className="flex justify-between items-end">
+          <div className="flex items-end gap-[1rem]">
+            <img src={logoImage} alt="chtclogo" className="w-[150px]" />
+            <div className="flex flex-col items-start">
+              <p className="text-[16px]">City Hospital and Trauma Centre</p>
+              <p className="text-[14px]">Contact no. 9119900861, 9119900862</p>
+            </div>
+          </div>
+          <div className="flex text-[12px] gap-[10px]">
+            <p className="w-[250px]">
+              C1-C2 Cinder Dump Complex, near Alambagh bus stand, Kanpur road,
+              Lucknow 226005
+            </p>
+          </div>
+        </div>
+        <p className="text-center text-[12px]">Billing</p>
+        <h3
+          className="text-center"
+          style={{
+            borderTop: "2px solid #373737",
+            borderBottom: "2px solid #373737",
+          }}
+        >
+          Test Payment Receipt
+        </h3>
+
+        <div className="grid grid-cols-2 gap-[10px] text-[14px] px-4 py-2">
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">UHID</p>
+            <p>{selectedPatientDetails?.testPatientId}</p>
+          </div>
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Visit Date</p>
+            {/* <p className="border-b-[2px] border-dotted border-black w-[200px]">{``}</p> */}
+            <p>{`${date(selectedPatientDetails?.updatedAt)} - ${time(
+              selectedPatientDetails?.updatedAt
+            )}`}</p>
+          </div>
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Patient Name</p>
+            <p>{selectedPatientDetails?.patientData?.patientName}</p>
+          </div>
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Address</p>
+            <p>{selectedPatientDetails?.patientData?.patientCity}</p>
+          </div>
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Doctor</p>
+            <p>{selectedPatientDetails?.DoctorData?.doctorName}</p>
+          </div>
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Gender</p>
+            <p>{selectedPatientDetails?.patientData?.patientGender}</p>
+          </div>
+          {/* <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">DOB</p>
+                    <p>
+                      {date(
+                        responseGetPatientById?.currentData?.patientDateOfBirth
+                      )}
+                    </p>
+                  </div> */}
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Age</p>
+            <p>{selectedPatientDetails?.patientData?.patientAge}</p>
+          </div>
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Phone</p>
+            <p>{selectedPatientDetails?.patientData?.patientPhone}</p>
+          </div>
+
+          <div className="flex">
+            <p className="font-[500] w-[130px] text-start">Payment Mode</p>
+            <p>{selectedPatientDetails?.paymentType}</p>
+          </div>
+        </div>
+        <div
+          className="flex justify-between p-[1rem]"
+          style={{
+            borderTop: "2px solid #373737",
+            borderBottom: "2px solid #373737",
+          }}
+        >
+          <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+            <thead>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>S_N</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Test</p>
+              </th>
+
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Price</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Quantity</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Total</p>
+              </th>
+            </thead>
+            <tbody>
+              {selectedPatientDetails?.test?.map((item, index) => (
+                <tr className="border-b-[1px]">
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    {index + 1}
+                  </td>
+                  <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                    <p> {item?.Name}</p>
+                  </td>
+
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <p> {item?.Price}</p>
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <p> {item?.Quantity}</p>
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <p> {item?.Total}</p>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div
+          className="flex justify-between p-[1rem]"
+          style={{
+            borderBottom: "2px solid #373737",
+          }}
+        >
+          <h3>Total Charge's:</h3>
+          <p>{`₹ ${selectedPatientDetails?.total}`}</p>
+        </div>
+        <div
+          className="flex justify-end items-center px-[1rem] pb-[10px]"
+          style={{
+            // borderTop: "2px solid #373737",
+            borderBottom: "2px solid #373737",
+          }}
+        >
+          <p>{`₹ ${toWords.convert(
+            `${
+              selectedPatientDetails?.total ? selectedPatientDetails?.total : 0
+            }`,
+            {
+              currency: true,
+            }
+          )}`}</p>
         </div>
       </div>
     </div>
@@ -800,60 +1035,51 @@ export default function TestPatientTable() {
   //     };
   //   });
 
-  const config = [
-    {
-      label: "S No.",
-      render: (list) => list?.id,
-    },
-    {
-      label: "UHID",
-      render: (list) => list?.data?.testPatientId,
-    },
-    {
-      label: "Patient Name",
-      render: (list) => list?.data?.patientData?.patientName,
-    },
-    {
-      label: "Test Name",
-      render: (list) => list?.data?.testData?.Name,
-    },
-    {
-      label: "Prescribed by Doctor",
-      render: (list) => list?.data?.doctorData?.doctorName,
-    },
-    {
-      label: "Patient Type",
-      render: (list) => list?.data?.patientType,
-    },
-    {
-      label: "User Action",
-      render: (list) => (
-        <div className="flex gap-[10px] justify-center">
-          <div
-            onClick={() => handleOpenViewModal(list)}
-            className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
-          >
-            <MdViewKanban className="text-[25px] text-[#96999C]" />
-          </div>
-          <div
-            onClick={() => handleOpenUpdateModal(list)}
-            className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
-          >
-            <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
-          </div>
-          {/* <div
-              onClick={() => handleClickOpenDialogBox(list)}
-              className='p-[4px] h-fit w-fit border-[2px] border-[#EB5757] rounded-[12px] cursor-pointer'>
-              <RiDeleteBin6Fill className='text-[25px] text-[#EB5757]' />
-            </div> */}
-        </div>
-      ),
-    },
-  ];
-
-  const keyFn = (list) => {
-    return list.mainId;
+  const getAllPatientsTestDataHandle = async () => {
+    const result = await getAllPatientsTestData();
+    setAllPatientsTest(result?.data && result?.data);
   };
+  const addPatientsTestDataHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("testPatientId", testPatientUHID?.value);
+    formData.append("prescribedByDoctor", prescribedByDoctorTest?.value);
+    formData.append("patientType", patientType);
+    formData.append("note", notes);
+    formData.append("total", testPriceTotal);
+    formData.append("paymentType", paymentType);
+    formData.append("test", JSON.stringify(selectedTest));
+    const result = await addPatientsTestData(formData);
+    if (result?.status === 200) {
+      handleCloseAddModal();
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(result?.data?.message);
+      console.log(result);
+    }
+  };
+  const getSinglePatientsTestDataHandle = async (Id) => {
+    const result = await getSinglePatientsTestData(Id);
+    setSelectedPatientDetails(result?.data && result?.data?.[0]);
+    console.log(result, "214324");
+  };
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setActiveIndex(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  React.useEffect(() => {
+    dispatch(GetAllDoctorsHandle());
+  }, []);
+
+  React.useEffect(() => {
+    getAllPatientsTestDataHandle();
+  }, []);
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -879,12 +1105,98 @@ export default function TestPatientTable() {
         <input type='date' className='bg-transparent outline-none' />
       </div> */}
         </div>
-        <Table
-          data={mappedEmergencyRegTableData}
-          config={config}
-          keyFn={keyFn}
-        />
+
+        <div className="w-full">
+          <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+            <thead>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>S_N</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Patient Uhid</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Patient Name</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Prescribed by Doctor</p>
+              </th>
+
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Patient Type</p>
+              </th>
+
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Action</p>
+              </th>
+            </thead>
+            <tbody>
+              {allPatientsTest
+
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                ?.map((item, index) => (
+                  <tr key={index} className="border-b-[1px]">
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                      {index + 1}
+                    </td>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                      {item?.testPatientId}
+                    </td>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                      {item?.patientData?.patientName}
+                    </td>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                      {/* {item?.ReferredDoctorDetails?.[0]?.doctorName} */}
+                      {item?.DoctorData?.doctorName}
+                    </td>
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                      {item?.patientType}
+                    </td>
+
+                    <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                      <div className="flex gap-[10px] justify-center">
+                        <div
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#96999C] rounded-[12px] cursor-pointer"
+                          onClick={() => [
+                            getSinglePatientsTestDataHandle(item?.mainId),
+                            handleOpenViewModal(),
+                          ]}
+                        >
+                          <CiViewList className="text-[20px] text-[#96999C]" />
+                        </div>{" "}
+                        <div
+                          onClick={() =>
+                            getSinglePatientsTestDataHandle(item?.mainId)
+                          }
+                          className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                        >
+                          <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
+                        </div>
+                        {/* <div
+                        className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
+                        onClick={() => [
+                          handleOpen1(),
+                          getOneReferPatientDataDataHandle(item?._id),
+                        ]}
+                      >
+                        <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
+                      </div> */}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+          <PaginationComponent
+            page={page}
+            rowsPerPage={rowsPerPage}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+            data={allPatientsTest}
+          />
+        </div>
       </div>
+      {printView}
       <Modal
         open={openAddModal}
         onClose={handleCloseAddModal}
@@ -931,17 +1243,17 @@ export default function TestPatientTable() {
               <h1 className="headingBottomUnderline w-fit pb-[10px]">
                 Test Patient
               </h1>
-              <Link
+              <button
                 // onClick={handleGeneratePdf}
-                target="_blank"
-                to={testPatientData?.data?.mainId}
+
                 // to={opdPatientData?.data?.mainId}
                 // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
                 className="buttonFilled flex items-center gap-[10px]"
+                onClick={handlePrint}
               >
                 <LuHardDriveDownload />
-                <p>Download</p>
-              </Link>
+                <p>Print Slip</p>
+              </button>
             </div>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>

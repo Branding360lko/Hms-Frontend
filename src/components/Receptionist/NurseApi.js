@@ -435,3 +435,34 @@ export const giveDiscountToOPDPatientData = async (Id, formData) => {
     throw new Error(error);
   }
 };
+export const addPatientsTestData = async (formData) => {
+  try {
+    const response = await axios.post(
+      `${process.env.React_App_Base_url + "TestOfPatient-POST"}`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getSinglePatientsTestData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "TestOfPatient-GET-ONE/" + Id}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+export const getAllPatientsTestData = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "TestOfPatient-GET-ALL"}`
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};

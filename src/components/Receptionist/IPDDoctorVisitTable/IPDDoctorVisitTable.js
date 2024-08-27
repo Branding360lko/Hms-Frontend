@@ -48,6 +48,7 @@ export default function IPDDoctorVisitTable() {
       visitDateTime: "",
     });
   };
+
   const [open1, setOpen1] = React.useState(false);
   const handleOpen1 = () => setOpen1(true);
   const handleClose1 = () => setOpen1(false);
