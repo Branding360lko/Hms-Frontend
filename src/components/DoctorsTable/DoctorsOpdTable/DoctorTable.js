@@ -449,13 +449,14 @@ function DoctorTable() {
   };
   const getSearchResultDoctorPanelDataHandle = async (Id) => {
     if (!visitedPages.includes(page)) {
+      setIsLoading(true);
       const result = await getSearchResultDoctorPanelData(
         Id,
         page,
         rowsPerPage,
         debouncedSearchTerm
       );
-      setIsLoading(true);
+
       // setFilteredData(result && [...filteredData, ...result?.data?.searchData]);
       setOpdPatients(result && [...opdPatients, ...result?.data?.searchData]);
       setTotalData(result && result?.data?.totalDocuments);
@@ -522,6 +523,9 @@ function DoctorTable() {
       dispatch(getTestDataHandle());
     }
   }, [medicineData, testData]);
+  useEffect(() => {
+    console.log(isLoading, "isLoading");
+  }, [isLoading]);
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -551,7 +555,7 @@ function DoctorTable() {
           </button> */}
           </div>
         </div>
-        {isLoading && (
+        {isLoading === true && (
           <div>
             <Box sx={{ width: "100%" }}>
               <LinearProgress />

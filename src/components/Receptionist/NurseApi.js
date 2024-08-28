@@ -466,3 +466,18 @@ export const getAllPatientsTestData = async () => {
     throw new Error(error);
   }
 };
+export const getOpdPatientsDateWiseReportData = async (date) => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "download-opd-list/" + date}`,
+      {
+        responseType: "blob",
+      }
+    );
+    return response;
+  } catch (error) {
+    console.log(error, "error");
+
+    throw new Error(error.response?.data || error.message);
+  }
+};

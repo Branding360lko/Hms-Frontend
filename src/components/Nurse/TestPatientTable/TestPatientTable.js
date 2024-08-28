@@ -95,6 +95,8 @@ export default function TestPatientTable() {
   const [selectedPatientDetails, setSelectedPatientDetails] = useState();
   const [testPriceTotal, setTestPriceTotal] = useState(0);
   const [selectedTest, setSelectedTest] = useState([]);
+  const [filteredData, setFilteredData] = React.useState([]);
+  const [search, setSearch] = React.useState("");
   const [activeIndex, setActiveIndex] = useState(null);
   const [searchTest, setSearchTest] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -1002,8 +1004,6 @@ export default function TestPatientTable() {
     </div>
   );
 
-  const [search, setSearch] = React.useState("");
-
   // const filteredArray = testOfPatients?.filter((data) => {
   //   if (search !== "") {
   //     const userSearch = search.toLowerCase();
@@ -1038,6 +1038,7 @@ export default function TestPatientTable() {
   const getAllPatientsTestDataHandle = async () => {
     const result = await getAllPatientsTestData();
     setAllPatientsTest(result?.data && result?.data);
+    setFilteredData(result?.data && result?.data);
   };
   const addPatientsTestDataHandle = async (e) => {
     e.preventDefault();
@@ -1054,7 +1055,7 @@ export default function TestPatientTable() {
       handleCloseAddModal();
       handleClickSnackbarSuccess();
       setSnackBarSuccessMessage(result?.data?.message);
-      console.log(result);
+      getAllPatientsTestDataHandle();
     }
   };
   const getSinglePatientsTestDataHandle = async (Id) => {
@@ -1062,6 +1063,29 @@ export default function TestPatientTable() {
     setSelectedPatientDetails(result?.data && result?.data?.[0]);
     console.log(result, "214324");
   };
+  const searchHandle = () => {
+    const filter = allPatientsTest?.filter((item) => {
+      if (search != "") {
+        return (
+          item?.patientData?.patientName
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          item?.patientData?.patientPhone
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          item?.patientData?.patientPhone2
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          item?.testPatientId?.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      return item;
+    });
+    setFilteredData(filter && filter);
+  };
+  React.useEffect(() => {
+    searchHandle();
+  }, [search]);
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
@@ -1096,8 +1120,8 @@ export default function TestPatientTable() {
           <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
             <FaSearch className="text-[#56585A]" />
             <input
-              className="bg-transparent outline-none"
-              placeholder="Search by uhid"
+              className="bg-transparent outline-none w-[27rem]"
+              placeholder="Search by Patient Name Or Phone Number Or Uhid"
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -1131,8 +1155,7 @@ export default function TestPatientTable() {
               </th>
             </thead>
             <tbody>
-              {allPatientsTest
-
+              {filteredData
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 ?.map((item, index) => (
                   <tr key={index} className="border-b-[1px]">
@@ -1164,14 +1187,14 @@ export default function TestPatientTable() {
                         >
                           <CiViewList className="text-[20px] text-[#96999C]" />
                         </div>{" "}
-                        <div
+                        {/* <div
                           onClick={() =>
                             getSinglePatientsTestDataHandle(item?.mainId)
                           }
                           className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         >
                           <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
-                        </div>
+                        </div> */}
                         {/* <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         onClick={() => [
@@ -1192,7 +1215,7 @@ export default function TestPatientTable() {
             rowsPerPage={rowsPerPage}
             handleChangePage={handleChangePage}
             handleChangeRowsPerPage={handleChangeRowsPerPage}
-            data={allPatientsTest}
+            data={filteredData}
           />
         </div>
       </div>

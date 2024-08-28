@@ -72,18 +72,14 @@ export default function OPD_Patients() {
 
   const fetchPatientNames = async () => {
     return await axios
-      .get(`${process.env.React_App_Base_url}DropdownData-Patient`, {
-        params: { query: "" },
-      })
+      .get(`${process.env.React_App_Base_url}DropdownData-Patient`, {})
       .then((res) => dispatch(getAllPatients(res.data)))
       .catch((err) => console.error(err));
   };
 
   const fetchDoctorNames = async () => {
     return await axios
-      .get(`${process.env.React_App_Base_url}DropdownData-Doctor`, {
-        params: { query: "" },
-      })
+      .get(`${process.env.React_App_Base_url}DropdownData-Doctor`, {})
       .then((res) => dispatch(getAllDoctors(res.data)))
       .catch((err) => console.error(err));
   };

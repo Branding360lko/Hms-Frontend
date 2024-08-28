@@ -170,6 +170,10 @@ function DischargePatientsTable() {
   useEffect(() => {
     getAllDischargePatientsListDataHandle();
   }, []);
+  useEffect(() => {
+    console.log(patientsDischargeData, "patientsDischargeData");
+  }, [patientsDischargeData]);
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">

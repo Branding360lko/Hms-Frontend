@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./OPDPatientList.css";
 
 import { lazy } from "react";
@@ -59,7 +59,7 @@ export default function OPDPatientList() {
     opdPatientId: opdPatientId,
     patientMobileNumber: patientMobileNumber,
   });
-
+  const [isLoadingOnSearch, setIsLoadingOnSearch] = useState(false);
   // const {
   //   doctors,
   //   doctorProfessionalDetails,
@@ -73,18 +73,14 @@ export default function OPDPatientList() {
 
   const fetchPatientNames = async () => {
     return await axios
-      .get(`${process.env.React_App_Base_url}DropdownData-Patient`, {
-        params: { query: "" },
-      })
+      .get(`${process.env.React_App_Base_url}DropdownData-Patient`, {})
       .then((res) => dispatch(getAllPatients(res.data)))
       .catch((err) => console.error(err));
   };
 
   const fetchDoctorNames = async () => {
     return await axios
-      .get(`${process.env.React_App_Base_url}DropdownData-Doctor`, {
-        params: { query: "" },
-      })
+      .get(`${process.env.React_App_Base_url}DropdownData-Doctor`, {})
       .then((res) => dispatch(getAllDoctors(res.data)))
       .catch((err) => console.error(err));
   };
@@ -122,6 +118,7 @@ export default function OPDPatientList() {
       dispatch(
         totalPagesChange(responseGetAllOPDPatientsRefetch?.data?.totalPages)
       );
+      setIsLoadingOnSearch(false);
       fetchPatientNames();
       fetchDoctorNames();
     }
@@ -279,7 +276,10 @@ export default function OPDPatientList() {
           <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
             <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
-              <OPDPatientTable />
+              <OPDPatientTable
+                isLoadingOnSearch={isLoadingOnSearch}
+                setIsLoadingOnSearch={setIsLoadingOnSearch}
+              />
             </div>
           </div>
         </div>

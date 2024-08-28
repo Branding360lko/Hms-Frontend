@@ -54,12 +54,18 @@ import {
 
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { getOpdPatientsDateWiseReportData } from "../../Receptionist/NurseApi";
+import { LinearProgress } from "@mui/material";
 
-export default function OPD_PatientTable() {
+export default function OPD_PatientTable({
+  isLoadingOnSearch,
+  setIsLoadingOnSearch,
+}) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
+  const [selectedDate, setSelectedDate] = React.useState("");
   const { OPDPatients, page, limit, totalPages } = useSelector(
     (state) => state.OPDPatientState
   );
@@ -650,7 +656,6 @@ export default function OPD_PatientTable() {
   };
   // console.log(opdPatientData);
   const handleCloseViewModal = () => setOpenViewModal(false);
-  console.log(opdPatientData);
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -876,21 +881,49 @@ export default function OPD_PatientTable() {
   const handleSearch = useCallback(
     debounce((searchTerm) => {
       dispatch(opdPatientIdChange(searchTerm));
+      setIsLoadingOnSearch(true);
     }, 1000),
     [search]
   );
   const handleSearch1 = useCallback(
     debounce((searchTerm) => {
       dispatch(patientNameChange(searchTerm));
+      setIsLoadingOnSearch(true);
     }, 1000),
     [search2]
   );
   const handleSearch2 = useCallback(
     debounce((searchTerm) => {
       dispatch(patientMobileNumberChange(searchTerm));
+      setIsLoadingOnSearch(true);
     }, 1000),
     [search3]
   );
+  const getOpdPatientsDateWiseReportDataHandle = async (e) => {
+    e.preventDefault();
+    try {
+      const downloadReport = await getOpdPatientsDateWiseReportData(
+        selectedDate
+      );
+
+      const url = window.URL.createObjectURL(new Blob([downloadReport.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `opd-patients-${selectedDate}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setOpenSnackBarSuccess(true);
+      setSnackBarSuccessMessage(`Report Downloaded For ${selectedDate}`);
+    } catch (error) {
+      setOpenSnackBarWarning(true);
+      setSnackBarSuccessWarning(`No Patient Found On ${selectedDate}`);
+      console.error("Error downloading the report:", error.message);
+    }
+  };
+  React.useEffect(() => {
+    console.log(selectedDate);
+  }, [selectedDate]);
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1011,21 +1044,57 @@ export default function OPD_PatientTable() {
               }}
             /> */}
           </div>
+          <div className="flex items-center gap-[1rem]">
+            <form onSubmit={(e) => getOpdPatientsDateWiseReportDataHandle(e)}>
+              <div className="flex gap-[10px] bg-[#F4F6F6] border-2 rounded-md  items-center px-2 py-2 ">
+                <input
+                  type="date"
+                  className="bg-transparent outline-none"
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  required
+                />
+                <button
+                  type="submit"
+                  className="border-l-[2px] border-gray pl-[4px] buttonFilled hover:underline"
+                >
+                  Download Report
+                </button>
+              </div>
+            </form>
+
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
 
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <TableWithApi
-          data={mappedOPDPatientData}
-          config={config}
-          keyFn={keyFn}
-          pageChange={pageChange}
-          limitChange={limitChange}
-          page={page}
-          limit={limit}
-          totalPages={totalPages}
-        />
+        {isLoadingOnSearch ? (
+          <Box sx={{ width: "100%" }}>
+            <LinearProgress />
+          </Box>
+        ) : (
+          <TableWithApi
+            data={mappedOPDPatientData}
+            config={config}
+            keyFn={keyFn}
+            pageChange={pageChange}
+            limitChange={limitChange}
+            page={page}
+            limit={limit}
+            totalPages={totalPages}
+          />
+        )}
         {/* <Table data={mappedBillData} config={config} keyFn={keyFn} /> */}
       </div>
       <Modal
