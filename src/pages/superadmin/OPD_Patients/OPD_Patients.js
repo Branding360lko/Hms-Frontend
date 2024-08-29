@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./OPD_Patients.css";
 import { lazy } from "react";
 import SideNav from "../../../components/superadmin/SideNav";
@@ -38,6 +38,7 @@ export default function OPD_Patients() {
   // const responseGetAllDoctorProfessionalDetails =
   //   useGetAllDoctorProfessionalDetailsQuery();
   // const responseGetAllPatients = useGetAllPatientsQuery();
+  const [isLoadingOnSearch, setIsLoadingOnSearch] = useState(false);
   const {
     OPDPatients,
     createOPDPatient,
@@ -117,6 +118,7 @@ export default function OPD_Patients() {
       dispatch(
         totalPagesChange(responseGetAllOPDPatientsRefetch?.data?.totalPages)
       );
+      setIsLoadingOnSearch(false);
       fetchPatientNames();
       fetchDoctorNames();
     }
@@ -275,7 +277,10 @@ export default function OPD_Patients() {
           <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
             <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
-              <OPDPatientTable />
+              <OPDPatientTable
+                isLoadingOnSearch={isLoadingOnSearch}
+                setIsLoadingOnSearch={setIsLoadingOnSearch}
+              />
             </div>
           </div>
         </div>

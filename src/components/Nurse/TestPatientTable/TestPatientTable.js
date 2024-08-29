@@ -50,6 +50,7 @@ import {
   addPatientsTestData,
   getAllPatientsTestData,
   getSinglePatientsTestData,
+  updateTestPatientData,
 } from "../../Receptionist/NurseApi";
 import { CiViewList } from "react-icons/ci";
 import PaginationComponent from "../../Pagination";
@@ -157,7 +158,6 @@ export default function TestPatientTable() {
     setSelectedTest(oldValue && oldValue);
   };
   const getTotalOfSelectedTest = React.useMemo(() => {
-    console.log(selectedTest, "selected patient");
     const total = selectedTest?.reduce((acc, curr) => {
       return acc + curr?.total;
     }, 0);
@@ -191,6 +191,8 @@ export default function TestPatientTable() {
   };
 
   const [testPatientData, setTestPatientData] = React.useState();
+  const [testPatientName, setTestPatientName] = React.useState();
+  const [testDoctorName, setTestDoctorName] = React.useState();
 
   const [testPatientUHID, setTestPatientUHID] = React.useState({
     value: "",
@@ -561,28 +563,20 @@ export default function TestPatientTable() {
 
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
   const handleOpenUpdateModal = (list) => {
-    setMainId(list?.data?.mainId);
-
-    setTestPatientUHID({
-      value: list.data.patientData.patientId,
-      label: `${list.data.patientData.patientId} / ${list.data.patientData.patientName}`,
-    });
-    setPrescribedByDoctorTest({
-      value: list.data.doctorData.doctorId,
-      label: `${list.data.doctorData.doctorId} / ${list.data.doctorData.doctorName}`,
-    });
-    setTests({
-      value: list.data.testData._id,
-      label: `${list.data.testData.Name}`,
-    });
-    setPatientType(list?.data?.patientType);
-    setNotes(list?.data?.notes);
-
-    // console.log(data, "helllllll");
-
     setOpenUpdateModal(true);
   };
-  const handleCloseUpdateModal = () => setOpenUpdateModal(false);
+  const handleCloseUpdateModal = () => {
+    setOpenUpdateModal(false);
+    getAllPatientsTestDataHandle();
+    setPatientType();
+    setPaymentType();
+    setNotes();
+    setMainId();
+    setTestPatientUHID();
+    setSelectedTest([]);
+    setTestDoctorName();
+    setTestPatientName();
+  };
 
   React.useEffect(() => {
     if (responseUpdateTestOfPatientById.isSuccess) {
@@ -622,54 +616,221 @@ export default function TestPatientTable() {
       <h2 className="border-b py-[1rem]">Update Test</h2>
       <form
         className="flex flex-col gap-[1rem]"
-        onSubmit={handleUpdateOPDPatient}
+        onSubmit={(e) => updateTestPatientDataHandle(e, mainId)}
       >
         <div className="grid grid-cols-2 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
-            <label className="text-[14px]">UHID</label>
-            <Select
+            <label className="text-[14px]">Patient Name</label>
+            {/* <Select
               required
-              value={testPatientUHID}
               options={renderedPatientIDForDropdown}
               onChange={setTestPatientUHID}
-            />
+            /> */}
+            <input type="text" value={testPatientName} disabled />
           </div>
 
           <div className="flex flex-col gap-[6px] relative w-full">
-            <label className="text-[14px]">Prescribed By Doctor</label>
-            <Select
-              required
-              options={renderedDoctorIDForDropdown}
-              onChange={setPrescribedByDoctorTest}
-              value={prescribedByDoctorTest}
-            />
+            <label className="text-[14px]">Prescribed Doctor</label>
+            <input type="text" value={testDoctorName} disabled />
           </div>
-          <div className="flex flex-col gap-[6px] relative w-full">
+
+          {/* <div className='flex flex-col gap-[6px]'>
+              <label className='text-[14px]'>Blood Pressure *</label>
+              <input
+                className='py-[10px] outline-none border-b'
+                type='text'
+                required
+                placeholder='Enter blood pressure'
+                value={opdPatientBloodPressure}
+                onChange={(e) => setOpdPatientBloodPressure(e.target.value)}
+              />
+            </div> */}
+
+          {/* <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">Test</label>
             <Select
               required
               isMulti
               options={renderedTestsForDropdown}
               onChange={setTests}
-              value={tests}
             />
-          </div>
+          </div> */}
+
+          {/* <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Tests</label>
+            <input
+              className="py-[10px] outline-none border-b"
+              type="text"
+              required
+              placeholder="Enter tests"
+              onChange={(e) => setTests(e.target.value)}
+              //   value={emergencyBedNo}
+              //   onChange={(e) => {
+              //     const value = e.target.value.replace(/\D/g, "");
+              //     // setEmergencyBedNo(value);
+              //   }}
+            />
+          </div> */}
 
           <div className="flex flex-col gap-[6px]">
             <label className="text-[14px]">Patient Type</label>
             <select
-              value={patientType}
               onChange={(e) => setPatientType(e.target.value)}
+              value={patientType}
               className="py-[11.5px] outline-none border-b bg-transparent"
               required
             >
-              <option>OPD</option>
-              <option>IPD</option>
-              <option>Emergency</option>
+              <option value="">Select Patient Type</option>
+              <option value="opd">OPD</option>
+              <option value="ipd">IPD</option>
+              <option value="emergency">Emergency</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            <label className="text-[14px]">Payment Type</label>
+            <select
+              onChange={(e) => setPaymentType(e.target.value)}
+              value={paymentType}
+              className="py-[11.5px] outline-none border-b bg-transparent"
+              required
+            >
+              <option value="">Select Payment Type</option>
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="Check">Check</option>
             </select>
           </div>
         </div>
+        <div className="w-full flex flex-col gap-[6px]">
+          <span className="w-full flex items-center justify-between p-4">
+            <h6>Test</h6>
+            <button className="buttonFilled" onClick={addTestTableHandle}>
+              Add Test
+            </button>
+          </span>
+          <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+            <thead>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>S_N</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Test</p>
+              </th>
 
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Quantity</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Price</p>
+              </th>
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Total</p>
+              </th>
+
+              <th className="border-[1px] p-1 font-semibold">
+                <p>Action</p>
+              </th>
+            </thead>
+            <tbody>
+              {selectedTest?.map((item, index) => (
+                <tr key={index} className="border-b-[1px]">
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    {index + 1}
+                  </td>
+                  <td className="justify-center text-[16px] py-4  text-center border-r flex flex-col relative">
+                    <input
+                      type="text"
+                      className="w-full  outline-none px-4"
+                      placeholder="Test"
+                      name="name"
+                      value={item?.name}
+                      onFocus={() => setActiveIndex(index)}
+                      onChange={(e) => [
+                        getTestData(e, index),
+                        selectTestHandle(e),
+                      ]}
+                      autocomplete="off"
+                      required
+                    />
+
+                    {activeIndex === index && (
+                      <span
+                        ref={selectRef}
+                        className="bg-white z-50 overflow-y-scroll absolute flex flex-col justify-start items-start gap-2 w-full h-[15rem] border top-[3.5rem]"
+                      >
+                        {searchTest?.length > 0 ? (
+                          searchTest?.map((item) => (
+                            <p
+                              key={index}
+                              className="w-full hover:bg-[#2196f3] hover:text-white p-1 text-start hover:cursor-pointer"
+                              onClick={() => [
+                                addSelectedTestDataHandle(index, item),
+                                setActiveIndex(null),
+                              ]}
+                            >
+                              {item?.Name}
+                            </p>
+                          ))
+                        ) : (
+                          <p className="w-full flex items-center justify-center">
+                            {isLoading === true
+                              ? "Loading...."
+                              : "No Result Found"}
+                          </p>
+                        )}
+                        {/* <Select
+                                name="colors"
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                              /> */}
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <input
+                      type="text"
+                      className="w-[5rem]  outline-none"
+                      placeholder="quantity"
+                      name="quantity"
+                      value={item?.quantity}
+                      onChange={(e) => getTestData(e, index)}
+                    />
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <input
+                      type="text"
+                      className="w-[5rem]  outline-none"
+                      placeholder="price"
+                      name="price"
+                      value={item?.price}
+                    />
+                  </td>
+                  <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                    <input
+                      type="text"
+                      className="w-[5rem]  outline-none"
+                      placeholder="price"
+                      name="price"
+                      value={item?.total}
+                    />
+                  </td>
+
+                  <td
+                    className="justify-center text-[16px] py-4 px-[4px] text-center border-r flex items-center justify-center"
+                    onClick={(e) => deleteTestHandle(e, index)}
+                  >
+                    <MdDeleteForever className="text-[red] text-[1.5rem] cursor-pointer" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="w-full flex items-end justify-end py-2 gap-1">
+            <p className="text-[1.2rem] font-semibold">Total</p>:
+            <strong className="text-[1.2rem] ">₹{testPriceTotal}</strong>
+          </div>
+        </div>
         <div className="flex flex-col gap-[6px]">
           <label className="text-[14px]">Notes</label>
           <textarea
@@ -686,6 +847,10 @@ export default function TestPatientTable() {
             className="buttonFilled"
             // onClick={() => setSubmitButton("add")}
           >{`Save >`}</button>
+          <button
+            className="buttonOutlined"
+            // onClick={() => setSubmitButton("addPrint")}
+          >{`Save & Print >`}</button>
         </div>
       </form>
     </div>
@@ -1061,7 +1226,43 @@ export default function TestPatientTable() {
   const getSinglePatientsTestDataHandle = async (Id) => {
     const result = await getSinglePatientsTestData(Id);
     setSelectedPatientDetails(result?.data && result?.data?.[0]);
-    console.log(result, "214324");
+    setPatientType(result?.data && result?.data?.[0]?.patientType);
+    setPaymentType(result?.data && result?.data?.[0]?.paymentType);
+    setNotes(result?.data && result?.data?.[0]?.note);
+    setMainId(result?.data && result?.data?.[0]?.mainId);
+    setTestPatientUHID(result?.data && result?.data?.[0]?.testPatientId);
+    result?.data?.[0]?.test?.map((item) =>
+      setSelectedTest([
+        ...selectedTest,
+        {
+          name: item?.Name,
+          price: item?.Price,
+          quantity: item?.Quantity,
+          total: item?.Total,
+        },
+      ])
+    );
+    setTestDoctorName(
+      result?.data && result?.data?.[0]?.DoctorData?.doctorName
+    );
+    setTestPatientName(
+      result?.data && result?.data?.[0]?.patientData?.patientName
+    );
+  };
+  const updateTestPatientDataHandle = async (e, Id) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("patientType", patientType);
+    formData.append("note", notes);
+    formData.append("total", testPriceTotal);
+    formData.append("paymentType", paymentType);
+    formData.append("test", JSON.stringify(selectedTest));
+    const result = await updateTestPatientData(Id, formData);
+    if (result?.status === 200) {
+      handleCloseUpdateModal();
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(result?.data);
+    }
   };
   const searchHandle = () => {
     const filter = allPatientsTest?.filter((item) => {
@@ -1104,6 +1305,7 @@ export default function TestPatientTable() {
   React.useEffect(() => {
     getAllPatientsTestDataHandle();
   }, []);
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1187,14 +1389,15 @@ export default function TestPatientTable() {
                         >
                           <CiViewList className="text-[20px] text-[#96999C]" />
                         </div>{" "}
-                        {/* <div
-                          onClick={() =>
-                            getSinglePatientsTestDataHandle(item?.mainId)
-                          }
+                        <div
+                          onClick={() => [
+                            getSinglePatientsTestDataHandle(item?.mainId),
+                            handleOpenUpdateModal(),
+                          ]}
                           className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         >
                           <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
-                        </div> */}
+                        </div>
                         {/* <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         onClick={() => [

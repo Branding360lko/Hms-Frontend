@@ -481,3 +481,16 @@ export const getOpdPatientsDateWiseReportData = async (date) => {
     throw new Error(error.response?.data || error.message);
   }
 };
+export const updateTestPatientData = async (Id, formData) => {
+  try {
+    const response = await axios.put(
+      `${process.env.React_App_Base_url + "TestOfPatient-PUT/" + Id}`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    console.log(error, "error");
+
+    throw new Error(error.response?.data || error.message);
+  }
+};
