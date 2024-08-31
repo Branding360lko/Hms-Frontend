@@ -77,20 +77,6 @@ export default function TestPatient() {
     // ------------------
   };
   useEffect(() => {
-    apiRefetch();
-    // OPD Patients
-    if (responseGetAllTestOfPatients.isSuccess) {
-      // const reverseArrayGetAllOPDPatients =
-      //   responseGetAllOPDPatients?.data?.map(
-      //     responseGetAllOPDPatients?.data?.pop,
-      //     [...responseGetAllOPDPatients?.data]
-      //   );
-      const filteredArrayGetAllTestOfPatients =
-        responseGetAllTestOfPatients?.data?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(getAllTestOfPatient(filteredArrayGetAllTestOfPatients));
-    }
     // --------------------
     fetchPatientNames();
     fetchDoctorNames();

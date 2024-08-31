@@ -25,11 +25,24 @@ function DischargePatientsTable() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
+  const [id, setId] = useState();
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const [treatmentInBreif, setTreatmentInBreif] = useState([
+    {
+      date: "",
+      operation: "",
+      indications: "",
+      surgeon: "",
+      assistants: "",
+      nurse: "",
+      anaesthetist: "",
+      anaesthesia: "",
+      implantDetails: "",
+    },
+  ]);
   // Snackbar--------------------
   // ----Succcess
   const [openSnackbarSuccess, setOpenSnackBarSuccess] = React.useState(false);
@@ -71,7 +84,6 @@ function DischargePatientsTable() {
     );
     setAllDischargeData(result?.data?.data?.reverse());
     setFilteredData(result?.data?.data);
-    console.log(result?.data?.data, "result?.data?.data");
   };
   const getInvestigationORProcedureDataHandle = async (Id) => {
     const result = await getInvestigationORProcedureData(Id);
@@ -103,10 +115,7 @@ function DischargePatientsTable() {
     formData.append("anaesthetist", patientsDischargeData?.anaesthetist);
     formData.append("anaesthesia", patientsDischargeData?.anaesthesia);
     formData.append("implantDetails", patientsDischargeData?.implantDetails);
-    const result = await addNurseDetailsForPatientsDischargeData(
-      patientsDischargeData?.ipdPatientId,
-      formData
-    );
+    const result = await addNurseDetailsForPatientsDischargeData(id, formData);
     if (result?.status === 200) {
       handleClickSnackbarSuccess();
       setSnackBarSuccessMessage(result?.data?.message);
@@ -148,6 +157,31 @@ function DischargePatientsTable() {
       });
     }
   };
+  const addNewTreatmentTabHandle = (e) => {
+    e.preventDefault();
+    setTreatmentInBreif([
+      ...treatmentInBreif,
+      {
+        date: "",
+        operation: "",
+        indications: "",
+        surgeon: "",
+        assistants: "",
+        nurse: "",
+        anaesthetist: "",
+        anaesthesia: "",
+        implantDetails: "",
+      },
+    ]);
+  };
+  const deleteTreatmentTabHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...treatmentInBreif];
+
+    oldValue.splice(index, 1);
+
+    setTreatmentInBreif(oldValue && oldValue);
+  };
   const [search, setSearch] = React.useState("");
   const [filteredData, setFilteredData] = React.useState([]);
   const searchHandle = () => {
@@ -170,10 +204,6 @@ function DischargePatientsTable() {
   useEffect(() => {
     getAllDischargePatientsListDataHandle();
   }, []);
-  useEffect(() => {
-    console.log(patientsDischargeData, "patientsDischargeData");
-  }, [patientsDischargeData]);
-
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -245,13 +275,14 @@ function DischargePatientsTable() {
                             className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                             onClick={() => [
                               handleOpen(),
+                              getInvestigationORProcedureDataHandle(
+                                item?.mainId
+                              ),
                               setPatientsDischargeData({
                                 ...patientsDischargeData,
                                 ipdPatientId: item?.mainId,
                               }),
-                              getInvestigationORProcedureDataHandle(
-                                item?.mainId
-                              ),
+                              setId(item?.mainId),
                             ]}
                           >
                             <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
@@ -343,145 +374,166 @@ function DischargePatientsTable() {
                     }
                   />
                 </div>
-                <p className="text-[1rem] font-semibold">
-                  Treatment Given in Brief:
-                </p>
-                <div className="w-full grid grid-cols-3 gap-2">
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Date:</p>
-                    <input
-                      type="date"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1 h-[3.4rem]"
-                      value={patientsDischargeData?.date}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          date: e.target.value,
-                        })
-                      }
-                    />
-                  </div>{" "}
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Operation:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Operation"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.operations}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          operations: e.target.value,
-                        })
-                      }
-                    />
-                  </div>{" "}
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Indications:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Indications"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.indications}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          indications: e.target.value,
-                        })
-                      }
-                    />
+                <span className="flex justify-between w-full py-1">
+                  <p className="text-[1rem] font-semibold">
+                    Treatment Given in Brief:
+                  </p>
+                  <button
+                    onClick={(e) => addNewTreatmentTabHandle(e)}
+                    className="flex items-center justify-center gap-2 bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md "
+                  >
+                    Add
+                  </button>
+                </span>
+
+                {treatmentInBreif?.map((index) => (
+                  <div className="w-full py-1">
+                    <span className="w-full flex justify-end">
+                      <button
+                        className="bg-[red] text-[white] py-1 px-2 rounded-md"
+                        onClick={(e) => deleteTreatmentTabHandle(e, index)}
+                      >
+                        Delete
+                      </button>
+                    </span>
+                    <div className="w-full grid grid-cols-3 gap-2">
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Date:</p>
+                        <input
+                          type="date"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1 h-[3.4rem]"
+                          value={patientsDischargeData?.date}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              date: e.target.value,
+                            })
+                          }
+                        />
+                      </div>{" "}
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Operation:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Operation"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.operations}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              operations: e.target.value,
+                            })
+                          }
+                        />
+                      </div>{" "}
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Indications:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Indications"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.indications}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              indications: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Surgeon:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Surgeon"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.surgeon}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              surgeon: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Assistants:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Assistants"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.assistants}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              assistants: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Nurse:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Nurse"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.nurse}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              nurse: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Anaesthetist:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Anaesthetist"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.anaesthetist}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              anaesthetist: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Anaesthesia:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Anaesthesia"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.anaesthesia}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              anaesthesia: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Implant Details:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Implant Details"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={patientsDischargeData?.implantDetails}
+                          onChange={(e) =>
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              implantDetails: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Surgeon:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Surgeon"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.surgeon}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          surgeon: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Assistants:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Assistants"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.assistants}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          assistants: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Nurse:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Nurse"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.nurse}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          nurse: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Anaesthetist:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Anaesthetist"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.anaesthetist}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          anaesthetist: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Anaesthesia:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Anaesthesia"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.anaesthesia}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          anaesthesia: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Implant Details:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Implant Details"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.implantDetails}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          implantDetails: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
+                ))}
                 <button className="flex items-center justify-center gap-2 bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md ">
                   Save <IoIosArrowForward />
                 </button>

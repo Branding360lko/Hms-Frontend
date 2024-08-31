@@ -1202,8 +1202,8 @@ export default function TestPatientTable() {
 
   const getAllPatientsTestDataHandle = async () => {
     const result = await getAllPatientsTestData();
-    setAllPatientsTest(result?.data && result?.data);
-    setFilteredData(result?.data && result?.data);
+    setAllPatientsTest(result?.data && result?.data?.testPatients);
+    setFilteredData(result?.data && result?.data?.testPatients);
   };
   const addPatientsTestDataHandle = async (e) => {
     e.preventDefault();

@@ -19,6 +19,7 @@ function EmegencyPatientsDischargeTable() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [id, setId] = useState();
   // Snackbar--------------------
   // ----Succcess
   const [openSnackbarSuccess, setOpenSnackBarSuccess] = React.useState(false);
@@ -72,7 +73,6 @@ function EmegencyPatientsDischargeTable() {
     );
     setAllDischargeData(result?.data?.data?.reverse());
     setFilteredData(result?.data?.data?.reverse());
-    console.log(result?.data?.data, "result?.data?.data");
   };
   const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
@@ -97,7 +97,7 @@ function EmegencyPatientsDischargeTable() {
     formData.append("anaesthesia", patientsDischargeData?.anaesthesia);
     formData.append("implantDetails", patientsDischargeData?.implantDetails);
     const result = await addNurseDetailsForEmergencyPatientsDischargeData(
-      patientsDischargeData?.emergencyPatientId,
+      id,
       formData
     );
     if (result?.status === 200) {
@@ -248,6 +248,7 @@ function EmegencyPatientsDischargeTable() {
                             getInvestigationORProcedureEmergencyDataHandle(
                               item?.mainId
                             ),
+                            setId(item?.mainId),
                           ]}
                         >
                           <RiEdit2Fill className="text-[20px] text-[#3497F9]" />
