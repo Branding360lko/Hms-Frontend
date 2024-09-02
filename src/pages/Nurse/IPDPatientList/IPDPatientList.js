@@ -49,17 +49,59 @@ const IPDPatientTable = lazy(() =>
 export default function IPDPatientList() {
   const [pageLimit, setPageLimit] = useState(2);
   const [pageCount, setPageCount] = useState(1);
+  const [totalItems, setTotalItems] = useState(null);
+  const [currentPage, setCurrentPage] = useState(null);
+  const [totalPages, setTotalPages] = useState(null);
 
   // const pageContext = useContext(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [nameSearch, setNameSearch] = useState("");
+  const [phoneSearch, setPhoneSearch] = useState("");
+  const [uhidSearch, setUhidSearch] = useState("");
 
   const dispatch = useDispatch();
   const responseGetAllIPDPatients = useGetAllIPDPatientsQuery({
     limit: pageLimit,
     page: pageCount,
-    query: searchQuery,
+    ipdPatientId: uhidSearch,
+    patientName: nameSearch,
+    patientMobileNumber: phoneSearch,
   });
+
+  const ipdPatientsRefetch = async () => {
+    const responseGetAllIPDPatientsRefetch =
+      await responseGetAllIPDPatients.refetch();
+    // console.log(
+    //   "responseGetAllIPDPatientsRefetch:",
+    //   responseGetAllIPDPatientsRefetch
+    // );
+
+    // console.log(
+    //   "IPD Patient Refetch called with pageLimit, pageCount:",
+    //   pageLimit,
+    //   pageCount,
+    //   phoneSearch,
+    //   nameSearch,
+    //   uhidSearch
+    // );
+
+    if (responseGetAllIPDPatientsRefetch) {
+      dispatch(
+        getAllIPDPatients(
+          responseGetAllIPDPatientsRefetch?.data?.ipdPatientData
+        )
+      );
+      setTotalItems(responseGetAllIPDPatientsRefetch?.data?.totalIPDPatient);
+      setTotalPages(responseGetAllIPDPatientsRefetch?.data?.totalPages);
+    }
+  };
+
+  // console.log();
+
+  useEffect(() => {
+    ipdPatientsRefetch();
+  }, [pageLimit, pageCount, phoneSearch, nameSearch, uhidSearch]);
+
   // const responseGetAllDoctors = useGetAllDoctorsQuery({
   //   limit: pageLimit,
   //   page: pageCount,
@@ -110,10 +152,14 @@ export default function IPDPatientList() {
     }
 
     const responseDoctors = await getAllDoctorsData();
+    // console.log("responseDoctors:", responseDoctors);
+
     if (responseDoctors) {
       setResponseGetAllDoctors(responseDoctors);
     }
   };
+
+  // console.log("responseGetAllDoctors:", responseGetAllDoctors);
 
   // fetcher();
 
@@ -129,7 +175,7 @@ export default function IPDPatientList() {
 
   // }, [responseGetAllNurses]);
 
-  console.log("responseGetAllIPDPatients:", responseGetAllIPDPatients);
+  // console.log("responseGetAllIPDPatients:", responseGetAllIPDPatients);
   // console.log("responseGetAllDoctors:", responseGetAllDoctors);
 
   // Ipd Patients Final Balance Calculation Get all
@@ -169,7 +215,7 @@ export default function IPDPatientList() {
     updateIpdPatientMedicalCharges,
   } = useSelector((state) => state.IPDPatientBalanceState);
 
-  console.log("updateIpdPatientDepositAmount:", updateIpdPatientDepositAmount);
+  // console.log("updateIpdPatientDepositAmount:", updateIpdPatientDepositAmount);
   // const baseUrl = process.env.React_App_Base_url;
   // axios
   //   .get(`${baseUrl}/DropdownData-Nurse`, {
@@ -178,23 +224,56 @@ export default function IPDPatientList() {
   //   .then((response) => console.log("response axios nurse", response))
   //   .catch((error) => console.log("axios error nurse", error));
 
+  const dataDispatcher = () => {
+    if (responseGetAllNurses) {
+      dispatch(getAllNurses(responseGetAllNurses));
+    }
+    if (responseGetAllDoctors) {
+      dispatch(getAllDoctors(responseGetAllDoctors));
+    }
+    if (responseGetAllPatients) {
+      dispatch(getAllPatients(responseGetAllPatients));
+    }
+  };
+
+  useEffect(() => {
+    dataDispatcher();
+  }, [responseGetAllDoctors, responseGetAllNurses, responseGetAllPatients]);
+
   const apiRefetch = async () => {
     fetcher();
     // IPD Patients
+    // const responseGetAllIPDPatientsRefetch =
+    //   await responseGetAllIPDPatients.refetch();
+    // if (responseGetAllIPDPatientsRefetch.isSuccess) {
+    //   const reverseArrayGetAllIPDPatients =
+    //     responseGetAllIPDPatientsRefetch?.data?.ipdPatientData?.map(
+    //       responseGetAllIPDPatientsRefetch?.data?.ipdPatientData?.pop,
+    //       [...responseGetAllIPDPatientsRefetch?.data?.ipdPatientData]
+    //     );
+    //   const filteredArrayGetAllIPDPatients =
+    //     reverseArrayGetAllIPDPatients?.filter(
+    //       (data) => data.isDeleted === false && data
+    //     );
+    //   dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
+    //   setTotalItems(responseGetAllIPDPatientsRefetch?.data?.totalIPDPatient);
+    //   setTotalPages(responseGetAllIPDPatientsRefetch?.data?.totalPages);
+    // }
+
     const responseGetAllIPDPatientsRefetch =
       await responseGetAllIPDPatients.refetch();
     if (responseGetAllIPDPatientsRefetch.isSuccess) {
       const reverseArrayGetAllIPDPatients =
-        responseGetAllIPDPatientsRefetch?.data?.ipdPatientData?.map(
-          responseGetAllIPDPatientsRefetch?.data?.ipdPatientData?.pop,
-          [...responseGetAllIPDPatientsRefetch?.data?.ipdPatientData]
-        );
+        responseGetAllIPDPatientsRefetch?.data?.ipdPatientData;
       const filteredArrayGetAllIPDPatients =
         reverseArrayGetAllIPDPatients?.filter(
           (data) => data.isDeleted === false && data
         );
       dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
+      setTotalItems(responseGetAllIPDPatientsRefetch?.data?.totalIPDPatient);
+      setTotalPages(responseGetAllIPDPatientsRefetch?.data?.totalPages);
     }
+
     // --------------------
 
     // Nurses
@@ -210,7 +289,7 @@ export default function IPDPatientList() {
     //   dispatch(getAllNurses(filteredArrayGetAllNurses));
     // }
 
-    dispatch(getAllNurses(responseGetAllNurses));
+    // dispatch(getAllNurses(responseGetAllNurses));
 
     // Doctors
     // const responseGetAllDoctorsRefetch = responseGetAllDoctors;
@@ -225,7 +304,7 @@ export default function IPDPatientList() {
     //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
     // }
 
-    dispatch(getAllDoctors(responseGetAllDoctors));
+    // dispatch(getAllDoctors(responseGetAllDoctors));
 
     // ------------------
     // Doctors Professional Details
@@ -260,7 +339,7 @@ export default function IPDPatientList() {
     //   );
     //   dispatch(getAllPatients(filteredArrayGetAllPatients));
     // }
-    dispatch(getAllPatients(responseGetAllPatients));
+    // dispatch(getAllPatients(responseGetAllPatients));
 
     //------------------
 
@@ -276,6 +355,7 @@ export default function IPDPatientList() {
       );
       dispatch(getAllBeds(filteredArrayGetAllBeds));
     }
+
     // ------------------
   };
 
@@ -283,11 +363,13 @@ export default function IPDPatientList() {
     apiRefetch();
     // IPD Patients
     if (responseGetAllIPDPatients.isSuccess) {
+      // const reverseArrayGetAllIPDPatients =
+      //   responseGetAllIPDPatients?.data?.ipdPatientData?.map(
+      //     responseGetAllIPDPatients?.data?.ipdPatientData?.pop,
+      //     [...responseGetAllIPDPatients?.data?.ipdPatientData]
+      //   );
       const reverseArrayGetAllIPDPatients =
-        responseGetAllIPDPatients?.data?.ipdPatientData?.map(
-          responseGetAllIPDPatients?.data?.ipdPatientData?.pop,
-          [...responseGetAllIPDPatients?.data?.ipdPatientData]
-        );
+        responseGetAllIPDPatients?.data?.ipdPatientData;
       // console.log(
       //   "responseGetAllIPDPatients in ApiRefetch:",
       //   responseGetAllIPDPatients
@@ -308,7 +390,8 @@ export default function IPDPatientList() {
       //   filteredArrayGetAllIPDPatients
       // );
 
-      dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
+      // dispatch(getAllIPDPatients(filteredArrayGetAllIPDPatients));
+      setTotalItems(responseGetAllIPDPatients?.totalIPDPatient);
     }
     // --------------------
     // Nurses
@@ -326,7 +409,7 @@ export default function IPDPatientList() {
     //   dispatch(getAllNurses(filteredArrayGetAllNurses));
     // }
 
-    dispatch(getAllNurses(responseGetAllNurses));
+    // dispatch(getAllNurses(responseGetAllNurses));
 
     // Doctors
     // if (responseGetAllDoctors) {
@@ -340,7 +423,7 @@ export default function IPDPatientList() {
     //   dispatch(getAllDoctors(filteredArrayGetAllDoctors));
     // }
 
-    dispatch(getAllDoctors(responseGetAllDoctors));
+    // dispatch(getAllDoctors(responseGetAllDoctors));
 
     // --------------------
     // Doctors Professional Details
@@ -362,23 +445,23 @@ export default function IPDPatientList() {
     // }
     // --------------------
     // Patients
-    if (responseGetAllPatients) {
-      // console.log("responseGetAllPatients in if:", responseGetAllPatients);
+    // if (responseGetAllPatients) {
+    //   console.log("responseGetAllPatients in if:", responseGetAllPatients);
 
-      // const reverseArrayGetAllPatients = responseGetAllPatients?.map(
-      //   responseGetAllPatients?.pop,
-      //   [...responseGetAllPatients]
-      // );
-      // const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
-      //   (data) => data.isDeleted === false && data
-      // );
+    //   const reverseArrayGetAllPatients = responseGetAllPatients?.map(
+    //     responseGetAllPatients?.pop,
+    //     [...responseGetAllPatients]
+    //   );
+    //   const filteredArrayGetAllPatients = reverseArrayGetAllPatients?.filter(
+    //     (data) => data.isDeleted === false && data
+    //   );
 
-      // console.log("filteredArrayGetAllPatients:", filteredArrayGetAllPatients);
+    //   console.log("filteredArrayGetAllPatients:", filteredArrayGetAllPatients);
 
-      // dispatch(getAllPatients(filteredArrayGetAllPatients));
+    //   dispatch(getAllPatients(filteredArrayGetAllPatients));
 
-      dispatch(getAllPatients(responseGetAllPatients));
-    }
+    //   dispatch(getAllPatients(responseGetAllPatients));
+    // }
 
     // Beds
     if (responseGetAllBeds.isSuccess) {
@@ -437,8 +520,15 @@ export default function IPDPatientList() {
             <UpperNav />
             <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
               <IPDPatientTable
+                pageCount={pageCount}
+                pageLimit={pageLimit}
                 setPageLimit={setPageLimit}
                 setPageCount={setPageCount}
+                setNameSearch={setNameSearch}
+                setPhoneSearch={setPhoneSearch}
+                setUhidSearch={setUhidSearch}
+                totalItems={totalItems}
+                totalPages={totalPages}
               />
             </div>
           </div>

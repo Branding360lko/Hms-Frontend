@@ -70,14 +70,67 @@ import {
 import IpdChargesShowcase from "../../Receptionist/IpdChargesShowcase/IpdChargesShowcase";
 import axios from "axios";
 import ChangPatientBedModal from "../ChangPatientBed/ChangPatientBedModal";
+import NewTable from "../../NewTable/NewTable";
+import { useDebouncedSearch } from "../../../utils/useDebouncedSearch";
 
-export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
+export default function IPD_PatientTable({
+  setPageLimit,
+  setPageCount,
+  pageCount,
+  pageLimit,
+  totalItems,
+  totalPages,
+  setNameSearch,
+  setPhoneSearch,
+  setUhidSearch,
+}) {
+  const [searchQuery, setSearchQuery] = React.useState({
+    name: null,
+    value: null,
+  });
+
+  const debouncedSearch = useDebouncedSearch(searchQuery?.value, 2000);
+
+  const debouncedSearching = (e) => {
+    setSearchQuery({
+      name: e.target.name,
+      value: e.target.value,
+    });
+  };
+
+  React.useEffect(() => {
+    // console.log("debouncedSearch:", debouncedSearch);
+    if (debouncedSearch) {
+      if (searchQuery?.name === "UHID") {
+        setNameSearch("");
+        setPhoneSearch("");
+        setUhidSearch(debouncedSearch);
+      } else if (searchQuery?.name === "PhoneNumber") {
+        // console.log("Phonenumber search called");
+        setNameSearch("");
+        setUhidSearch("");
+        setPhoneSearch(debouncedSearch);
+      } else if (searchQuery?.name === "PatientName") {
+        // console.log("PatientName search called");
+        setUhidSearch("");
+        setPhoneSearch("");
+        setNameSearch(debouncedSearch);
+      }
+    } else {
+      setUhidSearch("");
+      setPhoneSearch("");
+      setNameSearch("");
+    }
+  }, [debouncedSearch]);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { nurses } = useSelector((state) => state.NurseState);
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
   const { ipdPatients } = useSelector((state) => state.IPDPatientState);
+
+  // console.log("doctors from store:", doctors);
 
   const [createIPDPatient, responseCreateIPDPatient] =
     useCreateIPDPatientMutation();
@@ -740,22 +793,22 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
 
   // console.log(responseUpdateBedAvailability);
 
-  const [searchQuery, setSearchQuery] = React.useState("");
+  // const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredPatients, setFilteredPatients] = React.useState(
     renderedPatientIDForDropdown
   );
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    const filtered = renderedPatientIDForDropdown.filter((patient) => {
-      Object.values(patient).some(
-        (value) =>
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    });
-    setFilteredPatients(filtered);
-  };
+  // const handleSearch = (query) => {
+  //   setSearchQuery(query);
+  //   const filtered = renderedPatientIDForDropdown.filter((patient) => {
+  //     Object.values(patient).some(
+  //       (value) =>
+  //         typeof value === "string" &&
+  //         value.toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //   });
+  //   setFilteredPatients(filtered);
+  // };
 
   // console.log("filteredPatients:", filteredPatients);
 
@@ -1305,11 +1358,14 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
 
     setIpdPatientDeposits(null);
     setSelectedPayment(null);
+    setIpdPatientData(null);
   };
 
   // console.log("currentPatientBed:", currentPatientBed);
 
   // console.log("ipdPatientCurrentBalance:", ipdPatientCurrentBalance);
+
+  console.log("ipdPatientData:", ipdPatientData);
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -1386,7 +1442,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Blood Group: </p>
-              <p>{ipdPatientData?.patientData?.patientBloodGroup}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientBloodGroup}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Doctor Phone: </p>
@@ -1394,7 +1450,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Gender: </p>
-              <p>{ipdPatientData?.patientData?.patientGender}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientGender}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Case No: </p>
@@ -1402,7 +1458,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient DOB: </p>
-              <p>{ipdPatientData?.patientData?.patientDateOfBirth}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientDateOfBirth}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>OPD No: </p>
@@ -1410,7 +1466,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Phone: </p>
-              <p>{ipdPatientData?.patientData?.patientPhone}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientPhone}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Blood Pressure: </p>
@@ -1426,7 +1482,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Height: </p>
-              <p>{ipdPatientData?.patientData?.patientHeight}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientHeight}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Bill Status: </p>
@@ -1438,12 +1494,12 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Weight: </p>
-              <p>{ipdPatientData?.patientData?.patientWeight}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientWeight}</p>
             </div>
-            <div className="flex">
+            {/* <div className="flex">
               <p className="font-[600] w-[150px]">Bed: </p>
               <p>{ipdPatientData?.data?.ipdPatientBed}</p>
-            </div>
+            </div> */}
           </div>
           <div className="flex flex-col gap-[10px]">
             <div className="flex flex-col">
@@ -1483,7 +1539,7 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   );
   // ---------------
   // console.log(ipdPatientData);
-  const [search, setSearch] = React.useState("");
+  // const [search, setSearch] = React.useState("");
 
   const apiBaseUrl = process.env.React_App_Base_url;
 
@@ -1514,12 +1570,12 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
   // console.log("ipdPatients:", ipdPatients);
 
   const filteredArray = ipdPatients?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.mainId?.toLowerCase();
+    // if (search !== "") {
+    //   const userSearch = search.toLowerCase();
+    //   const searchInData = data?.mainId?.toLowerCase();
 
-      return searchInData?.startsWith(userSearch);
-    }
+    //   return searchInData?.startsWith(userSearch);
+    // }
     return data;
   });
 
@@ -1760,21 +1816,55 @@ export default function IPD_PatientTable({ setPageLimit, setPageCount }) {
             <FaSearch className="text-[#56585A]" />
             <input
               className="bg-transparent outline-none"
-              placeholder="Search by id"
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by UHID"
+              name="UHID"
+              onChange={(e) => debouncedSearching(e)}
+            />
+          </div>
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none"
+              placeholder="Search by Patient Phone Number"
+              name="PhoneNumber"
+              onChange={(e) => debouncedSearching(e)}
+            />
+          </div>
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none"
+              placeholder="Search by Patient Name"
+              name="PatientName"
+              onChange={(e) => debouncedSearching(e)}
             />
           </div>
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table
+        <NewTable
           data={mappedBillData}
           config={config}
           keyFn={keyFn}
           setPageLimit={setPageLimit}
           setPageCount={setPageCount}
+          pageCount={pageCount}
+          pageLimit={pageLimit}
+          totalItems={totalItems}
+          totalPages={totalPages}
         />
+        {/* <Table
+          data={mappedBillData}
+          config={config}
+          keyFn={keyFn}
+          setPageLimit={setPageLimit}
+          setPageCount={setPageCount}
+          pageCount={pageCount}
+          pageLimit={pageLimit}
+          totalItems={totalItems}
+          totalPages={totalPages}
+        /> */}
       </div>
       <Modal
         open={open}

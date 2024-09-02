@@ -67,8 +67,20 @@ import {
 import axios from "axios";
 
 import { date, time } from "../../../utils/DateAndTimeConvertor";
+import NewTable from "../../NewTable/NewTable";
+import { useDebouncedSearch } from "../../../utils/useDebouncedSearch";
 
-export default function EmergencyPatientTable() {
+export default function EmergencyPatientTable({
+  setPageCount,
+  setPageLimit,
+  totalPages,
+  totalItems,
+  pageLimit,
+  pageCount,
+  setNameSearch,
+  setPhoneSearch,
+  setUhidSearch,
+}) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
@@ -77,6 +89,52 @@ export default function EmergencyPatientTable() {
   const { emergencyPatients } = useSelector(
     (state) => state.EmergencyPatientState
   );
+
+  const [searchQuery, setSearchQuery] = React.useState({
+    name: null,
+    value: null,
+  });
+
+  const debouncedSearch = useDebouncedSearch(searchQuery?.value, 2000);
+
+  const debouncedSearching = (e) => {
+    setSearchQuery({
+      name: e.target.name,
+      value: e.target.value,
+    });
+  };
+
+  React.useEffect(() => {
+    // console.log("debouncedSearch:", debouncedSearch);
+    if (debouncedSearch) {
+      if (searchQuery?.name === "UHID") {
+        setNameSearch("");
+        setPhoneSearch("");
+        setUhidSearch(debouncedSearch);
+      } else if (searchQuery?.name === "PhoneNumber") {
+        // console.log("Phonenumber search called");
+        setNameSearch("");
+        setUhidSearch("");
+        setPhoneSearch(debouncedSearch);
+      } else if (searchQuery?.name === "PatientName") {
+        // console.log("PatientName search called");
+        setUhidSearch("");
+        setPhoneSearch("");
+        setNameSearch(debouncedSearch);
+      }
+    } else {
+      setUhidSearch("");
+      setPhoneSearch("");
+      setNameSearch("");
+    }
+  }, [debouncedSearch]);
+  // console.log("emergencyPatients from store:", emergencyPatients);
+
+  // console.log(
+  //   "pageCount and pageLimit in emergencyTable :",
+  //   pageCount,
+  //   pageLimit
+  // );
 
   // console.log("nurses:", nurses);
 
@@ -245,7 +303,7 @@ export default function EmergencyPatientTable() {
     setOpenAddModal(false);
   };
 
-  console.log("Logger...");
+  // console.log("Logger...");
 
   React.useEffect(() => {
     if (responseCreateEmergencyPatient.isSuccess) {
@@ -666,11 +724,11 @@ export default function EmergencyPatientTable() {
   const { data: responseMedDocLabTotal, refetch: refetchMedDocLabTotal } =
     useGetEmergencyPatientMedDocLabTotalByIdQuery(currentPatientId);
 
-  console.log("responseGetPatientBalance:", responseGetPatientBalance);
+  // console.log("responseGetPatientBalance:", responseGetPatientBalance);
 
-  console.log("responseMedDocLabDetails:", responseMedDocLabDetails);
+  // console.log("responseMedDocLabDetails:", responseMedDocLabDetails);
 
-  console.log("responseMedDocLabTotal:", responseMedDocLabTotal);
+  // console.log("responseMedDocLabTotal:", responseMedDocLabTotal);
 
   React.useEffect(() => {
     refetchAllBalanceDataCall();
@@ -688,7 +746,7 @@ export default function EmergencyPatientTable() {
     }
   }, [currentPatientId, responseGetPatientBalance]);
 
-  console.log("currentPatientExtraCharges:", currentPatientExtraCharges);
+  // console.log("currentPatientExtraCharges:", currentPatientExtraCharges);
 
   React.useEffect(() => {
     const currentPatientData =
@@ -699,7 +757,7 @@ export default function EmergencyPatientTable() {
     setCurrentPatientFinalBalance(currentPatientData);
   }, [responseAllBalanceCallData, currentPatientId]);
 
-  console.log("currentPatientFinalBalance:", currentPatientFinalBalance);
+  // console.log("currentPatientFinalBalance:", currentPatientFinalBalance);
 
   // const currentPatientBalance =
   //   resposnseAllBalanceCallData?.balanceCalculation?.find(
@@ -719,7 +777,7 @@ export default function EmergencyPatientTable() {
     setOpenViewModal(true);
   };
 
-  console.log("currentPatientId:", currentPatientId);
+  // console.log("currentPatientId:", currentPatientId);
   console.log("currentEmergencyPatient:", currentEmergencyPatient);
   const handleCloseViewModal = () => {
     setOpenViewModal(false);
@@ -801,15 +859,17 @@ export default function EmergencyPatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Blood Group: </p>
-              <p>{currentEmergencyPatient?.patientData?.patientBloodGroup}</p>
+              <p>
+                {currentEmergencyPatient?.data?.patientData?.patientBloodGroup}
+              </p>
             </div>
-            <div className="flex">
+            {/* <div className="flex">
               <p className="font-[600] w-[150px]">Doctor Phone: </p>
               <p>{currentEmergencyPatient?.doctorData?.doctorPhone}</p>
-            </div>
+            </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Gender: </p>
-              <p>{currentEmergencyPatient?.patientData?.patientGender}</p>
+              <p>{currentEmergencyPatient?.data?.patientData?.patientGender}</p>
             </div>
             {/* <div className='flex'>
           <p className='font-[600] w-[150px]'>Case No: </p>
@@ -817,7 +877,9 @@ export default function EmergencyPatientTable() {
         </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient DOB: </p>
-              <p>{currentEmergencyPatient?.patientData?.patientDateOfBirth}</p>
+              <p>
+                {currentEmergencyPatient?.data?.patientData?.patientDateOfBirth}
+              </p>
             </div>
             {/* <div className='flex'>
           <p className='font-[600] w-[150px]'>OPD No: </p>
@@ -825,7 +887,7 @@ export default function EmergencyPatientTable() {
         </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Phone: </p>
-              <p>{currentEmergencyPatient?.patientData?.patientPhone}</p>
+              <p>{currentEmergencyPatient?.data?.patientData?.patientPhone}</p>
             </div>
             {/* <div className='flex'>
           <p className='font-[600] w-[150px]'>Blood Pressure: </p>
@@ -841,7 +903,7 @@ export default function EmergencyPatientTable() {
             </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Height: </p>
-              <p>{currentEmergencyPatient?.patientData?.patientHeight}</p>
+              <p>{currentEmergencyPatient?.data?.patientData?.patientHeight}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Discharge Status: </p>
@@ -854,7 +916,7 @@ export default function EmergencyPatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Weight: </p>
-              <p>{currentEmergencyPatient?.patientData?.patientWeight}</p>
+              <p>{currentEmergencyPatient?.data?.patientData?.patientWeight}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Bed Number: </p>
@@ -1022,7 +1084,7 @@ export default function EmergencyPatientTable() {
 
   const handleAddBalanceFormSubmit = (e) => {
     e.preventDefault();
-    console.log("Handle Add Balance Called !!!!");
+    // console.log("Handle Add Balance Called !!!!");
 
     const updateData = {
       emergencyPatientMainId: addBalanceData.emergencyPatientMainId,
@@ -1033,7 +1095,7 @@ export default function EmergencyPatientTable() {
       },
     };
 
-    console.log("updatedData:", updateData);
+    // console.log("updatedData:", updateData);
 
     addEmergencyPatientBalance(updateData);
   };
@@ -1175,7 +1237,7 @@ export default function EmergencyPatientTable() {
     },
   ];
 
-  console.log("mappedEmergencyRegTableData:", mappedEmergencyRegTableData);
+  // console.log("mappedEmergencyRegTableData:", mappedEmergencyRegTableData);
 
   const keyFn = (list) => {
     return list.mainId;
@@ -1195,7 +1257,7 @@ export default function EmergencyPatientTable() {
   const handleDepositsRefetch = async () => {
     const responseGetDepositsRefetch = await refetchGetPatientBalance();
 
-    console.log("responseGetDepositsRefetch:", responseGetDepositsRefetch);
+    // console.log("responseGetDepositsRefetch:", responseGetDepositsRefetch);
 
     setPatientAllDeposits(responseGetDepositsRefetch?.data?.data?.balance);
   };
@@ -1210,9 +1272,9 @@ export default function EmergencyPatientTable() {
   //   );
   // }, [responseGetIpdPatientDeposits?.isSuccess]);
 
-  console.log("patientAllDeposits:", patientAllDeposits);
+  // console.log("patientAllDeposits:", patientAllDeposits);
 
-  console.log("selectedPayment:", selectedPayment);
+  // console.log("selectedPayment:", selectedPayment);
 
   const renderedPaymentsForDropdown = patientAllDeposits?.map((payment) => {
     return {
@@ -1328,10 +1390,10 @@ export default function EmergencyPatientTable() {
         discharged: true,
       });
 
-      console.log(
-        "Ipd Patient Discharge successful:",
-        responsePatientFinalDischargeReq
-      );
+      // console.log(
+      //   "Ipd Patient Discharge successful:",
+      //   responsePatientFinalDischargeReq
+      // );
 
       setSnackBarSuccessMessage(
         responsePatientFinalDischargeReq?.data?.message
@@ -1365,18 +1427,48 @@ export default function EmergencyPatientTable() {
             <FaSearch className="text-[#56585A]" />
             <input
               className="bg-transparent outline-none"
-              placeholder="Search by id"
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by UHID"
+              name="UHID"
+              onChange={(e) => debouncedSearching(e)}
+            />
+          </div>
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none"
+              placeholder="Search by Patient Phone Number"
+              name="PhoneNumber"
+              onChange={(e) => debouncedSearching(e)}
+            />
+          </div>
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none"
+              placeholder="Search by Patient Name"
+              name="PatientName"
+              onChange={(e) => debouncedSearching(e)}
             />
           </div>
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
         <input type='date' className='bg-transparent outline-none' />
       </div> */}
         </div>
-        <Table
+        {/* <Table
           data={mappedEmergencyRegTableData}
           config={config}
           keyFn={keyFn}
+        /> */}
+        <NewTable
+          data={mappedEmergencyRegTableData}
+          config={config}
+          keyFn={keyFn}
+          pageLimit={pageLimit}
+          pageCount={pageCount}
+          setPageCount={setPageCount}
+          setPageLimit={setPageLimit}
+          totalPages={totalPages}
+          totalItems={totalItems}
         />
       </div>
       <Modal

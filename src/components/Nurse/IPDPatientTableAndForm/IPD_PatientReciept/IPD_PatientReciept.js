@@ -67,7 +67,7 @@ export default function IPD_PatientReciept() {
   const responseIpdPatientTotalBalanceGetAll =
     useIpdPatientFinalBalanceCalGetAllQuery();
 
-  console.log("responseGetPatientById:", responseGetPatientById);
+  // console.log("responseGetPatientById:", responseGetPatientById);
 
   useEffect(() => {
     if (responseGetPatientById?.data) {
@@ -75,11 +75,11 @@ export default function IPD_PatientReciept() {
     }
   }, [responseGetPatientById]);
 
-  console.log("patientDetails:", patientDetails);
+  // console.log("patientDetails:", patientDetails);
 
   useEffect(() => {
     if (responseGetIPDPatientById.isSuccess) {
-      console.log("responseGetIPDPatientById:", responseGetIPDPatientById);
+      // console.log("responseGetIPDPatientById:", responseGetIPDPatientById);
       setDoctorId(responseGetIPDPatientById?.currentData?.ipdDoctorId);
       setPatientId(responseGetIPDPatientById?.currentData?.ipdPatientId);
       setIpdBedId(responseGetIPDPatientById?.currentData?.ipdBedNo);
@@ -96,10 +96,10 @@ export default function IPD_PatientReciept() {
   }, [responseGetIPDPatientById.isSuccess]);
 
   useEffect(() => {
-    console.log(
-      "responseIpdPatientDischargeReceiptGetById:",
-      responseIpdPatientDischargeReceiptGetById
-    );
+    // console.log(
+    //   "responseIpdPatientDischargeReceiptGetById:",
+    //   responseIpdPatientDischargeReceiptGetById
+    // );
 
     const ipdNurseDischargeData =
       responseIpdPatientDischargeReceiptGetById?.data?.IPDPatientData[0]
@@ -116,9 +116,9 @@ export default function IPD_PatientReciept() {
   useEffect(() => {
     const balanceCals =
       responseIpdPatientTotalBalanceGetAll?.currentData?.balanceCalculation;
-    console.log("balanceCals:", balanceCals);
+    // console.log("balanceCals:", balanceCals);
 
-    console.log("patientId in balance:", ipdPatientId);
+    // console.log("patientId in balance:", ipdPatientId);
 
     if (balanceCals) {
       const currrentIpdPatientBalance = balanceCals.find(
@@ -127,10 +127,10 @@ export default function IPD_PatientReciept() {
       setIpdPatientFinalBalanceTotal(currrentIpdPatientBalance);
     }
 
-    console.log(
-      "responseIpdPatientTotalBalanceGetAll:",
-      responseIpdPatientTotalBalanceGetAll
-    );
+    // console.log(
+    //   "responseIpdPatientTotalBalanceGetAll:",
+    //   responseIpdPatientTotalBalanceGetAll
+    // );
   }, [responseIpdPatientTotalBalanceGetAll.isSuccess]);
 
   const {
@@ -148,25 +148,25 @@ export default function IPD_PatientReciept() {
   const medicalCharges = ipdPatientBalance?.data?.charges || [];
   const totalMedicalCharges = ipdPatientBalance?.totalMedicalCharges;
 
-  console.log(
-    "ipdPatientNurseDischargeDetails:",
-    ipdPatientNurseDischargeDetails
-  );
+  // console.log(
+  //   "ipdPatientNurseDischargeDetails:",
+  //   ipdPatientNurseDischargeDetails
+  // );
 
-  console.log(
-    "ipdPatientDoctorDischargeDetails:",
-    ipdPatientDoctorDischargeDetails
-  );
+  // console.log(
+  //   "ipdPatientDoctorDischargeDetails:",
+  //   ipdPatientDoctorDischargeDetails
+  // );
 
-  console.log(
-    "responseMedDocLabChargesGet:",
-    responseMedDocLabChargesGet?.data
-  );
+  // console.log(
+  //   "responseMedDocLabChargesGet:",
+  //   responseMedDocLabChargesGet?.data
+  // );
 
-  console.log(
-    "responseIpdPatientMedDocLabDetailCall:",
-    responseIpdPatientMedDocLabDetailCall
-  );
+  // console.log(
+  //   "responseIpdPatientMedDocLabDetailCall:",
+  //   responseIpdPatientMedDocLabDetailCall
+  // );
 
   const date = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -184,7 +184,7 @@ export default function IPD_PatientReciept() {
     });
   };
 
-  console.log("responseGetIpdBedDetails:", responseGetIpdBedDetails);
+  // console.log("responseGetIpdBedDetails:", responseGetIpdBedDetails);
 
   const componentRef = useRef();
 
@@ -588,13 +588,49 @@ export default function IPD_PatientReciept() {
                             }
                           </p>
                         </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-auto">
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Treatment Given In Brief:
                           </span>
-                          <p>{}</p>
+                          <div>
+                            <div>
+                              <span></span>
+                            </div>
+                            <div>
+                              {ipdPatientNurseDischargeDetails?.TreatmentGivenInBrief?.map(
+                                (treatment, index) => (
+                                  <div key={index}>
+                                    <p>Date:&nbsp;{treatment?.date}</p>
+                                    <p>
+                                      Operation:&nbsp;{treatment?.operation}
+                                    </p>
+                                    <p>
+                                      Indications:&nbsp;{treatment?.indications}
+                                    </p>
+                                    <p>Surgeon:&nbsp;{treatment?.surgeon}</p>
+                                    <p>
+                                      Assistants:&nbsp;{treatment?.assistants}
+                                    </p>
+                                    <p>Nurse:&nbsp;{treatment?.nurse}</p>
+                                    <p>
+                                      Anaesthetist:&nbsp;
+                                      {treatment?.anaesthetist}
+                                    </p>
+                                    <p>
+                                      Anaesthesia:&nbsp;{treatment?.anaesthesia}
+                                    </p>
+                                    <p>
+                                      ImplantDetails:&nbsp;
+                                      {treatment?.implantDetails}
+                                    </p>
+                                    <br />
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        {/* <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Condition During Discharge:
                           </span>
@@ -603,8 +639,8 @@ export default function IPD_PatientReciept() {
                               ipdPatientNurseDischargeDetails?.conditionDuringDischarge
                             }
                           </p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        </div> */}
+                        {/* <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Advise During Discharge:
                           </span>
@@ -613,7 +649,7 @@ export default function IPD_PatientReciept() {
                               ipdPatientDoctorDischargeDetails?.adviseDuringDischarge
                             }
                           </p>
-                        </div>
+                        </div> */}
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Summary:

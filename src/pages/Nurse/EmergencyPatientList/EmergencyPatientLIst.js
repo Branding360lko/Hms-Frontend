@@ -47,8 +47,20 @@ const NurseEmergencyTable = lazy(() =>
 //Branch Check
 
 export default function EmergencyPatientLIst() {
-  const [pageLimit, setPageLimit] = useState(10);
+  const [pageLimit, setPageLimit] = useState(2);
   const [pageCount, setPageCount] = useState(1);
+  const [totalItems, setTotalItems] = useState(null);
+  const [totalPages, setTotalPages] = useState(null);
+
+  const [nameSearch, setNameSearch] = useState("");
+  const [phoneSearch, setPhoneSearch] = useState("");
+  const [uhidSearch, setUhidSearch] = useState("");
+
+  // console.log(
+  //   "pageCount and pageLimit in emergencylist :",
+  //   pageCount,
+  //   pageLimit
+  // );
 
   // const pageContext = useContext(null);
 
@@ -67,15 +79,51 @@ export default function EmergencyPatientLIst() {
 
   // let responseGetAllNurses;
 
+  const emergencyPatientsRefetch = async () => {
+    try {
+      const responseGetAllEmergencyPatients = await getAllEmergencyPatients({
+        limit: pageLimit,
+        page: pageCount,
+        emergencyPatientId: uhidSearch,
+        patientName: nameSearch,
+        patientMobileNumber: phoneSearch,
+      });
+      if (responseGetAllEmergencyPatients) {
+        console.log(
+          "responseGetAllEmergencyPatients refetcher:",
+          responseGetAllEmergencyPatients
+        );
+
+        setResponseGetAllEmergencyPatient(
+          responseGetAllEmergencyPatients?.EmergencyPatientData
+        );
+        setTotalItems(responseGetAllEmergencyPatients?.totalEmergencyPatient);
+        setTotalPages(responseGetAllEmergencyPatients?.totalPages);
+      }
+    } catch (error) {
+      console.log("Error in fetching emergency patients:", error);
+    }
+  };
+
+  useEffect(() => {
+    emergencyPatientsRefetch();
+  }, [pageLimit, pageCount, nameSearch, uhidSearch, phoneSearch]);
+
   const fetcher = async () => {
     try {
       const responseGetEmergencyPatients = await getAllEmergencyPatients({
         limit: pageLimit,
         page: pageCount,
-        query: searchQuery,
       });
 
       if (responseGetEmergencyPatients) {
+        // console.log(
+        //   "responseGetEmergencyPatients:",
+        //   responseGetEmergencyPatients
+        // );
+        setTotalItems(responseGetEmergencyPatients?.totalEmergencyPatient);
+        setTotalPages(responseGetEmergencyPatients?.totalPages);
+
         setResponseGetAllEmergencyPatient(
           responseGetEmergencyPatients?.EmergencyPatientData
         );
@@ -112,10 +160,10 @@ export default function EmergencyPatientLIst() {
 
   const responseGetAllBeds = useGetAllBedsQuery();
 
-  console.log(
-    "responseGetAllEmergencyPatient:",
-    responseGetAllEmergencyPatient
-  );
+  // console.log(
+  //   "responseGetAllEmergencyPatient:",
+  //   responseGetAllEmergencyPatient
+  // );
 
   const { beds, createBeds, updateBeds, deleteBeds } = useSelector(
     (state) => state.BedState
@@ -373,7 +421,17 @@ export default function EmergencyPatientLIst() {
           <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
             <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
-              <NurseEmergencyTable />
+              <NurseEmergencyTable
+                setPageCount={setPageCount}
+                setPageLimit={setPageLimit}
+                pageLimit={pageLimit}
+                pageCount={pageCount}
+                setNameSearch={setNameSearch}
+                setPhoneSearch={setPhoneSearch}
+                setUhidSearch={setUhidSearch}
+                totalItems={totalItems}
+                totalPages={totalPages}
+              />
             </div>
           </div>
         </div>

@@ -27,7 +27,7 @@ export default function ChangPatientBedModal({
     p: 4,
   };
 
-  console.log("logs from change bed modal:", bedModalOpen);
+  // console.log("logs from change bed modal:", bedModalOpen);
 
   const [responseBedChangeApi, setResponseBedChangeApi] = useState({
     success: null,
