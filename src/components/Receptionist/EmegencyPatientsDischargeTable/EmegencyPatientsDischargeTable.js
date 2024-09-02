@@ -18,7 +18,10 @@ import Snackbars from "../../SnackBar";
 function EmegencyPatientsDischargeTable() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setTreatmentInBreif([]);
+  };
   const [id, setId] = useState();
   // Snackbar--------------------
   // ----Succcess
@@ -67,6 +70,54 @@ function EmegencyPatientsDischargeTable() {
     anaesthesia: "",
     implantDetails: "",
   });
+  const [treatmentInBreif, setTreatmentInBreif] = useState([
+    {
+      date: "",
+      operation: "",
+      indications: "",
+      surgeon: "",
+      assistants: "",
+      nurse: "",
+      anaesthetist: "",
+      anaesthesia: "",
+      implantDetails: "",
+    },
+  ]);
+  const addNewTreatmentTabHandle = (e) => {
+    e.preventDefault();
+    setTreatmentInBreif([
+      ...treatmentInBreif,
+      {
+        operationDate: "",
+        operation: "",
+        indications: "",
+        surgeon: "",
+        assistants: "",
+        nurse: "",
+        anaesthetist: "",
+        anaesthesia: "",
+        implantDetails: "",
+      },
+    ]);
+  };
+  const deleteTreatmentTabHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...treatmentInBreif];
+
+    oldValue.splice(index, 1);
+
+    setTreatmentInBreif(oldValue && oldValue);
+  };
+  const handleUpdate = (index, field, value) => {
+    setTreatmentInBreif((prevState) => {
+      const updatedState = [...prevState];
+      updatedState[index] = {
+        ...updatedState[index],
+        [field]: value,
+      };
+      return updatedState;
+    });
+  };
   const getAllEmergencyDischargePatientsListDataHandle = async () => {
     const result = await getAllEmergencyDischargePatientsNurseListData(
       adminLoggedInData?.adminUniqueId
@@ -172,6 +223,9 @@ function EmegencyPatientsDischargeTable() {
   }, [search]);
   useEffect(() => {
     getAllEmergencyDischargePatientsListDataHandle();
+  }, []);
+  useEffect(() => {
+    console.log();
   }, []);
   return (
     <Suspense fallback={<>...</>}>
@@ -340,145 +394,183 @@ function EmegencyPatientsDischargeTable() {
                     }
                   />
                 </div>
-                <p className="text-[1rem] font-semibold">
-                  Treatment Given in Brief:
-                </p>
-                <div className="w-full grid grid-cols-3 gap-2">
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Date:</p>
-                    <input
-                      type="date"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1 h-[3.4rem]"
-                      value={patientsDischargeData?.date}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          date: e.target.value,
-                        })
-                      }
-                    />
-                  </div>{" "}
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Operation:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Operation"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.operations}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          operations: e.target.value,
-                        })
-                      }
-                    />
-                  </div>{" "}
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Indications:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Indications"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.indications}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          indications: e.target.value,
-                        })
-                      }
-                    />
+                <span className="flex justify-between w-full py-1">
+                  <p className="text-[1rem] font-semibold">
+                    Treatment Given in Brief:
+                  </p>
+                  <button
+                    onClick={(e) => addNewTreatmentTabHandle(e)}
+                    className="flex items-center justify-center gap-2 bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md "
+                  >
+                    Add
+                  </button>
+                </span>
+                {treatmentInBreif?.map((item, index) => (
+                  <div className="w-full py-1">
+                    <span className="w-full flex justify-end">
+                      <button
+                        className="bg-[red] text-[white] py-1 px-2 rounded-md"
+                        onClick={(e) => deleteTreatmentTabHandle(e, index)}
+                      >
+                        Delete
+                      </button>
+                    </span>
+                    <div className="w-full grid grid-cols-3 gap-2">
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Date:</p>
+                        <input
+                          type="date"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1 h-[3.4rem]"
+                          value={item?.operationDate}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              date: e.target.value,
+                            }),
+                            handleUpdate(
+                              index,
+                              "operationDate",
+                              e.target.value
+                            ),
+                          ]}
+                        />
+                      </div>{" "}
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Operation:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Operation"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.operations}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              operations: e.target.value,
+                            }),
+                            handleUpdate(index, "operations", e.target.value),
+                          ]}
+                        />
+                      </div>{" "}
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Indications:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Indications"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.indications}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              indications: e.target.value,
+                            }),
+                            handleUpdate(index, "indications", e.target.value),
+                          ]}
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Surgeon:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Surgeon"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.surgeon}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              surgeon: e.target.value,
+                            }),
+                            handleUpdate(index, "surgeon", e.target.value),
+                          ]}
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Assistants:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Assistants"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.assistants}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              assistants: e.target.value,
+                            }),
+                            handleUpdate(index, "assistants", e.target.value),
+                          ]}
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Nurse:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Nurse"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.nurse}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              nurse: e.target.value,
+                            }),
+                            handleUpdate(index, "nurse", e.target.value),
+                          ]}
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Anaesthetist:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Anaesthetist"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.anaesthetist}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              anaesthetist: e.target.value,
+                            }),
+                            handleUpdate(index, "anaesthetist", e.target.value),
+                          ]}
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Anaesthesia:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Anaesthesia"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.anaesthesia}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              anaesthesia: e.target.value,
+                            }),
+                            handleUpdate(index, "anaesthesia", e.target.value),
+                          ]}
+                        />
+                      </div>
+                      <div className="w-full flex flex-col justify-start items-start gap-1">
+                        <p>Implant Details:</p>
+                        <textarea
+                          rows={2}
+                          placeholder="Implant Details"
+                          className="border-[2px] w-full rounded outline-none pl-1 pt-1"
+                          value={item?.implantDetails}
+                          onChange={(e) => [
+                            setPatientsDischargeData({
+                              ...patientsDischargeData,
+                              implantDetails: e.target.value,
+                            }),
+                            handleUpdate(
+                              index,
+                              "implantDetails",
+                              e.target.value
+                            ),
+                          ]}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Surgeon:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Surgeon"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.surgeon}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          surgeon: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Assistants:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Assistants"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.assistants}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          assistants: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Nurse:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Nurse"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.nurse}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          nurse: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Anaesthetist:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Anaesthetist"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.anaesthetist}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          anaesthetist: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Anaesthesia:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Anaesthesia"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.anaesthesia}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          anaesthesia: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-full flex flex-col justify-start items-start gap-1">
-                    <p>Implant Details:</p>
-                    <textarea
-                      rows={2}
-                      placeholder="Implant Details"
-                      className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                      value={patientsDischargeData?.implantDetails}
-                      onChange={(e) =>
-                        setPatientsDischargeData({
-                          ...patientsDischargeData,
-                          implantDetails: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
+                ))}
+
                 <button className="flex items-center justify-center gap-2 bg-[#3497F9] text-white py-[5px] px-[10px] rounded-md ">
                   Save <IoIosArrowForward />
                 </button>

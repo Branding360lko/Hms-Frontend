@@ -8,7 +8,7 @@ import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import IPD_PatientPaymentReciept from "./components/Nurse/IPDPatientTableAndForm/IPD_PatientPaymentReceipt/IPD_PatientPaymentReceipt";
 import { useSelector, useDispatch } from "react-redux";
-
+import InActivityTimeout from "./utils/inActivityTimeout";
 // Services
 // import { useGetAllPatientsQuery } from "./Store/Services/PatientService";
 // import {
@@ -384,8 +384,6 @@ function App() {
     browserLinks?.Accountant?.internalPages?.AdmissionandCharges?.split(
       ""
     )?.join("");
-
-  console.log(adminRole);
 
   return (
     <>
@@ -2105,6 +2103,7 @@ function App() {
           </BrowserRouter>
         </div>
       )}
+      <InActivityTimeout />
     </>
   );
 }

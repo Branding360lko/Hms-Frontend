@@ -96,7 +96,6 @@ function DischargePatientsTable() {
   const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("nurseId", "");
     formData.append("admittedFor", patientsDischargeData?.admittedFor);
     formData.append(
       "investigationORProcedure",
@@ -107,14 +106,8 @@ function DischargePatientsTable() {
       patientsDischargeData?.conditionDuringDischarge
     );
     formData.append("date", patientsDischargeData?.date);
-    formData.append("operations", patientsDischargeData?.operations);
-    formData.append("indications", patientsDischargeData?.indications);
-    formData.append("surgeon", patientsDischargeData?.surgeon);
-    formData.append("assistants", patientsDischargeData?.assistants);
-    formData.append("nurse", patientsDischargeData?.nurse);
-    formData.append("anaesthetist", patientsDischargeData?.anaesthetist);
-    formData.append("anaesthesia", patientsDischargeData?.anaesthesia);
-    formData.append("implantDetails", patientsDischargeData?.implantDetails);
+    formData.append("TreatmentGivenInBrief", JSON.stringify(treatmentInBreif));
+    formData.append("nurseId", adminLoggedInData?.adminUniqueId);
     const result = await addNurseDetailsForPatientsDischargeData(id, formData);
     if (result?.status === 200) {
       handleClickSnackbarSuccess();
@@ -162,7 +155,7 @@ function DischargePatientsTable() {
     setTreatmentInBreif([
       ...treatmentInBreif,
       {
-        date: "",
+        operationDate: "",
         operation: "",
         indications: "",
         surgeon: "",
@@ -181,6 +174,16 @@ function DischargePatientsTable() {
     oldValue.splice(index, 1);
 
     setTreatmentInBreif(oldValue && oldValue);
+  };
+  const handleUpdate = (index, field, value) => {
+    setTreatmentInBreif((prevState) => {
+      const updatedState = [...prevState];
+      updatedState[index] = {
+        ...updatedState[index],
+        [field]: value,
+      };
+      return updatedState;
+    });
   };
   const [search, setSearch] = React.useState("");
   const [filteredData, setFilteredData] = React.useState([]);
@@ -386,7 +389,7 @@ function DischargePatientsTable() {
                   </button>
                 </span>
 
-                {treatmentInBreif?.map((index) => (
+                {treatmentInBreif?.map((item, index) => (
                   <div className="w-full py-1">
                     <span className="w-full flex justify-end">
                       <button
@@ -402,13 +405,20 @@ function DischargePatientsTable() {
                         <input
                           type="date"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1 h-[3.4rem]"
-                          value={patientsDischargeData?.date}
-                          onChange={(e) =>
+                          name="date"
+                          value={item?.operationDate}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               date: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(
+                              index,
+                              "operationDate",
+                              e.target.value
+                            ),
+                          ]}
+                          required
                         />
                       </div>{" "}
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -417,13 +427,15 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Operation"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.operations}
-                          onChange={(e) =>
+                          value={item?.operations}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               operations: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(index, "operation", e.target.value),
+                          ]}
+                          required
                         />
                       </div>{" "}
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -432,13 +444,15 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Indications"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.indications}
-                          onChange={(e) =>
+                          value={item?.indications}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               indications: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(index, "indications", e.target.value),
+                          ]}
+                          required
                         />
                       </div>
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -447,13 +461,15 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Surgeon"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.surgeon}
-                          onChange={(e) =>
+                          value={item?.surgeon}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               surgeon: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(index, "surgeon", e.target.value),
+                          ]}
+                          required
                         />
                       </div>
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -462,13 +478,17 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Assistants"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.assistants}
-                          onChange={(e) =>
-                            setPatientsDischargeData({
-                              ...patientsDischargeData,
-                              assistants: e.target.value,
-                            })
-                          }
+                          value={item?.assistants}
+                          onChange={(e) => [
+                            [
+                              setPatientsDischargeData({
+                                ...patientsDischargeData,
+                                assistants: e.target.value,
+                              }),
+                              handleUpdate(index, "assistants", e.target.value),
+                            ],
+                          ]}
+                          required
                         />
                       </div>
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -477,13 +497,15 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Nurse"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.nurse}
-                          onChange={(e) =>
+                          value={item?.nurse}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               nurse: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(index, "nurse", e.target.value),
+                          ]}
+                          required
                         />
                       </div>
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -492,13 +514,15 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Anaesthetist"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.anaesthetist}
-                          onChange={(e) =>
+                          value={item?.anaesthetist}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               anaesthetist: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(index, "anaesthetist", e.target.value),
+                          ]}
+                          required
                         />
                       </div>
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -507,13 +531,15 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Anaesthesia"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.anaesthesia}
-                          onChange={(e) =>
+                          value={item?.anaesthesia}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               anaesthesia: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(index, "anaesthesia", e.target.value),
+                          ]}
+                          required
                         />
                       </div>
                       <div className="w-full flex flex-col justify-start items-start gap-1">
@@ -522,13 +548,19 @@ function DischargePatientsTable() {
                           rows={2}
                           placeholder="Implant Details"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1"
-                          value={patientsDischargeData?.implantDetails}
-                          onChange={(e) =>
+                          value={item?.implantDetails}
+                          onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               implantDetails: e.target.value,
-                            })
-                          }
+                            }),
+                            handleUpdate(
+                              index,
+                              "implantDetails",
+                              e.target.value
+                            ),
+                          ]}
+                          required
                         />
                       </div>
                     </div>
