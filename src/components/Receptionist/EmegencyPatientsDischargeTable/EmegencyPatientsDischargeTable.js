@@ -128,7 +128,7 @@ function EmegencyPatientsDischargeTable() {
   const addNurseDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("nurseId", "");
+    formData.append("nurseId", adminLoggedInData?.adminUniqueId);
     formData.append("admittedFor", patientsDischargeData?.admittedFor);
     formData.append(
       "investigationORProcedure",
@@ -138,15 +138,7 @@ function EmegencyPatientsDischargeTable() {
       "conditionDuringDischarge",
       patientsDischargeData?.conditionDuringDischarge
     );
-    formData.append("date", patientsDischargeData?.date);
-    formData.append("operations", patientsDischargeData?.operations);
-    formData.append("indications", patientsDischargeData?.indications);
-    formData.append("surgeon", patientsDischargeData?.surgeon);
-    formData.append("assistants", patientsDischargeData?.assistants);
-    formData.append("nurse", patientsDischargeData?.nurse);
-    formData.append("anaesthetist", patientsDischargeData?.anaesthetist);
-    formData.append("anaesthesia", patientsDischargeData?.anaesthesia);
-    formData.append("implantDetails", patientsDischargeData?.implantDetails);
+    formData.append("TreatmentGivenInBrief", JSON(treatmentInBreif));
     const result = await addNurseDetailsForEmergencyPatientsDischargeData(
       id,
       formData
@@ -170,6 +162,7 @@ function EmegencyPatientsDischargeTable() {
         anaesthesia: "",
         implantDetails: "",
       });
+      setTreatmentInBreif([]);
     }
     if (result?.status !== 200) {
       getAllEmergencyDischargePatientsListDataHandle();
@@ -191,6 +184,7 @@ function EmegencyPatientsDischargeTable() {
         anaesthesia: "",
         implantDetails: "",
       });
+      setTreatmentInBreif([]);
     }
   };
   const getInvestigationORProcedureEmergencyDataHandle = async (Id) => {
@@ -223,9 +217,6 @@ function EmegencyPatientsDischargeTable() {
   }, [search]);
   useEffect(() => {
     getAllEmergencyDischargePatientsListDataHandle();
-  }, []);
-  useEffect(() => {
-    console.log();
   }, []);
   return (
     <Suspense fallback={<>...</>}>
