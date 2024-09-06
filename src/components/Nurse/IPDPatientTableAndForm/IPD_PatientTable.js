@@ -1641,6 +1641,7 @@ export default function IPD_PatientTable({
   React.useEffect(() => {
     if (responeAddIpdPatientBalance.isSuccess) {
       dispatch(updateIpdPatientChange(Math.random()));
+      handleIpdPatientsFinalBalanceCall();
       updateIpdBalanceState({
         ipdPatientMainId: null,
       });

@@ -69,6 +69,7 @@ import axios from "axios";
 import { date, time } from "../../../utils/DateAndTimeConvertor";
 import NewTable from "../../NewTable/NewTable";
 import { useDebouncedSearch } from "../../../utils/useDebouncedSearch";
+import ChangPatientBedModal from "../ChangPatientBed/ChangPatientBedModal";
 
 export default function EmergencyPatientTable({
   setPageCount,
@@ -495,6 +496,23 @@ export default function EmergencyPatientTable({
   const [previousSelectedBed, setPreviousSelectedBed] = React.useState("");
   const [emergencyPatientId, setEmergencyPatientId] = React.useState("");
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
+
+  const [isBedChange, setIsBedChange] = React.useState(false);
+
+  const handleBedChangeModalClose = () => {
+    setIsBedChange(false);
+  };
+
+  const handleBedChangeClick = (e) => {
+    e.preventDefault();
+    if (
+      window.confirm(
+        `Are you sure you want to change the bed? \n This will change the bed cost! `
+      )
+    )
+      setIsBedChange(true);
+  };
+
   const handleOpenUpdateModal = (list) => {
     setEmergencyPatientId(list?.data?.mainId);
     setemergencyPatientUHID({
@@ -513,6 +531,7 @@ export default function EmergencyPatientTable({
   };
   const handleCloseUpdateModal = () => {
     setOpenUpdateModal(false);
+    setIsBedChange(false);
   };
 
   React.useEffect(() => {
@@ -643,7 +662,7 @@ export default function EmergencyPatientTable({
             />
           </div>
           <div className=" w-full">
-            {addBedFormOpen === false ? (
+            {/* {addBedFormOpen === false ? (
               <button
                 onClick={(e) => handleAddBedFormOpen(e)}
                 className=" flex justify-center items-start w-[100px] gap-1 bg-green-500 py-1 text-white
@@ -660,6 +679,13 @@ export default function EmergencyPatientTable({
                     handleBedSelect={handleBedSelect}
                   />
                 </div>
+              </div>
+            )} */}
+            {!isBedChange && (
+              <div>
+                <button onClick={handleBedChangeClick} className="buttonFilled">
+                  Switch Bed
+                </button>
               </div>
             )}
           </div>
@@ -1788,6 +1814,15 @@ export default function EmergencyPatientTable({
         setOpen={setOpenSnackBarWarning}
         severity="warning"
         message={snackBarMessageWarning}
+      />
+      <ChangPatientBedModal
+        beds={beds}
+        isEmergencyPatient={true}
+        // handleBedSelect={handleUpdatedBedSelect}
+        ipdPtientEdit={true}
+        bedModalOpen={isBedChange}
+        handleModalClose={handleBedChangeModalClose}
+        ipdPatientId={emergencyPatientId}
       />
     </Suspense>
   );

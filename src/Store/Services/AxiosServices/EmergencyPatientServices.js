@@ -26,3 +26,23 @@ export const getAllEmergencyPatients = async ({
     throw error;
   }
 };
+
+export const changeEmergencyBed = async (data) => {
+  try {
+    const response = await makeApiRequest(
+      "PUT",
+      `${apiExt.emergencyPatients.changeEmergencyBed}/${data?.id}`,
+      "",
+      { ipdBedNo: data.newBedId }
+    );
+    // console.log("response in changeIpdBed: ", response);
+
+    if (response?.data) {
+      return response?.data;
+    } else {
+      throw new Error("Something went wrong!");
+    }
+  } catch (error) {
+    throw error;
+  }
+};

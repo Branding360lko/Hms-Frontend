@@ -148,10 +148,15 @@ export default function IPD_PatientReciept() {
   const medicalCharges = ipdPatientBalance?.data?.charges || [];
   const totalMedicalCharges = ipdPatientBalance?.totalMedicalCharges;
 
-  // console.log(
-  //   "ipdPatientNurseDischargeDetails:",
-  //   ipdPatientNurseDischargeDetails
-  // );
+  console.log(
+    "ipdPatientNurseDischargeDetails:",
+    ipdPatientNurseDischargeDetails
+  );
+
+  console.log(
+    "ipdPatientDoctorDischargeDetails:",
+    ipdPatientDoctorDischargeDetails
+  );
 
   // console.log(
   //   "ipdPatientDoctorDischargeDetails:",
@@ -557,7 +562,7 @@ export default function IPD_PatientReciept() {
                         </div>
                       </div>
 
-                      <div className=" grid grid-cols-1 text-[14px] text-left">
+                      <div className=" grid grid-cols-1 text-[14px] text-left uppercase">
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Admitted For:
@@ -592,35 +597,68 @@ export default function IPD_PatientReciept() {
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Treatment Given In Brief:
                           </span>
-                          <div>
+                          <div className=" w-[85%]">
                             <div>
                               <span></span>
                             </div>
-                            <div>
+                            <div className=" w-full grid grid-cols-2">
                               {ipdPatientNurseDischargeDetails?.TreatmentGivenInBrief?.map(
                                 (treatment, index) => (
                                   <div key={index}>
-                                    <p>Date:&nbsp;{treatment?.date}</p>
                                     <p>
-                                      Operation:&nbsp;{treatment?.operation}
+                                      <span className=" font-bold">Date:</span>
+                                      &nbsp;{treatment?.date}
                                     </p>
                                     <p>
-                                      Indications:&nbsp;{treatment?.indications}
+                                      <span className=" font-bold">
+                                        Operation:
+                                      </span>
+                                      &nbsp;{treatment?.operation}
                                     </p>
-                                    <p>Surgeon:&nbsp;{treatment?.surgeon}</p>
                                     <p>
-                                      Assistants:&nbsp;{treatment?.assistants}
+                                      <span className=" font-bold">
+                                        Indications:&nbsp;
+                                      </span>
+                                      {treatment?.indications}
                                     </p>
-                                    <p>Nurse:&nbsp;{treatment?.nurse}</p>
                                     <p>
-                                      Anaesthetist:&nbsp;
+                                      {" "}
+                                      <span className=" font-bold">
+                                        Surgeon:&nbsp;
+                                      </span>
+                                      {treatment?.surgeon}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        Assistants:&nbsp;
+                                      </span>
+                                      {treatment?.assistants}
+                                    </p>
+                                    <p>
+                                      {" "}
+                                      <span className=" font-bold">
+                                        Nurse:&nbsp;
+                                      </span>
+                                      {treatment?.nurse}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        Anaesthetist:
+                                      </span>
+                                      &nbsp;
                                       {treatment?.anaesthetist}
                                     </p>
                                     <p>
-                                      Anaesthesia:&nbsp;{treatment?.anaesthesia}
+                                      <span className=" font-bold">
+                                        Anaesthesia:
+                                      </span>
+                                      &nbsp;{treatment?.anaesthesia}
                                     </p>
                                     <p>
-                                      ImplantDetails:&nbsp;
+                                      <span className=" font-bold">
+                                        ImplantDetails:
+                                      </span>
+                                      &nbsp;
                                       {treatment?.implantDetails}
                                     </p>
                                     <br />
@@ -630,7 +668,7 @@ export default function IPD_PatientReciept() {
                             </div>
                           </div>
                         </div>
-                        {/* <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Condition During Discharge:
                           </span>
@@ -639,22 +677,35 @@ export default function IPD_PatientReciept() {
                               ipdPatientNurseDischargeDetails?.conditionDuringDischarge
                             }
                           </p>
-                        </div> */}
-                        {/* <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-auto">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px] py-2">
                             Advise During Discharge:
                           </span>
-                          <p>
-                            {
-                              ipdPatientDoctorDischargeDetails?.adviseDuringDischarge
-                            }
-                          </p>
-                        </div> */}
+                          <div>
+                            {ipdPatientDoctorDischargeDetails?.medicineAdviseDuringDischarge?.map(
+                              (med, index) => (
+                                <div
+                                  key={index}
+                                  className=" grid grid-cols-2 gap-10"
+                                >
+                                  <p>{med?.medicine}: </p>
+                                  <p>{med?.schedule}</p>
+                                </div>
+                              )
+                            )}
+                            {ipdPatientDoctorDischargeDetails?.adviseDuringDischarge?.map(
+                              (advice, index) => (
+                                <p key={index}>•&nbsp;{advice?.advice}</p>
+                              )
+                            )}
+                          </div>
+                        </div>
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Summary:
                           </span>
-                          <p>{}</p>
+                          <p>&nbsp; As Explained Above</p>
                         </div>
                         {/* <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-left flex justify-center items-center px-1 border-r-2 h-full w-[150px]">

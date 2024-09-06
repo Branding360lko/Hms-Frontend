@@ -3,6 +3,7 @@ import BedSelector from "../AddBedSelector/AddBedSelector";
 import { useEffect, useState } from "react";
 import { useIpdPatientChangeBedByIdMutation } from "../../../Store/Services/IPDPatientService";
 import { changeIpdBed } from "../../../Store/Services/AxiosServices/IpdPatientServices";
+import { changeEmergencyBed } from "../../../Store/Services/AxiosServices/EmergencyPatientServices";
 
 export default function ChangPatientBedModal({
   beds,
@@ -10,6 +11,7 @@ export default function ChangPatientBedModal({
   bedModalOpen,
   handleModalClose,
   ipdPatientId,
+  isEmergencyPatient,
 }) {
   const style = {
     position: "absolute",
@@ -44,38 +46,71 @@ export default function ChangPatientBedModal({
     e.preventDefault();
     // console.log("Handle Bed Change Called with patient id:", ipdPatientId);
     // console.log("updatedBed:", updatedBed);
+    if (isEmergencyPatient) {
+      const data = {
+        id: ipdPatientId,
+        newBedId: updatedBed?.bedId,
+      };
+      try {
+        const responseApiCall = await changeEmergencyBed(data);
+        if (responseApiCall) {
+          console.log("responseApiCall:", responseApiCall);
 
-    const data = {
-      id: ipdPatientId,
-      newBedId: updatedBed?.bedId,
-    };
-    // console.log("data for bed change:", data);
-    try {
-      const responseApiCall = await changeIpdBed(data);
-      if (responseApiCall) {
-        // console.log("responseApiCall:", responseApiCall);
-
+          setResponseBedChangeApi({
+            success: true,
+            message: responseApiCall.message,
+          });
+        }
+      } catch (error) {
         setResponseBedChangeApi({
-          success: true,
-          message: responseApiCall.message,
+          success: false,
+          message: error.message,
         });
+        console.log("error in bed change Api call:", error);
+      } finally {
+        setTimeout(() => {
+          handleModalClose();
+          setResponseBedChangeApi({
+            success: null,
+            message: null,
+          });
+          setUpdateFeedback(null);
+          setUpdatedBed(null);
+        }, 5000);
       }
-    } catch (error) {
-      setResponseBedChangeApi({
-        success: false,
-        message: error.message,
-      });
-      console.log("error in bed change Api call:", error);
-    } finally {
-      setTimeout(() => {
-        handleModalClose();
+    } else {
+      const data = {
+        id: ipdPatientId,
+        newBedId: updatedBed?.bedId,
+      };
+      // console.log("data for bed change:", data);
+      try {
+        const responseApiCall = await changeIpdBed(data);
+        if (responseApiCall) {
+          // console.log("responseApiCall:", responseApiCall);
+
+          setResponseBedChangeApi({
+            success: true,
+            message: responseApiCall.message,
+          });
+        }
+      } catch (error) {
         setResponseBedChangeApi({
-          success: null,
-          message: null,
+          success: false,
+          message: error.message,
         });
-        setUpdateFeedback(null);
-        setUpdatedBed(null);
-      }, 5000);
+        console.log("error in bed change Api call:", error);
+      } finally {
+        setTimeout(() => {
+          handleModalClose();
+          setResponseBedChangeApi({
+            success: null,
+            message: null,
+          });
+          setUpdateFeedback(null);
+          setUpdatedBed(null);
+        }, 5000);
+      }
     }
   };
 
@@ -87,6 +122,8 @@ export default function ChangPatientBedModal({
       setUpdateFeedback(responseBedChangeApi.message);
     }
   }, [responseBedChangeApi]);
+
+  // console.log("beds:", beds);
 
   return (
     <Modal
@@ -106,7 +143,11 @@ export default function ChangPatientBedModal({
             <>
               {" "}
               <BedSelector
-                beds={beds}
+                beds={
+                  isEmergencyPatient
+                    ? beds.filter((bed) => bed.bedType === "EMERGENCY")
+                    : beds
+                }
                 handleBedSelect={handleUpdatedBedSelect}
                 ipdPtientEdit={true}
               />

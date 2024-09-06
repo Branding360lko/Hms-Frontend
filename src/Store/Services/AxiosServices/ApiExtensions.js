@@ -11,5 +11,6 @@ export const apiExt = {
   },
   emergencyPatients: {
     getAllEmergencyPatients: "EmergencyPatient-GET-ALL",
+    changeEmergencyBed: "EmergencyPatient-PUT-ChangeBed",
   },
 };
