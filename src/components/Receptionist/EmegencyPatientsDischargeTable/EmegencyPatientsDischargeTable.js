@@ -88,7 +88,7 @@ function EmegencyPatientsDischargeTable() {
     setTreatmentInBreif([
       ...treatmentInBreif,
       {
-        operationDate: "",
+        date: "",
         operation: "",
         indications: "",
         surgeon: "",
@@ -138,7 +138,7 @@ function EmegencyPatientsDischargeTable() {
       "conditionDuringDischarge",
       patientsDischargeData?.conditionDuringDischarge
     );
-    formData.append("TreatmentGivenInBrief", JSON(treatmentInBreif));
+    formData.append("TreatmentGivenInBrief", JSON.stringify(treatmentInBreif));
     const result = await addNurseDetailsForEmergencyPatientsDischargeData(
       id,
       formData
@@ -218,6 +218,9 @@ function EmegencyPatientsDischargeTable() {
   useEffect(() => {
     getAllEmergencyDischargePatientsListDataHandle();
   }, []);
+  useEffect(() => {
+    console.log(treatmentInBreif);
+  }, [treatmentInBreif]);
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -412,17 +415,13 @@ function EmegencyPatientsDischargeTable() {
                         <input
                           type="date"
                           className="border-[2px] w-full rounded outline-none pl-1 pt-1 h-[3.4rem]"
-                          value={item?.operationDate}
+                          value={item?.date}
                           onChange={(e) => [
                             setPatientsDischargeData({
                               ...patientsDischargeData,
                               date: e.target.value,
                             }),
-                            handleUpdate(
-                              index,
-                              "operationDate",
-                              e.target.value
-                            ),
+                            handleUpdate(index, "date", e.target.value),
                           ]}
                         />
                       </div>{" "}
@@ -438,7 +437,7 @@ function EmegencyPatientsDischargeTable() {
                               ...patientsDischargeData,
                               operations: e.target.value,
                             }),
-                            handleUpdate(index, "operations", e.target.value),
+                            handleUpdate(index, "operation", e.target.value),
                           ]}
                         />
                       </div>{" "}

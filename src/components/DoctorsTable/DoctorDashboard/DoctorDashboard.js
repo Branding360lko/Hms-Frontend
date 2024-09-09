@@ -10,6 +10,8 @@ import { getTestDataHandle } from "../../../Store/Slices/Test";
 
 function DoctorDashboard() {
   const { adminLoggedInData } = useSelector((state) => state.AdminState);
+  const { medicineData } = useSelector((state) => state.MedicineData);
+  const { testData } = useSelector((state) => state.TestData);
   const [dashboardData, setDashboardData] = useState();
   const dispatch = useDispatch();
   const getDoctorDashboardDataHandle = async (Id) => {
@@ -17,8 +19,12 @@ function DoctorDashboard() {
     setDashboardData(result && result?.data);
   };
   useEffect(() => {
-    dispatch(getMedicineDataHandle());
-    dispatch(getTestDataHandle());
+    if (!medicineData || !medicineData.data || medicineData.data.length === 0) {
+      dispatch(getMedicineDataHandle());
+    }
+    if (!testData || !testData.data || testData.data.length === 0) {
+      dispatch(getTestDataHandle());
+    }
     getDoctorDashboardDataHandle(adminLoggedInData?.adminUniqueId);
   }, []);
   return (
