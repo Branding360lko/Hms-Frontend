@@ -96,10 +96,10 @@ export default function IPD_PatientReciept() {
   }, [responseGetIPDPatientById.isSuccess]);
 
   useEffect(() => {
-    // console.log(
-    //   "responseIpdPatientDischargeReceiptGetById:",
-    //   responseIpdPatientDischargeReceiptGetById
-    // );
+    console.log(
+      "responseIpdPatientDischargeReceiptGetById:",
+      responseIpdPatientDischargeReceiptGetById
+    );
 
     const ipdNurseDischargeData =
       responseIpdPatientDischargeReceiptGetById?.data?.IPDPatientData[0]
@@ -532,7 +532,7 @@ export default function IPD_PatientReciept() {
                             AGE/SEX:
                           </p>
                           <p>
-                            {patientDetails?.age}Y/
+                            {patientDetails?.patientAge}&nbsp;Y/
                             {patientDetails?.patientGender}
                           </p>
                         </div>

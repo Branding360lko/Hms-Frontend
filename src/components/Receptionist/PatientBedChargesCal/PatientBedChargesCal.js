@@ -3,9 +3,11 @@ import {
   useIpdPatientFinalBalanceCalGetByIdMutation,
   useIpdPatientFinalDischargeByIdMutation,
 } from "../../../Store/Services/IPDPatientService";
+import { useGetEmergencyPatientBalanceByIdQuery } from "../../../Store/Services/EmergencyPatientService";
 
 function PatientBedChargesCal({
   currentPatientBed,
+  emergencyPatientData,
   ipdPatientData,
   setCurrentPatientBedCharges,
 }) {
@@ -17,21 +19,37 @@ function PatientBedChargesCal({
     responseIpdPatientFinalBalanceCalGetById,
   ] = useIpdPatientFinalBalanceCalGetByIdMutation();
 
+  const responseEmergencyPatientBalanceGet =
+    useGetEmergencyPatientBalanceByIdQuery(emergencyPatientData?.data?.mainId);
+
   const [ipdPatientFinalBedCal, setIpdPatientFinalBedCal] = useState(null);
 
   useEffect(() => {
-    ipdPatientFinalBalanceCalGetById(ipdPatientData?.data?.mainId);
-  }, [ipdPatientData?.data?.mainId]);
+    if (responseEmergencyPatientBalanceGet.isSuccess) {
+      // console.log(
+      //   "responseEmergencyPatientBalanceGet:",
+      //   responseEmergencyPatientBalanceGet
+      // );
+
+      setIpdPatientFinalBedCal(
+        responseEmergencyPatientBalanceGet?.data?.autoCharges[0]
+      );
+    } else {
+      ipdPatientFinalBalanceCalGetById(ipdPatientData?.data?.mainId);
+    }
+  }, [ipdPatientData?.data?.mainId, emergencyPatientData?.data?.mainId]);
 
   useEffect(() => {
-    console.log(
-      "responseIpdPatientFinalBalanceCalGetById",
-      responseIpdPatientFinalBalanceCalGetById
-    );
+    // console.log(
+    //   "responseIpdPatientFinalBalanceCalGetById",
+    //   responseIpdPatientFinalBalanceCalGetById
+    // );
 
-    const finalBedCal =
-      responseIpdPatientFinalBalanceCalGetById?.data?.autoCharges[0];
-    setIpdPatientFinalBedCal(finalBedCal);
+    if (!responseEmergencyPatientBalanceGet.isSuccess) {
+      const finalBedCal =
+        responseIpdPatientFinalBalanceCalGetById?.data?.autoCharges[0];
+      setIpdPatientFinalBedCal(finalBedCal);
+    }
   }, [responseIpdPatientFinalBalanceCalGetById.isSuccess]);
 
   console.log("ipdPatientFinalBedCal:", ipdPatientFinalBedCal);

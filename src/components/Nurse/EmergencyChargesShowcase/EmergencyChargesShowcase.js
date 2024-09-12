@@ -21,12 +21,12 @@ function EmergencyChargesShowcase({
     <div>
       <h2 className=" text-2xl font-semibold">Bill Summary</h2>
       <br></br>
-      <EmergencyBedChargesCal
+      {/* <EmergencyBedChargesCal
         currentPatientFinalBalance={currentPatientFinalBalance}
       />
       <EmergencyMedDocLabChargesShowcase
         currentPatientMedDocLabTotal={currentPatientMedDocLabTotal}
-      />
+      /> */}
       {currentPatientExtraCharges && currentPatientExtraChargesTotal ? (
         <div className="w-full">
           <h3 className="text-xl font-semibold">Extra Charges</h3>

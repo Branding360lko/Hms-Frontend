@@ -119,6 +119,15 @@ export const emergencyPatientService = createApi({
         };
       },
     }),
+    emergencyPatientDischargeReceiptGetById: builder.mutation({
+      query: (id) => {
+        return {
+          url: `EmergencyPatientDischargeReciept-GET-ONE/${id}`,
+          method: "GET",
+          // body: updateData.data,
+        };
+      },
+    }),
   }),
 });
 
@@ -136,4 +145,5 @@ export const {
   useAddEmergencyPatientBalanceByIdMutation,
   useEmergencyPatientDischargeRequestMutation,
   useEmergencyPatientFinalDischargeMutation,
+  useEmergencyPatientDischargeReceiptGetByIdMutation,
 } = emergencyPatientService;

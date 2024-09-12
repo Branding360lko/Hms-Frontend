@@ -33,12 +33,92 @@ export const changeEmergencyBed = async (data) => {
       "PUT",
       `${apiExt.emergencyPatients.changeEmergencyBed}/${data?.id}`,
       "",
-      { ipdBedNo: data.newBedId }
+      { emergencyBedNo: data.newBedId }
     );
     // console.log("response in changeIpdBed: ", response);
 
     if (response?.data) {
       return response?.data;
+    } else {
+      throw new Error("Something went wrong!");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getEmergencyPatientById = async (id) => {
+  try {
+    const response = await makeApiRequest(
+      "GET",
+      `${apiExt.emergencyPatients.getEmergencyPatientById}/${id}`
+    );
+    if (response?.data) {
+      return response?.data;
+    } else {
+      throw new Error("Something went wrong!");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getEmergencyPatientBalanceById = async (id) => {
+  try {
+    const response = await makeApiRequest(
+      "GET",
+      `${apiExt.emergencyPatients.getEmergencyPatientBalanceById}/${id}`
+    );
+    if (response.data) {
+      return response.data;
+    } else {
+      throw new Error("Something went wrong!");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getEmergencyPatientMedDocLabDetailsById = async (id) => {
+  try {
+    const response = makeApiRequest(
+      "GET",
+      `${apiExt.emergencyPatients.getEmergencyPatientMedDocLabDetailsById}/${id}`
+    );
+    if (response.data) {
+      return response.data;
+    } else {
+      throw new Error("Somthing went wrong!");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getEmergencyPatientMedDocLabTotalById = async (id) => {
+  try {
+    const response = makeApiRequest(
+      "GET",
+      `${apiExt.emergencyPatients.getEmergencyPatientMedDocLabTotalById}/${id}`
+    );
+    if (response.data) {
+      return response.data;
+    } else {
+      throw new Error("Something went wrong!");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const emergencyPatientDischargeReceiptGetById = async (id) => {
+  try {
+    const response = makeApiRequest(
+      "GET",
+      `${apiExt.emergencyPatients.emergencyPatientDischargeReceiptGetById}/${id}`
+    );
+    if (response.data) {
+      return response.data;
     } else {
       throw new Error("Something went wrong!");
     }
