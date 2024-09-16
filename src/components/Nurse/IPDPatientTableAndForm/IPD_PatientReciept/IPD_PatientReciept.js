@@ -413,19 +413,19 @@ export default function IPD_PatientReciept() {
                       <tbody className="text-gray-500 font-semibold">
                         {medicalCharges.map((charge, index) => (
                           <>
-                            {charge.items.map((item) => (
-                              <tr key={item._id}>
+                            {charge?.items.map((item) => (
+                              <tr key={item?._id}>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  {item.itemName}
+                                  {item?.itemName}
                                 </td>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  {item.quantity}
+                                  {item?.quantity}
                                 </td>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  Rs. {item.price}
+                                  Rs. {item?.price}
                                 </td>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  {new Date(item.date).toLocaleDateString()}
+                                  {new Date(item?.date).toLocaleDateString()}
                                 </td>
                               </tr>
                             ))}

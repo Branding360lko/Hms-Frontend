@@ -2103,7 +2103,6 @@ function App() {
           </BrowserRouter>
         </div>
       )}
-      <InActivityTimeout />
     </>
   );
 }

@@ -56,6 +56,8 @@ import { CiViewList } from "react-icons/ci";
 import PaginationComponent from "../../Pagination";
 import { useReactToPrint } from "react-to-print";
 import { ToWords } from "to-words";
+import useDebounce from "../../../utils/DebounceHook";
+import PaginationForApi from "../../PaginationForApi";
 export default function TestPatientTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -95,6 +97,7 @@ export default function TestPatientTable() {
   const [allPatientsTest, setAllPatientsTest] = useState([]);
   const [selectedPatientDetails, setSelectedPatientDetails] = useState();
   const [testPriceTotal, setTestPriceTotal] = useState(0);
+  const [totalData, setTotalData] = useState(0);
   const [selectedTest, setSelectedTest] = useState([]);
   const [filteredData, setFilteredData] = React.useState([]);
   const [search, setSearch] = React.useState("");
@@ -193,7 +196,7 @@ export default function TestPatientTable() {
   const [testPatientData, setTestPatientData] = React.useState();
   const [testPatientName, setTestPatientName] = React.useState();
   const [testDoctorName, setTestDoctorName] = React.useState();
-
+  const [actionType, setActionType] = useState("");
   const [testPatientUHID, setTestPatientUHID] = React.useState({
     value: "",
     label: "",
@@ -268,7 +271,8 @@ export default function TestPatientTable() {
       label: `${data.Name}`,
     };
   });
-
+  const debouncedSearchTerm = useDebounce(search, 500);
+  const [visitedPages, setVisitedPages] = useState([]);
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const handleOpenAddModal = () => {
     setOpenAddModal(true);
@@ -283,8 +287,12 @@ export default function TestPatientTable() {
     setTests("");
     setPatientType("");
     setNotes("");
+    setSelectedTest([]);
   };
-  const handleCloseAddModal = () => setOpenAddModal(false);
+  const handleCloseAddModal = () => {
+    setOpenAddModal(false);
+    setActionType("");
+  };
 
   React.useEffect(() => {
     if (responseCreateTestOfPatient.isSuccess) {
@@ -550,11 +558,11 @@ export default function TestPatientTable() {
           <button
             type="submit"
             className="buttonFilled"
-            // onClick={() => setSubmitButton("add")}
+            onClick={() => setActionType("save")}
           >{`Save >`}</button>
           <button
             className="buttonOutlined"
-            // onClick={() => setSubmitButton("addPrint")}
+            onClick={() => setActionType("saveAndPrint")}
           >{`Save & Print >`}</button>
         </div>
       </form>
@@ -847,10 +855,6 @@ export default function TestPatientTable() {
             className="buttonFilled"
             // onClick={() => setSubmitButton("add")}
           >{`Save >`}</button>
-          <button
-            className="buttonOutlined"
-            // onClick={() => setSubmitButton("addPrint")}
-          >{`Save & Print >`}</button>
         </div>
       </form>
     </div>
@@ -861,7 +865,10 @@ export default function TestPatientTable() {
     setTestPatientData(list);
     setOpenViewModal(true);
   };
-  const handleCloseViewModal = () => setOpenViewModal(false);
+  const handleCloseViewModal = () => {
+    setOpenViewModal(false);
+    setSelectedTest([]);
+  };
 
   const modalViewEmergencyPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -1040,7 +1047,7 @@ export default function TestPatientTable() {
           Test Payment Receipt
         </h3>
 
-        <div className="grid grid-cols-2 gap-[10px] text-[14px] px-4 py-2">
+        <div className="grid grid-cols-2 gap-[10px] text-[14px] px-4 py-2 px-[2rem]">
           <div className="flex">
             <p className="font-[500] w-[130px] text-start">UHID</p>
             <p>{selectedPatientDetails?.testPatientId}</p>
@@ -1150,7 +1157,7 @@ export default function TestPatientTable() {
           <p>{`₹ ${selectedPatientDetails?.total}`}</p>
         </div>
         <div
-          className="flex justify-end items-center px-[1rem] pb-[10px]"
+          className="flex justify-end items-center px-[2rem] pb-[10px]"
           style={{
             // borderTop: "2px solid #373737",
             borderBottom: "2px solid #373737",
@@ -1201,9 +1208,18 @@ export default function TestPatientTable() {
   //   });
 
   const getAllPatientsTestDataHandle = async () => {
-    const result = await getAllPatientsTestData();
-    setAllPatientsTest(result?.data && result?.data?.testPatients);
-    setFilteredData(result?.data && result?.data?.testPatients);
+    if (!visitedPages.includes(page)) {
+      const result = await getAllPatientsTestData(
+        page,
+        rowsPerPage,
+        debouncedSearchTerm
+      );
+      setAllPatientsTest(
+        result && [...allPatientsTest, ...result?.data?.testPatients]
+      );
+      setTotalData(result?.data?.totalDocuments);
+      setVisitedPages((prevVisitedPages) => [...prevVisitedPages, page]);
+    }
   };
   const addPatientsTestDataHandle = async (e) => {
     e.preventDefault();
@@ -1219,10 +1235,19 @@ export default function TestPatientTable() {
     if (result?.status === 200) {
       handleCloseAddModal();
       handleClickSnackbarSuccess();
+      setSelectedTest([]);
       setSnackBarSuccessMessage(result?.data?.message);
+      if (actionType === "saveAndPrint") {
+        try {
+          getSinglePatientsTestDataHandle(result?.data?.data?.mainId);
+        } catch (error) {
+          console.error("Failed to get single patient's test data:", error);
+        }
+      }
       getAllPatientsTestDataHandle();
     }
   };
+
   const getSinglePatientsTestDataHandle = async (Id) => {
     const result = await getSinglePatientsTestData(Id);
     setSelectedPatientDetails(result?.data && result?.data?.[0]);
@@ -1248,6 +1273,11 @@ export default function TestPatientTable() {
     setTestPatientName(
       result?.data && result?.data?.[0]?.patientData?.patientName
     );
+    if (result?.status === 200 && actionType === "saveAndPrint") {
+      setTimeout(() => {
+        handlePrint();
+      }, 0);
+    }
   };
   const updateTestPatientDataHandle = async (e, Id) => {
     e.preventDefault();
@@ -1263,30 +1293,14 @@ export default function TestPatientTable() {
       handleClickSnackbarSuccess();
       setSnackBarSuccessMessage(result?.data);
     }
+    console.log(result, "result");
   };
-  const searchHandle = () => {
-    const filter = allPatientsTest?.filter((item) => {
-      if (search != "") {
-        return (
-          item?.patientData?.patientName
-            ?.toLowerCase()
-            .includes(search.toLowerCase()) ||
-          item?.patientData?.patientPhone
-            ?.toLowerCase()
-            .includes(search.toLowerCase()) ||
-          item?.patientData?.patientPhone2
-            ?.toLowerCase()
-            .includes(search.toLowerCase()) ||
-          item?.testPatientId?.toLowerCase().includes(search.toLowerCase())
-        );
-      }
-      return item;
-    });
-    setFilteredData(filter && filter);
-  };
-  React.useEffect(() => {
-    searchHandle();
-  }, [search]);
+  const emptyVisitedPageRecord = React.useMemo(() => {
+    setVisitedPages([]);
+    setAllPatientsTest([]);
+    setPage(0);
+  }, [rowsPerPage, debouncedSearchTerm]);
+
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
@@ -1304,7 +1318,7 @@ export default function TestPatientTable() {
 
   React.useEffect(() => {
     getAllPatientsTestDataHandle();
-  }, []);
+  }, [page, rowsPerPage, debouncedSearchTerm]);
 
   return (
     <Suspense fallback={<>...</>}>
@@ -1357,7 +1371,7 @@ export default function TestPatientTable() {
               </th>
             </thead>
             <tbody>
-              {filteredData
+              {allPatientsTest
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 ?.map((item, index) => (
                   <tr key={index} className="border-b-[1px]">
@@ -1413,12 +1427,12 @@ export default function TestPatientTable() {
                 ))}
             </tbody>
           </table>
-          <PaginationComponent
+          <PaginationForApi
             page={page}
             rowsPerPage={rowsPerPage}
             handleChangePage={handleChangePage}
             handleChangeRowsPerPage={handleChangeRowsPerPage}
-            data={filteredData}
+            data={totalData ? totalData : 0}
           />
         </div>
       </div>
@@ -1478,7 +1492,7 @@ export default function TestPatientTable() {
                 onClick={handlePrint}
               >
                 <LuHardDriveDownload />
-                <p>Print Slip</p>
+                <p>Print Receipt</p>
               </button>
             </div>
           </Typography>

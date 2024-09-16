@@ -45,8 +45,13 @@ export default function OPD_PatientReciept() {
     return newDate.toLocaleTimeString();
   };
 
-  console.log(responseGetDoctorById);
+  console.log(
+    responseGetDoctorById,
+    "responseGetPatientById",
 
+    responseGetPatientById?.currentData,
+    "responseGetPatientById?.currentData"
+  );
   const componentRef = useRef();
 
   const marginTop = "10px";
@@ -148,9 +153,11 @@ export default function OPD_PatientReciept() {
                       {responseGetPatientById?.currentData?.patientCity ===
                         "" || responseGetPatientById?.currentData?.patientCity
                         ? responseGetPatientById?.currentData?.patientCity
-                        : JSON.parse(
+                        : responseGetPatientById?.currentData?.patientCityNew
+                        ? JSON.parse(
                             responseGetPatientById?.currentData?.patientCityNew
-                          ).value}
+                          ).value
+                        : "----"}
                     </p>
                   </div>
                   <div className="flex">

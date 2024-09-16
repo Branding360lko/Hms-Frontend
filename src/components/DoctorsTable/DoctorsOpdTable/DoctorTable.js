@@ -523,9 +523,7 @@ function DoctorTable() {
       dispatch(getTestDataHandle());
     }
   }, [medicineData, testData]);
-  useEffect(() => {
-    console.log(isLoading, "isLoading");
-  }, [isLoading]);
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">

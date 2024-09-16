@@ -69,6 +69,7 @@ function DoctorDischargePatientsTable() {
   const [isLoading, setIsLoading] = useState(false);
   const [filteredData, setFilteredData] = React.useState([]);
   const [allDischargeData, setAllDischargeData] = useState([]);
+  const [doctorMainId, setDoctorMainId] = useState();
   const [dischargePatientsFinalReport, setDischargePatientsFinalReport] =
     useState({
       ipdPatientsId: "",
@@ -162,7 +163,7 @@ function DoctorDischargePatientsTable() {
       adminLoggedInData?.adminUniqueId
     );
     setAllDischargeData(result && result?.data?.data?.reverse());
-    setFilteredData(result && result?.data?.data?.reverse());
+    setFilteredData(result && result?.data?.data);
   };
   const addDoctorDetailsForPatientsDischargeDataHandle = async (e) => {
     e.preventDefault();
@@ -196,7 +197,7 @@ function DoctorDischargePatientsTable() {
       JSON.stringify(medicineDuringDischarge)
     );
     const result = await addDoctorDetailsForPatientsDischargeData(
-      dischargePatientsFinalReport?.ipdPatientsId,
+      doctorMainId,
       formData
     );
     if (result?.status === 200) {
@@ -333,6 +334,7 @@ function DoctorDischargePatientsTable() {
                             ipdPatientsId: item?.mainId,
                           }),
                           getDoctorNameDataHandle(),
+                          setDoctorMainId(item?.mainId),
                         ]}
                       >
                         <RiEdit2Fill className="text-[20px] text-[#3497F9]" />

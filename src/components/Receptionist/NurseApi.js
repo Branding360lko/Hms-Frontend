@@ -456,10 +456,17 @@ export const getSinglePatientsTestData = async (Id) => {
     throw new Error(error);
   }
 };
-export const getAllPatientsTestData = async () => {
+export const getAllPatientsTestData = async (page, limit, search) => {
   try {
     const response = await axios.get(
-      `${process.env.React_App_Base_url + "TestOfPatient-GET-ALL"}`
+      `${process.env.React_App_Base_url + "TestOfPatient-GET-ALL"}`,
+      {
+        params: {
+          page,
+          limit,
+          search,
+        },
+      }
     );
     return response;
   } catch (error) {

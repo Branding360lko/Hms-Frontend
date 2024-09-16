@@ -29,8 +29,11 @@ import {
 } from "../../../Store/Slices/DoctorSlice";
 
 const OPDPatientTable = lazy(() =>
-  import("../../../components/superadmin/OPD_PatientTable/OPD_PatientTable")
+  import("../../../components/Nurse/OPDPatientTableAndForm/OPD_PatientTable")
 );
+// const OPDPatientTable = lazy(() =>
+//   import("../../../components/superadmin/OPD_PatientTable/OPD_PatientTable")
+// );
 
 export default function OPDPatientList() {
   const dispatch = useDispatch();

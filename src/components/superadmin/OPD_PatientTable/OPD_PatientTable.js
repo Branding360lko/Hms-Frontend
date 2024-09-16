@@ -294,6 +294,10 @@ export default function OPD_PatientTable({
 
     createOPDPatient(submitData);
   };
+  console.log(
+    responseCreateOPDPatient?.data?.data?.mainId,
+    "responseCreateOPDPatient?.data?.data?.mainId"
+  );
 
   // console.log(opdPatientId);
 
