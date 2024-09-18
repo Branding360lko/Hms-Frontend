@@ -58,6 +58,7 @@ import { useReactToPrint } from "react-to-print";
 import { ToWords } from "to-words";
 import useDebounce from "../../../utils/DebounceHook";
 import PaginationForApi from "../../PaginationForApi";
+import { LinearProgress } from "@mui/material";
 export default function TestPatientTable() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -274,6 +275,7 @@ export default function TestPatientTable() {
   const debouncedSearchTerm = useDebounce(search, 500);
   const [visitedPages, setVisitedPages] = useState([]);
   const [openAddModal, setOpenAddModal] = React.useState(false);
+  const [refreshList, setRefreshList] = useState(false);
   const handleOpenAddModal = () => {
     setOpenAddModal(true);
     setTestPatientUHID({
@@ -571,7 +573,9 @@ export default function TestPatientTable() {
 
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
   const handleOpenUpdateModal = (list) => {
+    setSelectedTest([]);
     setOpenUpdateModal(true);
+    console.log("handle open");
   };
   const handleCloseUpdateModal = () => {
     setOpenUpdateModal(false);
@@ -864,6 +868,7 @@ export default function TestPatientTable() {
   const handleOpenViewModal = (list) => {
     setTestPatientData(list);
     setOpenViewModal(true);
+    setSelectedTest([]);
   };
   const handleCloseViewModal = () => {
     setOpenViewModal(false);
@@ -1193,22 +1198,9 @@ export default function TestPatientTable() {
     };
   });
 
-  //   const mappedBillData = filteredArray?.map((data, index) => {
-  //     const filteredPatientData = patients?.find(
-  //       (patient) => data?.opdPatientId === patient?.patientId
-  //     );
-  //     const filteredDoctorData = doctors?.find(
-  //       (doctor) => doctor?.doctorId === data?.opdDoctorId
-  //     );
-  //     return {
-  //       data,
-  //       patientData: filteredPatientData,
-  //       doctorData: filteredDoctorData,
-  //     };
-  //   });
-
   const getAllPatientsTestDataHandle = async () => {
-    if (!visitedPages.includes(page)) {
+    if (!visitedPages.includes(page) || refreshList) {
+      setIsLoading(true);
       const result = await getAllPatientsTestData(
         page,
         rowsPerPage,
@@ -1219,6 +1211,8 @@ export default function TestPatientTable() {
       );
       setTotalData(result?.data?.totalDocuments);
       setVisitedPages((prevVisitedPages) => [...prevVisitedPages, page]);
+      setRefreshList(false);
+      setIsLoading(false);
     }
   };
   const addPatientsTestDataHandle = async (e) => {
@@ -1233,10 +1227,15 @@ export default function TestPatientTable() {
     formData.append("test", JSON.stringify(selectedTest));
     const result = await addPatientsTestData(formData);
     if (result?.status === 200) {
+      setPage(0);
+      setVisitedPages([]);
+      setAllPatientsTest([]);
+      setRefreshList(true);
       handleCloseAddModal();
       handleClickSnackbarSuccess();
       setSelectedTest([]);
       setSnackBarSuccessMessage(result?.data?.message);
+      await getAllPatientsTestDataHandle();
       if (actionType === "saveAndPrint") {
         try {
           getSinglePatientsTestDataHandle(result?.data?.data?.mainId);
@@ -1244,11 +1243,10 @@ export default function TestPatientTable() {
           console.error("Failed to get single patient's test data:", error);
         }
       }
-      getAllPatientsTestDataHandle();
     }
   };
-
   const getSinglePatientsTestDataHandle = async (Id) => {
+    setSelectedTest([]);
     const result = await getSinglePatientsTestData(Id);
     setSelectedPatientDetails(result?.data && result?.data?.[0]);
     setPatientType(result?.data && result?.data?.[0]?.patientType);
@@ -1318,8 +1316,7 @@ export default function TestPatientTable() {
 
   React.useEffect(() => {
     getAllPatientsTestDataHandle();
-  }, [page, rowsPerPage, debouncedSearchTerm]);
-
+  }, [page, rowsPerPage, debouncedSearchTerm, refreshList]);
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1345,7 +1342,13 @@ export default function TestPatientTable() {
         <input type='date' className='bg-transparent outline-none' />
       </div> */}
         </div>
-
+        {isLoading === true && (
+          <div>
+            <Box sx={{ width: "100%" }}>
+              <LinearProgress />
+            </Box>
+          </div>
+        )}
         <div className="w-full">
           <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
             <thead>
@@ -1405,8 +1408,8 @@ export default function TestPatientTable() {
                         </div>{" "}
                         <div
                           onClick={() => [
-                            getSinglePatientsTestDataHandle(item?.mainId),
                             handleOpenUpdateModal(),
+                            getSinglePatientsTestDataHandle(item?.mainId),
                           ]}
                           className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         >
