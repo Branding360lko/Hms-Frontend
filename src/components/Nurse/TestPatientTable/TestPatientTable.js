@@ -575,7 +575,6 @@ export default function TestPatientTable() {
   const handleOpenUpdateModal = (list) => {
     setSelectedTest([]);
     setOpenUpdateModal(true);
-    console.log("handle open");
   };
   const handleCloseUpdateModal = () => {
     setOpenUpdateModal(false);
