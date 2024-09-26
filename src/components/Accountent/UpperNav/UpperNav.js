@@ -39,7 +39,7 @@ export default function UpperNav() {
   const [adminUpdateById, responseAdminUpdateById] =
     useAdminUpdateByIdMutation();
 
-  console.log(responseAdminChangePasswordById);
+  // console.log(responseAdminChangePasswordById);
 
   const [adminName, setAdminName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");

@@ -39,7 +39,7 @@ export default function UpperNav() {
   const [adminUpdateById, responseAdminUpdateById] =
     useAdminUpdateByIdMutation();
 
-  console.log(responseAdminChangePasswordById);
+  // console.log(responseAdminChangePasswordById);
 
   const [adminName, setAdminName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
@@ -151,64 +151,67 @@ export default function UpperNav() {
   return (
     <>
       <Suspense fallback={<>...</>}>
-        <div className='flex flex-row w-full items-center border-b-[1px] border-b-solid relative'>
-          <div className='flex p-[1.5rem] w-[70%]'>
-            <div className='px-[10px] w-[90%] bg-[#E7EFFF] flex flex-row items-center gap-[10px] rounded-[8px]'>
-              <FaSearch className='text-[#636D73]' />
+        <div className="flex flex-row w-full items-center border-b-[1px] border-b-solid relative">
+          <div className="flex p-[1.5rem] w-[70%]">
+            <div className="px-[10px] w-[90%] bg-[#E7EFFF] flex flex-row items-center gap-[10px] rounded-[8px]">
+              <FaSearch className="text-[#636D73]" />
               <input
-                className='w-full outline-none py-[10px] bg-transparent'
-                placeholder='Search'
+                className="w-full outline-none py-[10px] bg-transparent"
+                placeholder="Search"
               />
             </div>
           </div>
-          <div className='w-[30%] flex gap-[1rem] items-center pr-[1rem]'>
-            <div className='flex relative cursor-pointer'>
-              <div className='p-[6px] rounded-md shadow-md w-fit h-fit'>
-                <FaRegBell className='text-[25px] text-[#2662F0]' />
+          <div className="w-[30%] flex gap-[1rem] items-center pr-[1rem]">
+            <div className="flex relative cursor-pointer">
+              <div className="p-[6px] rounded-md shadow-md w-fit h-fit">
+                <FaRegBell className="text-[25px] text-[#2662F0]" />
               </div>
 
-              <GoDotFill className='text-[#FDCA40] absolute right-0' />
+              <GoDotFill className="text-[#FDCA40] absolute right-0" />
             </div>
             {/* <img
               src={userImage}
               alt='userImage'
               className='w-[50px] h-[50px]'
             /> */}
-            <FaRegUser className='text-[35px] bg-[#3497F9] text-white p-[4px] rounded-full' />
+            <FaRegUser className="text-[35px] bg-[#3497F9] text-white p-[4px] rounded-full" />
             <div
-              className='flex flex-col items-start text-[#414D55] cursor-pointer select-none'
-              onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
-              <p className='font-[500] text-[14px]'>
+              className="flex flex-col items-start text-[#414D55] cursor-pointer select-none"
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+            >
+              <p className="font-[500] text-[14px]">
                 {adminLoggedInData?.adminName}
               </p>
               <p>{adminLoggedInData?.adminRole}</p>
             </div>
             {showProfileDropdown ? (
               <IoIosArrowUp
-                className='cursor-pointer'
+                className="cursor-pointer"
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               />
             ) : (
               <IoIosArrowDown
-                className='cursor-pointer'
+                className="cursor-pointer"
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               />
             )}
             {showProfileDropdown && (
-              <div className='absolute px-[3rem] top-[5rem] flex flex-col items-center z-10 fade-in'>
-                <div className='border-t-[20px] border-t-transparent w-fit border-b-[20px] border-b-[#3497F9] border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent'></div>
-                <div className='bg-[#3497F9] px-[3rem] shadow-md py-[1rem] rounded-md flex flex-col items-start gap-[10px] w-fit'>
+              <div className="absolute px-[3rem] top-[5rem] flex flex-col items-center z-10 fade-in">
+                <div className="border-t-[20px] border-t-transparent w-fit border-b-[20px] border-b-[#3497F9] border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent"></div>
+                <div className="bg-[#3497F9] px-[3rem] shadow-md py-[1rem] rounded-md flex flex-col items-start gap-[10px] w-fit">
                   <button
                     onClick={handleOpenProfileModal}
-                    className='bg-white text-[14px] text-black p-[4px] rounded-md w-full'>
+                    className="bg-white text-[14px] text-black p-[4px] rounded-md w-full"
+                  >
                     My Profile
                   </button>
                   <button
                     onClick={handleOpenChangePasswordModal}
-                    className='bg-white text-[14px] text-black p-[4px] rounded-md w-full'>
+                    className="bg-white text-[14px] text-black p-[4px] rounded-md w-full"
+                  >
                     Change Password
                   </button>
-                  <Logout Style='bg-[#202020] text-[14px] text-white p-[4px] rounded-md w-full' />
+                  <Logout Style="bg-[#202020] text-[14px] text-white p-[4px] rounded-md w-full" />
                 </div>
               </div>
             )}
@@ -217,41 +220,43 @@ export default function UpperNav() {
         <Modal
           open={openProfileModal}
           onClose={handleCloseProfileModal}
-          aria-labelledby='modal-modal-title'
-          aria-describedby='modal-modal-description'>
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
           <Box sx={style}>
-            <Typography id='modal-modal-title' variant='h6' component='h2'>
-              <h1 className='headingBottomUnderline w-fit'>Edit Profile</h1>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              <h1 className="headingBottomUnderline w-fit">Edit Profile</h1>
             </Typography>
-            <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
               <form
-                className='flex flex-col gap-[1rem]'
-                onSubmit={handleProfileChange}>
-                <div className='grid grid-cols-2 gap-[1rem]'>
-                  <div className='flex flex-col gap-[10px]'>
+                className="flex flex-col gap-[1rem]"
+                onSubmit={handleProfileChange}
+              >
+                <div className="grid grid-cols-2 gap-[1rem]">
+                  <div className="flex flex-col gap-[10px]">
                     <label>Full Name</label>
                     <input
-                      className='bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]'
+                      className="bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]"
                       required
-                      type='text'
-                      placeholder='Enter full name'
+                      type="text"
+                      placeholder="Enter full name"
                       value={adminName}
                       onChange={(e) => setAdminName(e.target.value)}
                     />
                   </div>
-                  <div className='flex flex-col gap-[10px]'>
+                  <div className="flex flex-col gap-[10px]">
                     <label>Email</label>
                     <input
-                      className='bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]'
+                      className="bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]"
                       disabled
-                      type='email'
-                      placeholder='Enter email'
+                      type="email"
+                      placeholder="Enter email"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                     />
                   </div>
                 </div>
-                <button type='submit' className='buttonFilled w-fit'>
+                <button type="submit" className="buttonFilled w-fit">
                   Submit
                 </button>
               </form>
@@ -261,43 +266,45 @@ export default function UpperNav() {
         <Modal
           open={openChangePasswordModal}
           onClose={handleCloseChangePasswordModal}
-          aria-labelledby='modal-modal-title'
-          aria-describedby='modal-modal-description'>
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
           <Box sx={style}>
-            <Typography id='modal-modal-title' variant='h6' component='h2'>
-              <h1 className='headingBottomUnderline w-fit'>Change Password</h1>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              <h1 className="headingBottomUnderline w-fit">Change Password</h1>
             </Typography>
-            <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
               <form
-                className='flex flex-col gap-[1rem]'
-                onSubmit={handleChangePassword}>
-                <div className='grid grid-cols-2 gap-[1rem]'>
-                  <div className='flex flex-col gap-[10px]'>
+                className="flex flex-col gap-[1rem]"
+                onSubmit={handleChangePassword}
+              >
+                <div className="grid grid-cols-2 gap-[1rem]">
+                  <div className="flex flex-col gap-[10px]">
                     <label>Old Password</label>
                     <input
-                      className='bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]'
-                      type='password'
+                      className="bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]"
+                      type="password"
                       required
-                      placeholder='Enter old password'
-                      autoComplete='new-password'
+                      placeholder="Enter old password"
+                      autoComplete="new-password"
                       value={adminOldPassword}
                       onChange={(e) => setAdminOldPassword(e.target.value)}
                     />
                   </div>
-                  <div className='flex flex-col gap-[10px]'>
+                  <div className="flex flex-col gap-[10px]">
                     <label>New Password</label>
                     <input
-                      className='bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]'
-                      type='password'
+                      className="bg-[#F4F4F4] outline-none p-[1rem] rounded-[8px]"
+                      type="password"
                       required
-                      placeholder='Enter new password'
-                      autoComplete='new-password'
+                      placeholder="Enter new password"
+                      autoComplete="new-password"
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
                     />
                   </div>
                 </div>
-                <button type='submit' className='buttonFilled w-fit'>
+                <button type="submit" className="buttonFilled w-fit">
                   Submit
                 </button>
               </form>
@@ -307,14 +314,14 @@ export default function UpperNav() {
         <Snackbars
           open={openSnackbarSuccess}
           setOpen={setOpenSnackBarSuccess}
-          severity='success'
+          severity="success"
           message={snackBarMessageSuccess}
         />
         {/* Warning Snackbar */}
         <Snackbars
           open={openSnackbarWarning}
           setOpen={setOpenSnackBarWarning}
-          severity='warning'
+          severity="warning"
           message={snackBarMessageWarning}
         />
       </Suspense>

@@ -128,6 +128,7 @@ function DischargePatientsTable() {
         anaesthesia: "",
         implantDetails: "",
       });
+      getAllDischargePatientsListDataHandle();
     }
     if (result?.status !== 200) {
       handleClickSnackbarWarning();

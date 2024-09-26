@@ -47,6 +47,8 @@ export default function IPDDoctorVisitTable() {
       notes: "",
       visitDateTime: "",
     });
+    setSelectedTest([]);
+    setSelectedMedicine([]);
   };
 
   const [open1, setOpen1] = React.useState(false);
@@ -54,7 +56,20 @@ export default function IPDDoctorVisitTable() {
   const handleClose1 = () => setOpen1(false);
   const [open4, setOpen4] = React.useState(false);
   const handleOpen4 = () => setOpen4(true);
-  const handleClose4 = () => setOpen4(false);
+  const handleClose4 = () => {
+    setOpen4(false);
+    setDailyDoctorVisitData({
+      doctorId: "",
+      doctorName: "",
+      patientsId: "",
+      ipdPatientId: "",
+      symtoms: "",
+      notes: "",
+      visitDateTime: "",
+    });
+    setSelectedTest([]);
+    setSelectedMedicine([]);
+  };
   const [open3, setOpen3] = React.useState(false);
   const handleOpen3 = () => setOpen3(true);
   const handleClose3 = () => {
@@ -311,6 +326,8 @@ export default function IPDDoctorVisitTable() {
         notes: "",
         visitDateTime: "",
       });
+      setSelectedTest([]);
+      setSelectedMedicine([]);
     }
     if (result?.status !== 201) {
       handleClickSnackbarWarning();
@@ -325,6 +342,8 @@ export default function IPDDoctorVisitTable() {
         notes: "",
         visitDateTime: "",
       });
+      setSelectedTest([]);
+      setSelectedMedicine([]);
     }
     console.log(result);
   };
@@ -365,6 +384,8 @@ export default function IPDDoctorVisitTable() {
         notes: "",
         visitDateTime: "",
       });
+      setSelectedTest([]);
+      setSelectedMedicine([]);
     }
     if (result?.status !== 201) {
       handleClickSnackbarWarning();
@@ -384,6 +405,8 @@ export default function IPDDoctorVisitTable() {
         notes: "",
         visitDateTime: "",
       });
+      setSelectedTest([]);
+      setSelectedMedicine([]);
     }
   };
   const addDailyAdditionalMedicineLabDataHandle = async (e) => {
@@ -421,6 +444,8 @@ export default function IPDDoctorVisitTable() {
         notes: "",
         visitDateTime: "",
       });
+      setSelectedTest([]);
+      setSelectedMedicine([]);
     }
   };
   const getOnePatientsDoctorVisitDataHandle = async (Id) => {

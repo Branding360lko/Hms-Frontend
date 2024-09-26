@@ -44,7 +44,7 @@ export default function IPD_PatientPaymentReciept() {
   useEffect(() => {
     const allDeposits =
       responseGetIpdPatientDeposits?.currentData?.data?.balance;
-    console.log("allDeposits:", allDeposits);
+    // console.log("allDeposits:", allDeposits);
     if (allDeposits) {
       const requiredDeposit = allDeposits.find(
         (deposit) => deposit.createdAt === dateTime
@@ -55,9 +55,9 @@ export default function IPD_PatientPaymentReciept() {
     }
   }, [responseGetIpdPatientDeposits?.isSuccess]);
 
-  console.log("selectedDateDeposit:", selectedDateDeposit);
+  // console.log("selectedDateDeposit:", selectedDateDeposit);
 
-  console.log("responseGetIpdPatientDeposits:", responseGetIpdPatientDeposits);
+  // console.log("responseGetIpdPatientDeposits:", responseGetIpdPatientDeposits);
 
   const date = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -177,7 +177,6 @@ export default function IPD_PatientPaymentReciept() {
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">Address</p>
                     <p>
-                      {" "}
                       {responseGetPatientById?.currentData?.patientCity ===
                         "" || responseGetPatientById?.currentData?.patientCity
                         ? responseGetPatientById?.currentData?.patientCity

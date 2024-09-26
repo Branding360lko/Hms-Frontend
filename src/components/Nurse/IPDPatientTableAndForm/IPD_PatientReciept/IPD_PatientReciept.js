@@ -35,6 +35,7 @@ export default function IPD_PatientReciept() {
   const [doctorId, setDoctorId] = useState("");
   const [patientId, setPatientId] = useState("");
   const [ipdBedId, setIpdBedId] = useState("");
+  const [patientDetails, setPatientDetails] = useState(null);
 
   const [ipdPatientNurseDischargeDetails, setIpdPatientNurseDischargeDetails] =
     useState(null);
@@ -66,11 +67,19 @@ export default function IPD_PatientReciept() {
   const responseIpdPatientTotalBalanceGetAll =
     useIpdPatientFinalBalanceCalGetAllQuery();
 
-  console.log("responseGetPatientById:", responseGetPatientById);
+  // console.log("responseGetPatientById:", responseGetPatientById);
+
+  useEffect(() => {
+    if (responseGetPatientById?.data) {
+      setPatientDetails(responseGetPatientById?.data);
+    }
+  }, [responseGetPatientById]);
+
+  // console.log("patientDetails:", patientDetails);
 
   useEffect(() => {
     if (responseGetIPDPatientById.isSuccess) {
-      console.log("responseGetIPDPatientById:", responseGetIPDPatientById);
+      // console.log("responseGetIPDPatientById:", responseGetIPDPatientById);
       setDoctorId(responseGetIPDPatientById?.currentData?.ipdDoctorId);
       setPatientId(responseGetIPDPatientById?.currentData?.ipdPatientId);
       setIpdBedId(responseGetIPDPatientById?.currentData?.ipdBedNo);
@@ -107,9 +116,9 @@ export default function IPD_PatientReciept() {
   useEffect(() => {
     const balanceCals =
       responseIpdPatientTotalBalanceGetAll?.currentData?.balanceCalculation;
-    console.log("balanceCals:", balanceCals);
+    // console.log("balanceCals:", balanceCals);
 
-    console.log("patientId in balance:", ipdPatientId);
+    // console.log("patientId in balance:", ipdPatientId);
 
     if (balanceCals) {
       const currrentIpdPatientBalance = balanceCals.find(
@@ -118,10 +127,10 @@ export default function IPD_PatientReciept() {
       setIpdPatientFinalBalanceTotal(currrentIpdPatientBalance);
     }
 
-    console.log(
-      "responseIpdPatientTotalBalanceGetAll:",
-      responseIpdPatientTotalBalanceGetAll
-    );
+    // console.log(
+    //   "responseIpdPatientTotalBalanceGetAll:",
+    //   responseIpdPatientTotalBalanceGetAll
+    // );
   }, [responseIpdPatientTotalBalanceGetAll.isSuccess]);
 
   const {
@@ -148,16 +157,22 @@ export default function IPD_PatientReciept() {
     "ipdPatientDoctorDischargeDetails:",
     ipdPatientDoctorDischargeDetails
   );
+  console.log("ipdPatientFinalBalanceTotal:", ipdPatientFinalBalanceTotal);
 
-  console.log(
-    "responseMedDocLabChargesGet:",
-    responseMedDocLabChargesGet?.data
-  );
+  // console.log(
+  //   "ipdPatientDoctorDischargeDetails:",
+  //   ipdPatientDoctorDischargeDetails
+  // );
 
-  console.log(
-    "responseIpdPatientMedDocLabDetailCall:",
-    responseIpdPatientMedDocLabDetailCall
-  );
+  // console.log(
+  //   "responseMedDocLabChargesGet:",
+  //   responseMedDocLabChargesGet?.data
+  // );
+
+  // console.log(
+  //   "responseIpdPatientMedDocLabDetailCall:",
+  //   responseIpdPatientMedDocLabDetailCall
+  // );
 
   const date = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -175,7 +190,7 @@ export default function IPD_PatientReciept() {
     });
   };
 
-  console.log("responseGetIpdBedDetails:", responseGetIpdBedDetails);
+  // console.log("responseGetIpdBedDetails:", responseGetIpdBedDetails);
 
   const componentRef = useRef();
 
@@ -242,7 +257,7 @@ export default function IPD_PatientReciept() {
                   className="text-center"
                   style={{
                     borderTop: "2px solid #373737",
-                    borderBottom: "2px solid #373737",
+                    // borderBottom: "2px solid #373737",
                   }}
                 >
                   IPD Discharge Slip
@@ -367,7 +382,7 @@ export default function IPD_PatientReciept() {
                   className="flex flex-col justify-between p-[1rem]"
                   style={{
                     borderTop: "2px solid #373737",
-                    borderBottom: "2px solid transparent",
+                    borderBottom: "2px solid #373737",
                   }}
                 >
                   <PatientBedChargesCal
@@ -413,19 +428,19 @@ export default function IPD_PatientReciept() {
                       <tbody className="text-gray-500 font-semibold">
                         {medicalCharges.map((charge, index) => (
                           <>
-                            {charge?.items.map((item) => (
-                              <tr key={item?._id}>
+                            {charge.items.map((item) => (
+                              <tr key={item._id}>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  {item?.itemName}
+                                  {item.itemName}
                                 </td>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  {item?.quantity}
+                                  {item.quantity}
                                 </td>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  Rs. {item?.price}
+                                  Rs. {item.price}
                                 </td>
                                 <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                                  {new Date(item?.date).toLocaleDateString()}
+                                  {new Date(item.date).toLocaleDateString()}
                                 </td>
                               </tr>
                             ))}
@@ -483,6 +498,15 @@ export default function IPD_PatientReciept() {
                         </span>
                       </div>
                       <div className=" flex w-full justify-between">
+                        <span className=" min-w-[400px]">
+                          Admission Charges:
+                        </span>
+                        <span>
+                          ₹&nbsp;
+                          {ipdPatientFinalBalanceTotal?.ipdAdmissionCharge}
+                        </span>
+                      </div>
+                      <div className=" flex w-full justify-between">
                         <span className=" min-w-[400px]">Total Expense:</span>
                         <span>
                           ₹&nbsp;{ipdPatientFinalBalanceTotal?.finalTotal}
@@ -493,7 +517,10 @@ export default function IPD_PatientReciept() {
                           Remaining Balance:
                         </span>
                         <span>
-                          ₹&nbsp;{ipdPatientFinalBalanceTotal?.remainingBalance}
+                          ₹&nbsp;
+                          {ipdPatientFinalBalanceTotal?.remainingBalance.toFixed(
+                            2
+                          )}
                         </span>
                       </div>
                     </div>
@@ -502,57 +529,75 @@ export default function IPD_PatientReciept() {
                   <br />
                   <div className="pagebreak"></div>
                   <div>
-                    <h3>Nurse and Doctor Approval</h3>
+                    <h3>DISCHARGE SUMMARY</h3>
                     <br />
                     <div className=" ">
-                      <h4>Nurse's Approval</h4>
                       <br />
-                      <div className="grid grid-cols-2 gap-[10px] text-[14px]">
+                      <div className="grid grid-cols-3 gap-[10px] text-[14px] mb-5">
                         <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Nurse's Name
+                          <p className="font-[500] w-[200px] text-start">
+                            PATIENT'S NAME:
                           </p>
-                          <p>{ipdPatientNurseDischargeDetails?.nurse}</p>
+                          <p>{patientDetails?.patientName}</p>
                         </div>
                         <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Nurse Id
-                          </p>
-                          <p>{ipdPatientNurseDischargeDetails?.nurseId}</p>
-                        </div>
-                        <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Patient Name
+                          <p className="font-[500] w-[200px] text-start">
+                            AGE/SEX:
                           </p>
                           <p>
-                            {responseGetPatientById?.currentData?.patientName}
+                            {patientDetails?.patientAge}&nbsp;Y/
+                            {patientDetails?.patientGender}
                           </p>
                         </div>
                         <div className="flex">
-                          <p className="font-[500] w-[130px] text-start">
-                            Patient ID
+                          <p className="font-[500] w-[200px] text-start">
+                            Patient ID:
                           </p>
-                          <p>
-                            {ipdPatientNurseDischargeDetails?.ipdPatientRegId}
+                          <p>{responseGetIPDPatientById?.data?.mainId}</p>
+                        </div>
+                        <div className="flex">
+                          <p className="font-[500] w-[200px] text-start">
+                            DATE OF ADMISSION:
                           </p>
+                          <p>{`${date(
+                            responseGetIPDPatientById?.data?.createdAt
+                          )}`}</p>
+                        </div>
+                        <div className="flex">
+                          <p className="font-[500] w-[200px] text-start">
+                            DATE OF DISCHARGE:
+                          </p>
+                          <p>{`${date(
+                            responseIpdPatientDischargeReceiptGetById?.data
+                              ?.ipdPatientDischargeRecieptData
+                              ?.dateAndTimeOfDischarge
+                          )}`}</p>
                         </div>
                       </div>
 
-                      <div className=" grid grid-cols-1 text-[14px]">
+                      <div className=" grid grid-cols-1 text-[14px] text-left uppercase">
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Admitted For:
                           </span>
                           <p>{ipdPatientNurseDischargeDetails?.admittedFor}</p>
                         </div>
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Indications:
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Disease / Diagnosis:
                           </span>
-                          <p>{ipdPatientNurseDischargeDetails?.indications}</p>
+                          <p>
+                            {ipdPatientDoctorDischargeDetails?.disease_Diagnose}
+                          </p>
                         </div>
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            ICD Code:
+                          </span>
+                          <p>{ipdPatientDoctorDischargeDetails?.ICD}</p>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
                             Investigation / Procedure:
                           </span>
                           <p>
@@ -561,6 +606,127 @@ export default function IPD_PatientReciept() {
                             }
                           </p>
                         </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-auto">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Treatment Given In Brief:
+                          </span>
+                          <div className=" w-[85%]">
+                            <div>
+                              <span></span>
+                            </div>
+                            <div className=" w-full grid grid-cols-2">
+                              {ipdPatientNurseDischargeDetails?.TreatmentGivenInBrief?.map(
+                                (treatment, index) => (
+                                  <div key={index}>
+                                    <p>
+                                      <span className=" font-bold">Date:</span>
+                                      &nbsp;{treatment?.date}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        Operation:
+                                      </span>
+                                      &nbsp;{treatment?.operation}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        Indications:&nbsp;
+                                      </span>
+                                      {treatment?.indications}
+                                    </p>
+                                    <p>
+                                      {" "}
+                                      <span className=" font-bold">
+                                        Surgeon:&nbsp;
+                                      </span>
+                                      {treatment?.surgeon}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        Assistants:&nbsp;
+                                      </span>
+                                      {treatment?.assistants}
+                                    </p>
+                                    <p>
+                                      {" "}
+                                      <span className=" font-bold">
+                                        Nurse:&nbsp;
+                                      </span>
+                                      {treatment?.nurse}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        Anaesthetist:
+                                      </span>
+                                      &nbsp;
+                                      {treatment?.anaesthetist}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        Anaesthesia:
+                                      </span>
+                                      &nbsp;{treatment?.anaesthesia}
+                                    </p>
+                                    <p>
+                                      <span className=" font-bold">
+                                        ImplantDetails:
+                                      </span>
+                                      &nbsp;
+                                      {treatment?.implantDetails}
+                                    </p>
+                                    <br />
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Condition During Discharge:
+                          </span>
+                          <p>
+                            {
+                              ipdPatientNurseDischargeDetails?.conditionDuringDischarge
+                            }
+                          </p>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-auto">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px] py-2">
+                            Advise During Discharge:
+                          </span>
+                          <div>
+                            {ipdPatientDoctorDischargeDetails?.medicineAdviseDuringDischarge?.map(
+                              (med, index) => (
+                                <div
+                                  key={index}
+                                  className=" grid grid-cols-2 gap-10"
+                                >
+                                  <p>{med?.medicine}: </p>
+                                  <p>{med?.schedule}</p>
+                                </div>
+                              )
+                            )}
+                            {ipdPatientDoctorDischargeDetails?.adviseDuringDischarge?.map(
+                              (advice, index) => (
+                                <p key={index}>•&nbsp;{advice?.advice}</p>
+                              )
+                            )}
+                          </div>
+                        </div>
+                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-start items-center px-1 border-r-2 h-full w-[150px]">
+                            Summary:
+                          </span>
+                          <p>&nbsp; As Explained Above</p>
+                        </div>
+                        {/* <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
+                          <span className="font-[500] text-left flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
+                            Indications:
+                          </span>
+                          <p>{ipdPatientNurseDischargeDetails?.indications}</p>
+                        </div>
+
                         <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                           <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
                             Operations:
@@ -592,23 +758,13 @@ export default function IPD_PatientReciept() {
                           <p>
                             {ipdPatientNurseDischargeDetails?.implantDetails}
                           </p>
-                        </div>
-                        <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                          <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                            Condition During Discharge:
-                          </span>
-                          <p>
-                            {
-                              ipdPatientNurseDischargeDetails?.conditionDuringDischarge
-                            }
-                          </p>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
                   <br />
                   <div className="pagebreak"></div>
-                  <div className=" ">
+                  {/* <div className=" ">
                     <h4>Doctor's Approval</h4>
                     <br />
                     <div className="grid grid-cols-2 gap-[10px] text-[14px]">
@@ -659,14 +815,7 @@ export default function IPD_PatientReciept() {
                           }
                         </p>
                       </div>
-                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                          Disease Diagnose:
-                        </span>
-                        <p>
-                          {ipdPatientDoctorDischargeDetails?.disease_Diagnose}
-                        </p>
-                      </div>
+
                       <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
                         <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
                           Final Diagnosis:
@@ -675,16 +824,7 @@ export default function IPD_PatientReciept() {
                           {ipdPatientDoctorDischargeDetails?.finalDiagnosis}
                         </p>
                       </div>
-                      <div className=" flex justify-start items-center gap-5 border-2 px-2 h-[100px]">
-                        <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
-                          Advise During Discharge:
-                        </span>
-                        <p>
-                          {
-                            ipdPatientDoctorDischargeDetails?.adviseDuringDischarge
-                          }
-                        </p>
-                      </div>
+
                       <div className=" flex justify-between items-center gap-5 border-2 px-2 h-[100px]">
                         <span className="font-[500] text-center flex justify-center items-center px-1 border-r-2 h-full w-[150px]">
                           Physician In-charge:
@@ -710,7 +850,7 @@ export default function IPD_PatientReciept() {
                         <p>{ipdPatientDoctorDischargeDetails?.result}</p>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                   <div className=" w-full flex justify-between items-center">
                     <div className=" flex flex-col w-[300px] self-end justify-center items-start h-[100px]">
                       <span className=" px-2">Remarks (If Any):</span>

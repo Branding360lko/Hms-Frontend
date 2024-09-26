@@ -28,16 +28,32 @@ function ReferPatientsDoctorVisitTable() {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedTest([]);
+    setSelectedMedicine([]);
+  };
   const [open1, setOpen1] = React.useState(false);
   const handleOpen1 = () => setOpen1(true);
-  const handleClose1 = () => setOpen1(false);
+  const handleClose1 = () => {
+    setOpen1(false);
+    setSelectedTest([]);
+    setSelectedMedicine([]);
+  };
   const [open2, setOpen2] = React.useState(false);
   const handleOpen2 = () => setOpen2(true);
-  const handleClose2 = () => setOpen2(false);
+  const handleClose2 = () => {
+    setOpen2(false);
+    setSelectedTest([]);
+    setSelectedMedicine([]);
+  };
   const [open3, setOpen3] = React.useState(false);
   const handleOpen3 = () => setOpen3(true);
-  const handleClose3 = () => setOpen3(false);
+  const handleClose3 = () => {
+    setOpen3(false);
+    setSelectedTest([]);
+    setSelectedMedicine([]);
+  };
   const { medicineData } = useSelector((state) => state.MedicineData);
   const { testData } = useSelector((state) => state.TestData);
   const { doctors } = useSelector((state) => state.DoctorState);

@@ -40,28 +40,36 @@ function IpdPatientMedDocLabChargesShowcase({ ipdPatientData }) {
               <th className="text-left px-[4px] border-b-[1px] p-[10px]">
                 Doctor Fees
               </th>
+              <th className="text-left px-[4px] border-b-[1px] p-[10px]">
+                Additional Doctor Fees
+              </th>
             </tr>
           </thead>
           <tbody className="text-gray-500 font-semibold">
             {medDocLabCharges[0]?.overAllData?.map((charge, index) => (
               <tr key={charge._id}>
                 <td className="text-left text-[12px] py-4 px-[4px] border-b-[1px]">
-                  {new Date(charge.visitDate).toLocaleString()}
+                  {new Date(charge?.visitDate).toLocaleString()}
                 </td>
                 <td className="text-left text-[12px] py-4 px-[4px] border-b-[1px]">
-                  Rs. {charge.DailyMedicinePriceTotal}
+                  Rs. {charge?.DailyMedicinePriceTotal}
                 </td>
                 <td className="text-left text-[12px] py-4 px-[4px] border-b-[1px]">
-                  Rs. {charge.DailyTestPriceTotal}
+                  Rs. {charge?.DailyTestPriceTotal}
                 </td>
                 <td className="text-left text-[12px] py-4 px-[4px] border-b-[1px]">
-                  {charge.RefereddoctorFeesDatails.length > 0
-                    ? `Rs. ${charge.RefereddoctorFeesDatails[0]}`
+                  {charge?.submittedBy === "Refered Doctor"
+                    ? `Rs. ${charge?.DailyReferDoctorVisitChargeBasedOnBed}`
                     : "N/A"}
                 </td>
                 <td className="text-left text-[12px] py-4 px-[4px] border-b-[1px]">
-                  {charge.RefereddoctorFeesDatails.length === 0
-                    ? `Rs. ${charge.doctorFeesDatails[0]}`
+                  {charge?.submittedBy === "Assigned Doctor"
+                    ? `Rs. ${charge?.DailyDoctorVisitChargeBasedOnBed}`
+                    : "N/A"}
+                </td>
+                <td className="text-left text-[12px] py-4 px-[4px] border-b-[1px]">
+                  {charge?.submittedBy === "Additional Doctor"
+                    ? `Rs. ${charge?.DailyAdditionalDoctorVisitChargeBasedOnBed}`
                     : "N/A"}
                 </td>
               </tr>
@@ -76,6 +84,9 @@ function IpdPatientMedDocLabChargesShowcase({ ipdPatientData }) {
               <td className="text-left text-[12px] py-4 px-[4px] border-b-[3px] border-t-[3px] text-base">
                 Rs. {medDocLabCharges[0]?.overallTotalTestPrice}
               </td>
+              <td className="text-left text-[12px] py-4 px-[4px] border-b-[3px] border-t-[3px] text-base">
+                -
+              </td>{" "}
               <td className="text-left text-[12px] py-4 px-[4px] border-b-[3px] border-t-[3px] text-base">
                 -
               </td>

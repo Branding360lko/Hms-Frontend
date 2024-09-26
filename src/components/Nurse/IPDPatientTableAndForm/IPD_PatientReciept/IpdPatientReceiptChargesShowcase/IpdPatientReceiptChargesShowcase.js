@@ -221,8 +221,8 @@ function IpdPatientReciptChargesShowcase({
                     console.log("entry:", entry);
 
                     return (
-                      <React.Fragment key={entry._id}>
-                        {docEntry.RefereddoctorFeesDatails.length > 0 ? (
+                      <React.Fragment key={entry?._id}>
+                        {docEntry?.DailyReferDoctorVisitChargeBasedOnBed ? (
                           <tr>
                             <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
                               {entryIndex + 1}
@@ -243,7 +243,9 @@ function IpdPatientReciptChargesShowcase({
                             </td>
                             <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
                               Rs.{" "}
-                              {docEntry.RefereddoctorFeesDatails[0].toFixed(2)}
+                              {docEntry.DailyReferDoctorVisitChargeBasedOnBed.toFixed(
+                                2
+                              )}
                             </td>
                           </tr>
                         ) : (
@@ -261,10 +263,15 @@ function IpdPatientReciptChargesShowcase({
                               {entry?.doctorData[0]?.doctorName}
                             </td>
                             <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                              Assigned
+                              {docEntry?.submittedBy === "Assigned Doctor"
+                                ? "Assigned"
+                                : "Additional"}
                             </td>
                             <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
-                              Rs. {docEntry.doctorFeesDatails[0].toFixed(2)}
+                              Rs.{" "}
+                              {docEntry?.DailyDoctorVisitChargeBasedOnBed?.toFixed(
+                                2
+                              )}
                             </td>
                           </tr>
                         )}

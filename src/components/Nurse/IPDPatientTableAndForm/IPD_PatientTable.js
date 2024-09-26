@@ -69,19 +69,67 @@ import {
 } from "../../../Store/Slices/IPDPatientBalanceSlice";
 import IpdChargesShowcase from "../../Receptionist/IpdChargesShowcase/IpdChargesShowcase";
 import axios from "axios";
+import ChangPatientBedModal from "../ChangPatientBed/ChangPatientBedModal";
+import NewTable from "../../NewTable/NewTable";
+import { useDebouncedSearch } from "../../../utils/useDebouncedSearch";
 
-import { date } from "../../../utils/DateAndTimeConvertor";
+export default function IPD_PatientTable({
+  setPageLimit,
+  setPageCount,
+  pageCount,
+  pageLimit,
+  totalItems,
+  totalPages,
+  setNameSearch,
+  setPhoneSearch,
+  setUhidSearch,
+}) {
+  const [searchQuery, setSearchQuery] = React.useState({
+    name: null,
+    value: null,
+  });
 
-export default function IPD_PatientTable() {
+  const debouncedSearch = useDebouncedSearch(searchQuery?.value, 2000);
+
+  const debouncedSearching = (e) => {
+    setSearchQuery({
+      name: e.target.name,
+      value: e.target.value,
+    });
+  };
+
+  React.useEffect(() => {
+    if (debouncedSearch) {
+      if (searchQuery?.name === "UHID") {
+        setNameSearch("");
+        setPhoneSearch("");
+        setUhidSearch(debouncedSearch);
+      } else if (searchQuery?.name === "PhoneNumber") {
+        // console.log("Phonenumber search called");
+        setNameSearch("");
+        setUhidSearch("");
+        setPhoneSearch(debouncedSearch);
+      } else if (searchQuery?.name === "PatientName") {
+        // console.log("PatientName search called");
+        setUhidSearch("");
+        setPhoneSearch("");
+        setNameSearch(debouncedSearch);
+      }
+    } else {
+      setUhidSearch("");
+      setPhoneSearch("");
+      setNameSearch("");
+    }
+  }, [debouncedSearch]);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { nurses } = useSelector((state) => state.NurseState);
   const { doctors } = useSelector((state) => state.DoctorState);
   const { patients } = useSelector((state) => state.PatientState);
   const { ipdPatients } = useSelector((state) => state.IPDPatientState);
-  const { adminRole } = useSelector((state) => state.AdminState);
 
-  console.log(adminRole);
+  // console.log("doctors from store:", doctors);
 
   const [createIPDPatient, responseCreateIPDPatient] =
     useCreateIPDPatientMutation();
@@ -176,7 +224,7 @@ export default function IPD_PatientTable() {
   const [addBedFormOpen, setAddBedFormOpen] = React.useState(false);
   const [selectedBed, setSelectedBed] = React.useState(null);
 
-  const [updatedBed, setUpdatedBed] = React.useState(null);
+  // const [updatedBed, setUpdatedBed] = React.useState(null);
   const [previousBed, setPreviousBed] = React.useState(null);
 
   const [currentPatientBed, setCurrentPatientBed] = React.useState(null);
@@ -223,9 +271,9 @@ export default function IPD_PatientTable() {
     setSelectedBed(bed);
   };
 
-  const handleUpdatedBedSelect = (bed) => {
-    setUpdatedBed(bed);
-  };
+  // const handleUpdatedBedSelect = (bed) => {
+  //   setUpdatedBed(bed);
+  // };
 
   // Add Medical Charges State and Logic
 
@@ -233,7 +281,7 @@ export default function IPD_PatientTable() {
     useUpdateIPDPatientMedicalChargesByIdMutation();
 
   const handleAddMedicalCharges = (updateData) => {
-    console.log("updateData:", updateData);
+    // console.log("updateData:", updateData);
     addMedicalCharges(updateData);
   };
 
@@ -395,7 +443,7 @@ export default function IPD_PatientTable() {
     }, 2000);
   };
 
-  console.log("ipdPatientDischargeState:", ipdPatientDischargeState);
+  // console.log("ipdPatientDischargeState:", ipdPatientDischargeState);
 
   // Final Discharge
 
@@ -414,10 +462,10 @@ export default function IPD_PatientTable() {
         discharged: true,
       });
 
-      console.log(
-        "Ipd Patient Discharge successful:",
-        responseIpdPatientFinalDischargeReq
-      );
+      // console.log(
+      //   "Ipd Patient Discharge successful:",
+      //   responseIpdPatientFinalDischargeReq
+      // );
 
       setSnackBarSuccessMessage(
         responseIpdPatientFinalDischargeReq?.data?.message
@@ -449,10 +497,10 @@ export default function IPD_PatientTable() {
     const responseGetIpdDepositsRefetch =
       await responseGetIpdPatientDeposits.refetch();
 
-    console.log(
-      "responseGetIpdDepositsRefetch:",
-      responseGetIpdDepositsRefetch
-    );
+    // console.log(
+    //   "responseGetIpdDepositsRefetch:",
+    //   responseGetIpdDepositsRefetch
+    // );
 
     setIpdPatientDeposits(responseGetIpdDepositsRefetch?.data?.data?.balance);
   };
@@ -467,9 +515,9 @@ export default function IPD_PatientTable() {
   //   );
   // }, [responseGetIpdPatientDeposits?.isSuccess]);
 
-  console.log("ipdPatientDeposits:", ipdPatientDeposits);
+  // console.log("ipdPatientDeposits:", ipdPatientDeposits);
 
-  console.log("selectedPayment:", selectedPayment);
+  // console.log("selectedPayment:", selectedPayment);
 
   const renderedPaymentsForDropdown = ipdPatientDeposits?.map((payment) => {
     return {
@@ -581,11 +629,11 @@ export default function IPD_PatientTable() {
 
   // -----------------------------------------------------------
 
-  // const date = (dateTime) => {
-  //   const newdate = new Date(dateTime);
+  const date = (dateTime) => {
+    const newdate = new Date(dateTime);
 
-  //   return newdate.toLocaleDateString();
-  // };
+    return newdate.toLocaleDateString();
+  };
 
   const time = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -605,6 +653,7 @@ export default function IPD_PatientTable() {
     border: "none",
     outline: "none",
     boxShadow: 24,
+    overflowY: "scroll",
     p: 4,
   };
 
@@ -743,13 +792,53 @@ export default function IPD_PatientTable() {
 
   // console.log(responseUpdateBedAvailability);
 
+  // const [searchQuery, setSearchQuery] = React.useState("");
+  const [filteredPatients, setFilteredPatients] = React.useState(
+    renderedPatientIDForDropdown
+  );
+
+  // const handleSearch = (query) => {
+  //   setSearchQuery(query);
+  //   const filtered = renderedPatientIDForDropdown.filter((patient) => {
+  //     Object.values(patient).some(
+  //       (value) =>
+  //         typeof value === "string" &&
+  //         value.toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //   });
+  //   setFilteredPatients(filtered);
+  // };
+
+  // console.log("filteredPatients:", filteredPatients);
+
   const modalAddIPDPatient = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Add Patient</h2>
-      <form className="flex flex-col gap-[1rem]" onSubmit={handleAddIPDPatient}>
+      <form
+        className="flex flex-col gap-[1rem] w-full"
+        onSubmit={handleAddIPDPatient}
+      >
         <div className="grid grid-cols-3 gap-[2rem] border-b pb-[3rem]">
           <div className="flex flex-col gap-[6px] relative w-full">
             <label className="text-[14px]">UHID *</label>
+
+            {/* <input
+              type="text"
+              placeholder="Search Patient"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+            <div>
+              {filteredPatients?.length > 0 ? (
+                <Select
+                  required
+                  options={filteredPatients}
+                  onChange={setIpdPatientId}
+                />
+              ) : (
+                <div>No patients found</div>
+              )}
+            </div> */}
             <Select
               required
               options={renderedPatientIDForDropdown}
@@ -866,7 +955,7 @@ export default function IPD_PatientTable() {
           </div> */}
         </div>
         {/* // Add Bed */}
-        <div>
+        <div className=" w-full">
           {addBedFormOpen === false ? (
             <button
               onClick={(e) => handleAddBedFormOpen(e)}
@@ -876,9 +965,9 @@ export default function IPD_PatientTable() {
               <FaBed className=" text-3xl " /> +
             </button>
           ) : (
-            <div className=" flex flex-col justify-center items-start gap-5">
+            <div className=" w-full flex flex-col justify-center items-start gap-5">
               <h2>Select A Bed</h2>
-              <div>
+              <div className=" w-full">
                 <BedSelector beds={beds} handleBedSelect={handleBedSelect} />
               </div>
             </div>
@@ -913,6 +1002,23 @@ export default function IPD_PatientTable() {
 
   // Update Modal
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
+
+  const [isBedChange, setIsBedChange] = React.useState(false);
+
+  const handleBedChangeModalClose = () => {
+    setIsBedChange(false);
+  };
+
+  const handleBedChangeClick = (e) => {
+    e.preventDefault();
+    if (
+      window.confirm(
+        `Are you sure you want to change the bed? \n This will change the bed cost! `
+      )
+    )
+      setIsBedChange(true);
+  };
+
   const handleOpenUpdateModal = (data) => {
     // console.log("data in update modal:", data);
     const currentBedId = data.data.ipdBedNo;
@@ -929,6 +1035,10 @@ export default function IPD_PatientTable() {
     setIpdDoctorId({
       value: data?.data?.ipdDoctorId,
       label: data?.data?.ipdDoctorId,
+    });
+    setIpdNurseId({
+      value: data?.data?.ipdNurseId,
+      label: data?.data?.ipdNurseId,
     });
     setIpdDespositAmount(data?.data?.ipdDepositAmount);
     setIpdPaymentMode(data?.data?.ipdPaymentMode);
@@ -956,6 +1066,7 @@ export default function IPD_PatientTable() {
     setIpdPatientId({ value: "", label: "" });
 
     setIpdDoctorId({ value: "", label: "" });
+    setIpdNurseId({ value: "", label: "" });
     setIpdDespositAmount();
     setIpdPaymentMode("UPI");
     setIpdWardNo();
@@ -965,13 +1076,15 @@ export default function IPD_PatientTable() {
     setIpdBedNo();
     setIpdPatientNotes();
     setOpenUpdateModal(false);
+
+    setIsBedChange(false);
   };
 
   React.useEffect(() => {
     if (responseUpdateIPDPatientById.isSuccess) {
       dispatch(updateIpdPatientChange(Math.random()));
       setPreviousBed(null);
-      setUpdatedBed(null);
+      // setUpdatedBed(null);
 
       setSnackBarSuccessMessage(responseUpdateIPDPatientById?.data?.message);
       handleClickSnackbarSuccess();
@@ -991,12 +1104,13 @@ export default function IPD_PatientTable() {
     const submitData = {
       ipdPatientId: ipdPatientId?.value,
       ipdDoctorId: ipdDoctorId?.value,
+      ipdNurseId: ipdNurseId?.value,
       ipdDepositAmount: ipdDepositAmount,
       ipdPaymentMode: ipdPaymentMode,
       // ipdWardNo: ipdWardNo,
-      ipdFloorNo: updatedBed?.bedFloor,
+      // ipdFloorNo: updatedBed?.bedFloor,
       // ipdRoomNo: ipdRoomNo,
-      ipdBedNo: updatedBed?.bedId,
+      // ipdBedNo: updatedBed?.bedId,
       ipdPatientNotes: ipdPatientNotes,
     };
 
@@ -1007,11 +1121,11 @@ export default function IPD_PatientTable() {
 
     updateIPDPatientById(updateData);
 
-    if (updatedBed) {
-      if (updatedBed?.bedId !== previousBed.bedId) {
-        handleIpdPatientBedUpdate();
-      }
-    }
+    // if (updatedBed) {
+    //   if (updatedBed?.bedId !== previousBed.bedId) {
+    //     handleIpdPatientBedUpdate();
+    //   }
+    // }
 
     // console.log(updateData);
   };
@@ -1020,27 +1134,29 @@ export default function IPD_PatientTable() {
   // console.log("previousBed:", previousBed);
   // console.log("previousBed.bedId:", previousBed?.bedId);
 
-  const handleIpdPatientBedUpdate = () => {
-    // console.log("inside handleBedUpdate");
-    // console.log("previousBed.bedId:", previousBed?.bedId);
-    const previousBedAvailData = {
-      bedId: previousBed.bedId,
-      data: { bedAvailableOrNot: true },
-    };
+  const [updateBedFormOpen, setUpdateBedFormOpen] = React.useState(false);
 
-    updateBedAvailability(previousBedAvailData);
+  // const handleIpdPatientBedUpdate = () => {
+  //   console.log("inside handleBedUpdate");
+  //   console.log("previousBed.bedId:", previousBed?.bedId);
+  //   const previousBedAvailData = {
+  //     bedId: previousBed.bedId,
+  //     data: { bedAvailableOrNot: true },
+  //   };
 
-    const updatedBedAvailabilityData = {
-      bedId: updatedBed.bedId,
-      data: { bedAvailableOrNot: false },
-    };
+  //   updateBedAvailability(previousBedAvailData);
 
-    updateBedAvailability(updatedBedAvailabilityData);
-  };
+  //   const updatedBedAvailabilityData = {
+  //     bedId: updatedBed.bedId,
+  //     data: { bedAvailableOrNot: false },
+  //   };
+
+  //   updateBedAvailability(updatedBedAvailabilityData);
+  // };
 
   // console.log("ipdPatientData in patientTable:", ipdPatientData);
   const modalUpdateIPDPatient = (
-    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+    <div className=" relative flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
       <h2 className="border-b py-[1rem]">Update Patient</h2>
       <form
         className="flex flex-col gap-[1rem]"
@@ -1062,6 +1178,15 @@ export default function IPD_PatientTable() {
               options={renderedDoctorIDForDropdown}
               onChange={setIpdDoctorId}
               defaultValue={ipdDoctorId}
+            />
+          </div>
+          <div className="flex flex-col gap-[6px] relative w-full">
+            <label className="text-[14px]">Nurse Id *</label>
+            <Select
+              required
+              options={renderedNursesIDForDropdown}
+              onChange={setIpdNurseId}
+              defaultValue={ipdNurseId}
             />
           </div>
 
@@ -1147,11 +1272,21 @@ export default function IPD_PatientTable() {
             />
           </div> */}
         </div>
-        <BedSelector
-          beds={beds}
-          handleBedSelect={handleUpdatedBedSelect}
-          ipdPtientEdit={true}
-        />
+
+        {!isBedChange && (
+          <div>
+            <button onClick={handleBedChangeClick} className="buttonFilled">
+              Switch Bed
+            </button>
+          </div>
+        )}
+        {/* {isBedChange && (
+          <BedSelector
+            beds={beds}
+            handleBedSelect={handleUpdatedBedSelect}
+            ipdPtientEdit={true}
+          />
+        )} */}
 
         <div className="flex flex-col gap-[6px]">
           <label className="text-[14px]">Notes</label>
@@ -1173,19 +1308,19 @@ export default function IPD_PatientTable() {
       </form>
       <br />
       <div className=" flex flex-col justify-center items-start gap-5">
-        <h2>Add Medical Charges </h2>
+        <h2>Add Extra Charges </h2>
         <AddOtherCharges
           handleAddMedicalCharges={handleAddMedicalCharges}
           mainId={mainId}
         />
         <br />
 
-        <h2>Add Lab Test Charges</h2>
+        {/* <h2>Add Lab Test Charges</h2>
 
         <AddOtherCharges
           handleAddMedicalCharges={handleAddLabCharges}
           mainId={mainId}
-        />
+        /> */}
       </div>
     </div>
   );
@@ -1222,6 +1357,7 @@ export default function IPD_PatientTable() {
 
     setIpdPatientDeposits(null);
     setSelectedPayment(null);
+    setIpdPatientData(null);
   };
 
   // console.log("currentPatientBed:", currentPatientBed);
@@ -1249,7 +1385,7 @@ export default function IPD_PatientTable() {
           <h3>
             Rs.
             {ipdPatientData?.balanceData?.finalTotal
-              ? ipdPatientData?.balanceData?.finalTotal
+              ? ipdPatientData?.balanceData?.finalTotal.toFixed(2)
               : "Not Found"}
           </h3>
         </div>
@@ -1262,7 +1398,7 @@ export default function IPD_PatientTable() {
           <h3>
             Rs.
             {ipdPatientData?.balanceData?.remainingBalance
-              ? ipdPatientData?.balanceData?.remainingBalance
+              ? ipdPatientData?.balanceData?.remainingBalance.toFixed(2)
               : "Not Found"}
           </h3>
         </div>
@@ -1303,7 +1439,7 @@ export default function IPD_PatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Blood Group: </p>
-              <p>{ipdPatientData?.patientData?.patientBloodGroup}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientBloodGroup}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Doctor Phone: </p>
@@ -1311,7 +1447,7 @@ export default function IPD_PatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Gender: </p>
-              <p>{ipdPatientData?.patientData?.patientGender}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientGender}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Case No: </p>
@@ -1319,7 +1455,7 @@ export default function IPD_PatientTable() {
             </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient DOB: </p>
-              <p>{ipdPatientData?.patientData?.patientDateOfBirth}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientDateOfBirth}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>OPD No: </p>
@@ -1327,7 +1463,7 @@ export default function IPD_PatientTable() {
             </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Phone: </p>
-              <p>{ipdPatientData?.patientData?.patientPhone}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientPhone}</p>
             </div>
             {/* <div className='flex'>
               <p className='font-[600] w-[150px]'>Blood Pressure: </p>
@@ -1343,7 +1479,7 @@ export default function IPD_PatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Height: </p>
-              <p>{ipdPatientData?.patientData?.patientHeight}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientHeight}</p>
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Bill Status: </p>
@@ -1355,12 +1491,12 @@ export default function IPD_PatientTable() {
             </div>
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Weight: </p>
-              <p>{ipdPatientData?.patientData?.patientWeight}</p>
+              <p>{ipdPatientData?.data?.patientData?.patientWeight}</p>
             </div>
-            <div className="flex">
+            {/* <div className="flex">
               <p className="font-[600] w-[150px]">Bed: </p>
               <p>{ipdPatientData?.data?.ipdPatientBed}</p>
-            </div>
+            </div> */}
           </div>
           <div className="flex flex-col gap-[10px]">
             <div className="flex flex-col">
@@ -1399,9 +1535,8 @@ export default function IPD_PatientTable() {
     </div>
   );
   // ---------------
-  console.log(ipdPatientData);
-  const [search, setSearch] = React.useState("");
-  const [searchByName, setSearchByName] = React.useState("");
+  // console.log(ipdPatientData);
+  // const [search, setSearch] = React.useState("");
 
   const apiBaseUrl = process.env.React_App_Base_url;
 
@@ -1429,21 +1564,19 @@ export default function IPD_PatientTable() {
     handleIpdPatientsFinalBalanceCall();
   }, []);
 
-  // const filteredArray = ipdPatients?.filter((data) => {
-  //   if (search !== "" && searchByName === "") {
-  //     const userSearch = search.toLowerCase();
-  //     const searchInData = data?.mainId?.toLowerCase();
+  // console.log("ipdPatients:", ipdPatients);
 
-  //     return searchInData?.startsWith(userSearch);
-  //   } else if (search === "" && searchByName !== "") {
-  //     const userSearch = searchByName.toLowerCase();
-  //     const searchInData = data?.mainId.toLowerCase();
-  //   } else {
-  //     return data;
-  //   }
-  // });
+  const filteredArray = ipdPatients?.filter((data) => {
+    // if (search !== "") {
+    //   const userSearch = search.toLowerCase();
+    //   const searchInData = data?.mainId?.toLowerCase();
 
-  const mappedData = ipdPatients?.map((data, index) => {
+    //   return searchInData?.startsWith(userSearch);
+    // }
+    return data;
+  });
+
+  const mappedBillData = filteredArray?.map((data, index) => {
     const filteredPatientData = patients?.find(
       (patient) => data?.ipdPatientId === patient?.patientId
     );
@@ -1464,23 +1597,7 @@ export default function IPD_PatientTable() {
     };
   });
 
-  const filteredArray = mappedData?.filter((data) => {
-    if (search !== "" && searchByName === "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.data?.mainId?.toLowerCase();
-
-      return searchInData?.startsWith(userSearch);
-    } else if (search === "" && searchByName !== "") {
-      const userSearch = searchByName.toLowerCase();
-      const searchInData = data?.patientData?.patientName.toLowerCase();
-
-      return searchInData?.startsWith(userSearch);
-    } else {
-      return data;
-    }
-  });
-
-  console.log("filteredArray:", filteredArray);
+  // console.log("mappedBillData:", mappedBillData);
 
   // Add balance Modal Funtiontionality
 
@@ -1513,7 +1630,7 @@ export default function IPD_PatientTable() {
       },
     };
 
-    console.log("updatedData:", updateData);
+    // console.log("updatedData:", updateData);
 
     addIpdPatientBalance(updateData);
   };
@@ -1521,6 +1638,7 @@ export default function IPD_PatientTable() {
   React.useEffect(() => {
     if (responeAddIpdPatientBalance.isSuccess) {
       dispatch(updateIpdPatientChange(Math.random()));
+      handleIpdPatientsFinalBalanceCall();
       updateIpdBalanceState({
         ipdPatientMainId: null,
       });
@@ -1602,7 +1720,7 @@ export default function IPD_PatientTable() {
                 list.balanceData?.remainingBalance > 5000 ? "" : " text-red-500"
               }`}
             >
-              ₹ {list?.balanceData?.remainingBalance}
+              ₹ {list?.balanceData?.remainingBalance?.toFixed(2)}
             </h2>
           </div>
           {list.balanceData?.remainingBalance < 5000 &&
@@ -1674,6 +1792,8 @@ export default function IPD_PatientTable() {
     },
   ];
 
+  // console.log("typeOfSetPageLimitIn PatientTable", typeof setPageLimit);
+
   const keyFn = (list) => {
     return list.mainId;
   };
@@ -1690,37 +1810,59 @@ export default function IPD_PatientTable() {
           </button>
         </div>
         <div className="flex justify-between">
-          <div className="flex flex-row gap-[1rem]">
-            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
-              <FaSearch className="text-[#56585A]" />
-              <input
-                className="bg-transparent outline-none"
-                placeholder="Search by id"
-                value={search}
-                onChange={(e) => {
-                  setSearchByName("");
-                  setSearch(e.target.value);
-                }}
-              />
-            </div>
-            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
-              <FaSearch className="text-[#56585A]" />
-              <input
-                className="bg-transparent outline-none"
-                placeholder="Search by name"
-                value={searchByName}
-                onChange={(e) => {
-                  setSearchByName(e.target.value);
-                  setSearch("");
-                }}
-              />
-            </div>
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none"
+              placeholder="Search by UHID"
+              name="UHID"
+              onChange={(e) => debouncedSearching(e)}
+            />
+          </div>
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none"
+              placeholder="Search by Patient Phone Number"
+              name="PhoneNumber"
+              onChange={(e) => debouncedSearching(e)}
+            />
+          </div>
+          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+            <FaSearch className="text-[#56585A]" />
+            <input
+              className="bg-transparent outline-none"
+              placeholder="Search by Patient Name"
+              name="PatientName"
+              onChange={(e) => debouncedSearching(e)}
+            />
           </div>
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={filteredArray} config={config} keyFn={keyFn} />
+        <NewTable
+          data={mappedBillData}
+          config={config}
+          keyFn={keyFn}
+          setPageLimit={setPageLimit}
+          setPageCount={setPageCount}
+          pageCount={pageCount}
+          pageLimit={pageLimit}
+          totalItems={totalItems}
+          totalPages={totalPages}
+        />
+        {/* <Table
+          data={mappedBillData}
+          config={config}
+          keyFn={keyFn}
+          setPageLimit={setPageLimit}
+          setPageCount={setPageCount}
+          pageCount={pageCount}
+          pageLimit={pageLimit}
+          totalItems={totalItems}
+          totalPages={totalPages}
+        /> */}
       </div>
       <Modal
         open={open}
@@ -1771,7 +1913,7 @@ export default function IPD_PatientTable() {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: "90%",
-            height: "40%",
+            height: "60%",
             bgcolor: "background.paper",
             borderRadius: "12px",
             border: "none",
@@ -1798,7 +1940,7 @@ export default function IPD_PatientTable() {
                     className="py-[10px] outline-none border-b"
                     required
                     placeholder="Enter deposit amount"
-                    defaultValue={0}
+                    // defaultValue={0}
                     value={ipdDepositAmount}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, "");
@@ -1874,30 +2016,13 @@ export default function IPD_PatientTable() {
                 <div>
                   <Link
                     target="_blank"
-                    to={
-                      adminRole === "Receptionist"
-                        ? `${
-                            browserLinks?.nurse.category
-                          }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
-                            .split(" ")
-                            .join("")}/${
-                            ipdPatientData?.data?.mainId
-                          }/${selectedPayment}`
-                        : `${
-                            browserLinks?.superadmin?.category
-                          }/${browserLinks?.superadmin?.internalPages?.ipdPatients
-                            .split(" ")
-                            .join("")}/${
-                            ipdPatientData?.data?.mainId
-                          }/${selectedPayment}`
-                    }
-                    // to={`${
-                    //   browserLinks?.nurse.category
-                    // }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
-                    //   .split(" ")
-                    //   .join("")}/${
-                    //   ipdPatientData?.data?.mainId
-                    // }/${selectedPayment}`}
+                    to={`${
+                      browserLinks?.nurse.category
+                    }/${browserLinks?.nurse?.internalPages?.ipdPatientPaymentReceipt
+                      .split(" ")
+                      .join("")}/${
+                      ipdPatientData?.data?.mainId
+                    }/${selectedPayment}`}
                     className={`buttonFilled flex items-center gap-[10px] text-sm no-underline ${
                       !selectedPayment ? "disabled" : ""
                     }`}
@@ -2028,7 +2153,7 @@ export default function IPD_PatientTable() {
                     <Link
                       onClick={(e) => handleDischargeButtonClick(e)}
                       // target="_blank"
-                      to={ipdPatientData?.data?.mainId}
+                      // to={ipdPatientData?.data?.mainId}
                       // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
                       className="buttonFilled flex items-center gap-[10px]"
                     >
@@ -2092,6 +2217,17 @@ export default function IPD_PatientTable() {
         setOpen={setOpenDialogBox}
         handleAgree={handleAgreeDialogBoxToDelete}
         message={dialogBoxMessage}
+      />
+
+      {/* Change Bed Modal */}
+
+      <ChangPatientBedModal
+        beds={beds}
+        // handleBedSelect={handleUpdatedBedSelect}
+        ipdPtientEdit={true}
+        bedModalOpen={isBedChange}
+        handleModalClose={handleBedChangeModalClose}
+        ipdPatientId={mainId}
       />
     </Suspense>
   );
