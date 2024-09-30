@@ -103,6 +103,18 @@ const SuperAdminEmergencyPage = lazy(() =>
 const SuperAdminTestPatientPage = lazy(() =>
   import("./pages/superadmin/TestPatient/TestPatient")
 );
+const SuperAdminMedicineIntentoryPage = lazy(() =>
+  import("./pages/superadmin/MedicineInventory/MedicineInventory")
+);
+const SuperAdminDiagonisListPage = lazy(() =>
+  import("./pages/superadmin/DiagnosisList/DiagnosisList")
+);
+const SuperAdminAdmissionChargePage = lazy(() =>
+  import("./pages/superadmin/AdmissionCharges/AdmissionCharges")
+);
+const SuperAdminVitalServicePage = lazy(() =>
+  import("./pages/superadmin/VitalServices/VitalServices")
+);
 
 const BillDownloadPage = lazy(() =>
   import("./components/superadmin/BillingTable/BillDownload/BillDownload")
@@ -720,6 +732,78 @@ function App() {
                         }
                       >
                         <SuperAdminTestPatientPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.medicineInventory
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminMedicineIntentoryPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.diagnosisList
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminDiagonisListPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.admissionCharges
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminAdmissionChargePage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.vitalServices
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminVitalServicePage />
                       </Suspense>
                     }
                   />

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import browserLinks from "../../browserlinks";
 
 import { AiFillDashboard } from "react-icons/ai";
-import { FaMoneyBill } from "react-icons/fa";
+import { FaDiagnoses, FaHospitalUser, FaMoneyBill } from "react-icons/fa";
 import { FaUserDoctor } from "react-icons/fa6";
 import { FaUserGroup } from "react-icons/fa6";
 import { FaFileLines } from "react-icons/fa6";
@@ -17,6 +17,7 @@ import { IoMdArchive } from "react-icons/io";
 import { IoSettings } from "react-icons/io5";
 import { FaFileAlt } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
+import { GiMedicines } from "react-icons/gi";
 
 export default function SideNav({ activePage }) {
   const navigate = useNavigate();
@@ -85,6 +86,22 @@ export default function SideNav({ activePage }) {
       name: browserLinks.superadmin.internalPages.department,
     },
     {
+      icon: <GiMedicines />,
+      name: browserLinks.superadmin.internalPages.medicineInventory,
+    },
+    {
+      icon: <FaDiagnoses />,
+      name: browserLinks.superadmin.internalPages.diagnosisList,
+    },
+    {
+      icon: <FaHospitalUser />,
+      name: browserLinks.superadmin.internalPages.admissionCharges,
+    },
+    {
+      icon: <FaHospitalUser />,
+      name: browserLinks.superadmin.internalPages.vitalServices,
+    },
+    {
       icon: <FaFileLines />,
       name: browserLinks.superadmin.internalPages.appointments,
     },
@@ -96,10 +113,10 @@ export default function SideNav({ activePage }) {
       icon: <FaBuilding />,
       name: browserLinks.superadmin.internalPages.educationContent,
     },
-    {
-      icon: <IoMdArchive />,
-      name: browserLinks.superadmin.internalPages.medicineInventory,
-    },
+    // {
+    //   icon: <IoMdArchive />,
+    //   name: browserLinks.superadmin.internalPages.medicineInventory,
+    // },
     {
       icon: <IoSettings />,
       name: browserLinks.superadmin.internalPages.settings,
