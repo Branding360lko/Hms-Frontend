@@ -6,10 +6,13 @@ export const IPDPatientService = createApi({
 
   endpoints: (builder) => ({
     getAllIPDPatients: builder.query({
-      query: () => {
+      query: (limit, page, query) => {
         return {
           url: "IPDPatient-GET-ALL",
           method: "GET",
+          params: limit,
+          page,
+          query,
         };
       },
     }),
@@ -127,6 +130,15 @@ export const IPDPatientService = createApi({
         };
       },
     }),
+    ipdPatientChangeBedById: builder.mutation({
+      query: (data) => {
+        return {
+          url: `IPDPatient-PUT-ChangeBed/${data?.id}`,
+          method: "PUT",
+          body: data?.newBedId,
+        };
+      },
+    }),
   }),
 });
 
@@ -144,4 +156,5 @@ export const {
   useIpdPatientMedLabDocDetailByIdMutation,
   useIpdPatientFinalBalanceCalGetByIdMutation,
   useIpdPatientDischargeReceiptGetByIdMutation,
+  useIpdPatientChangeBedByIdMutation,
 } = IPDPatientService;
