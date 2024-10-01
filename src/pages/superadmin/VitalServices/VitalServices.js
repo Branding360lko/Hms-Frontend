@@ -2,6 +2,7 @@ import React from "react";
 import SideNav from "../../../components/superadmin/SideNav";
 import UpperNav from "../../../components/superadmin/UpperNav/UpperNav";
 import browserLinks from "../../../browserlinks";
+import VitalServicesTable from "../../../components/superadmin/VitalServicesTable/VitalServicesTable";
 
 function VitalServices() {
   return (
@@ -14,7 +15,7 @@ function VitalServices() {
       <div className="superadmin-main-right flex flex-col w-[80%]">
         <UpperNav />
         <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
-          {/* <OPDPatientTable /> */}
+          <VitalServicesTable />
         </div>
       </div>
     </div>
