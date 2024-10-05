@@ -12,6 +12,8 @@ import { MdDelete } from "react-icons/md";
 function DiagnosisListTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [filteredData, setFilteredData] = useState([])
+  const [searchTerm, setSearchTerm] = useState();
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -103,6 +105,7 @@ function DiagnosisListTable() {
   const getAllDiagonsisDataHandle = async () => {
     const response = await getAllDiagonsisData()
     setAllTest(response?.data?.data)
+    setFilteredData(response?.data?.data)
   }
   const getOneDiagonsisDataHandle = async (Id) => {
     const response = await getOneDiagonsisData(Id)
@@ -202,10 +205,30 @@ function DiagnosisListTable() {
     }
 
   }
+  const searchHandle = () => {
+    const filter = allTest?.filter((item) => {
+      if (searchTerm != "") {
+        return (
+          item?.Name?.toLowerCase()?.includes(
+            searchTerm?.toLowerCase()
+          )
+
+        );
+      }
+
+
+      return item;
+    });
+
+    setFilteredData(filter && filter);
+  };
   useEffect(() => {
     getAllDiagonsisDataHandle()
 
   }, [])
+  useEffect(() => {
+    searchHandle()
+  }, [searchTerm])
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -224,8 +247,8 @@ function DiagnosisListTable() {
           <FaSearch className="text-[#56585A]" />
           <input
             className="bg-transparent outline-none w-[27rem]"
-            placeholder="Search by Diagnosis Name
-"
+            placeholder="Search by Diagnosis Name"
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
@@ -247,7 +270,7 @@ function DiagnosisListTable() {
         </thead>
 
         <tbody>
-          {allTest
+          {filteredData
             ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             ?.map((item, index) => (
               <tr className="border-b-[1px]" key={item?._id}>
@@ -287,7 +310,7 @@ function DiagnosisListTable() {
         rowsPerPage={rowsPerPage}
         handleChangePage={handleChangePage}
         handleChangeRowsPerPage={handleChangeRowsPerPage}
-        data={allTest}
+        data={filteredData}
       />
       <Modal
         open={open}
@@ -485,7 +508,7 @@ function DiagnosisListTable() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">

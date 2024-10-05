@@ -1208,8 +1208,7 @@ export default function OPD_PatientTable({
     }
     if (submitButton === "addPrint") {
       navigate(
-        `${
-          browserLinks.nurse.category
+        `${browserLinks.nurse.category
         }/${browserLinks.nurse.internalPages.opdPatientList
           .split(" ")
           .join("")}/${responseCreateOPDPatient?.data?.data?.mainId}`
@@ -1237,10 +1236,7 @@ export default function OPD_PatientTable({
 
     createOPDPatient(submitData);
   };
-  console.log(
-    responseCreateOPDPatient?.data?.data?.mainId,
-    "responseCreateOPDPatient?.data?.data?.mainId"
-  );
+
 
   // console.log(opdPatientId);
 
@@ -1426,8 +1422,7 @@ export default function OPD_PatientTable({
       handleClickSnackbarSuccess();
       handleCloseUpdateModal();
       navigate(
-        `${
-          browserLinks.superadmin.category
+        `${browserLinks.superadmin.category
         }/${browserLinks.superadmin.internalPages.opdPatients
           .split(" ")
           .join("")}/${responseUpdateOPDPatientById?.data?.data?.mainId}`
@@ -1617,7 +1612,7 @@ export default function OPD_PatientTable({
             src={
               opdPatientData?.patientData?.patientImage
                 ? process.env.React_App_Base_Image_Url +
-                  opdPatientData?.patientData?.patientImage
+                opdPatientData?.patientData?.patientImage
                 : placeholder
             }
             alt="patientImage"
@@ -1825,27 +1820,106 @@ export default function OPD_PatientTable({
     return list.mainId;
   };
 
+  // const handleSearch = useCallback(
+  //   debounce((searchTerm) => {
+  //     dispatch(opdPatientIdChange(searchTerm));
+  //     setIsLoadingOnSearch(true);
+  //   }, 2000),
+  //   [search]
+  // );
+  // const handleSearch1 = useCallback(
+  //   debounce((searchTerm) => {
+  //     dispatch(patientNameChange(searchTerm));
+  //     setIsLoadingOnSearch(true);
+  //   }, 2000),
+  //   [search2]
+  // );
+  // const handleSearch2 = useCallback(
+  //   debounce((searchTerm) => {
+  //     dispatch(patientMobileNumberChange(searchTerm));
+  //     setIsLoadingOnSearch(true);
+  //   }, 2000),
+  //   [search3]
+  // );
+
+
+  // Debounced search functions
   const handleSearch = useCallback(
     debounce((searchTerm) => {
-      dispatch(opdPatientIdChange(searchTerm));
-      setIsLoadingOnSearch(true);
+      if (searchTerm) {
+        setIsLoadingOnSearch(true);
+        dispatch(pageChange(1));
+        dispatch(opdPatientIdChange(searchTerm));
+      } else {
+        dispatch(opdPatientIdChange(''))
+        dispatch(pageChange(1));
+        setIsLoadingOnSearch(true);
+      }
+      
     }, 1000),
-    [search]
+    []
   );
+
   const handleSearch1 = useCallback(
     debounce((searchTerm) => {
-      dispatch(patientNameChange(searchTerm));
-      setIsLoadingOnSearch(true);
+      if (searchTerm) {
+        setIsLoadingOnSearch(true);
+        dispatch(patientNameChange(searchTerm));
+        dispatch(pageChange(1));
+      } else {
+        dispatch(patientNameChange(''));
+        setIsLoadingOnSearch(true);
+        dispatch(pageChange(1));
+      }
+  
     }, 1000),
-    [search2]
+    []
   );
+
   const handleSearch2 = useCallback(
     debounce((searchTerm) => {
-      dispatch(patientMobileNumberChange(searchTerm));
-      setIsLoadingOnSearch(true);
+      if (searchTerm) {
+        setIsLoadingOnSearch(true);
+        dispatch(patientMobileNumberChange(searchTerm));
+        dispatch(pageChange(1));
+      } else {
+        dispatch(patientMobileNumberChange(''));
+        dispatch(pageChange(1));
+        setIsLoadingOnSearch(true);
+      }
+    
     }, 1000),
-    [search3]
+    []
   );
+
+  // Input change handlers
+  const handleInputChange1 = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    handleSearch(value); // Call debounced search function
+  };
+
+  const handleInputChange2 = (e) => {
+    const value = e.target.value;
+    setSearch2(value);
+    handleSearch1(value);
+  };
+
+  const handleInputChange3 = (e) => {
+    const value = e.target.value;
+    setSearch3(value);
+    handleSearch2(value);
+  };
+
+  // Cleanup function to reset loading state on unmount
+  React.useEffect(() => {
+    return () => {
+      setIsLoadingOnSearch(false);
+    };
+  }, []);
+
+  console.log(isLoadingOnSearch,"isLoadingOnSearch");
+  
   const getOpdPatientsDateWiseReportDataHandle = async (e) => {
     e.preventDefault();
     try {
@@ -1868,9 +1942,7 @@ export default function OPD_PatientTable({
       console.error("Error downloading the report:", error.message);
     }
   };
-  React.useEffect(() => {
-    console.log(selectedDate);
-  }, [selectedDate]);
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1896,7 +1968,8 @@ export default function OPD_PatientTable({
                   setSearch2("");
                   setSearch3("");
                   // const searchTerm = e.target.value;
-                  handleSearch(e.target.value);
+                  // handleSearch(e.target.value);
+                  handleInputChange1(e)
                   dispatch(patientNameChange(""));
                   dispatch(patientMobileNumberChange(""));
                 }}
@@ -1932,7 +2005,8 @@ export default function OPD_PatientTable({
                   setSearch("");
                   setSearch3("");
                   // handleSearch1(e.target.value);
-                  handleSearch1(e.target.value);
+                  // handleSearch1(e.target.value);
+                  handleInputChange2(e)
                   dispatch(patientMobileNumberChange(""));
                   dispatch(opdPatientIdChange(""));
                 }}
@@ -1967,7 +2041,8 @@ export default function OPD_PatientTable({
                   setSearch3(e.target.value);
                   setSearch("");
                   setSearch2("");
-                  handleSearch2(e.target.value);
+                  // handleSearch2(e.target.value);
+                  handleInputChange3(e)
                   dispatch(patientNameChange(""));
                   dispatch(opdPatientIdChange(""));
                 }}

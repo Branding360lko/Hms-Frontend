@@ -9,7 +9,7 @@ function VitalServices() {
     <div className="superadmin-main flex flex-row w-full h-screen">
       <div className="w-[20%] shadow-lg">
         <SideNav
-          activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.diagnosisList}`}
+          activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.vitalServices}`}
         />
       </div>
       <div className="superadmin-main-right flex flex-col w-[80%]">

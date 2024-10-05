@@ -78,6 +78,8 @@ function MedicineInventoryTable() {
       Mrp: "",
     })
   };
+  const [filteredData, setFilteredData] = useState([])
+  const [searchTerm, setSearchTerm] = useState();
   const [allMedicine, setAllMedicine] = useState([])
   const [singleMedicine, setSingleMedicine] = useState({
     Name: "",
@@ -90,6 +92,7 @@ function MedicineInventoryTable() {
   const getAllMedicineDataHandle = async () => {
     const response = await getAllMedicineData()
     setAllMedicine(response?.data?.data)
+    setFilteredData(response?.data?.data)
 
   }
   const getOneMedicineDataHandle = async (Id) => {
@@ -185,12 +188,33 @@ function MedicineInventoryTable() {
 
       setSnackBarSuccessWarning("Something Went Wrong Please Try later!")
     }
-  
+
   }
+  const searchHandle = () => {
+    const filter = allMedicine?.filter((item) => {
+      if (searchTerm != "") {
+        return (
+          item?.Name?.toLowerCase()?.includes(
+            searchTerm?.toLowerCase()
+          )
+
+        );
+      }
+
+
+      return item;
+    });
+
+    setFilteredData(filter && filter);
+    setPage(filter && 0);
+  };
   useEffect(() => {
     getAllMedicineDataHandle()
 
   }, [])
+  useEffect(() => {
+    searchHandle()
+  }, [searchTerm])
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
@@ -210,6 +234,7 @@ function MedicineInventoryTable() {
           <input
             className="bg-transparent outline-none w-[27rem]"
             placeholder="Search by Medicine Name"
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
@@ -237,7 +262,7 @@ function MedicineInventoryTable() {
         </thead>
 
         <tbody>
-          {allMedicine
+          {filteredData
             ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             ?.map((item, index) => (<tr className="border-b-[1px]" key={item?._id}>
               <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">{index + 1}</td>{" "}
@@ -280,7 +305,7 @@ function MedicineInventoryTable() {
         rowsPerPage={rowsPerPage}
         handleChangePage={handleChangePage}
         handleChangeRowsPerPage={handleChangeRowsPerPage}
-        data={allMedicine}
+        data={filteredData}
       />
       <Modal
         open={open}
@@ -480,11 +505,11 @@ function MedicineInventoryTable() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-          Are You Sure You Want To Delete?
+            Are You Sure You Want To Delete?
           </DialogContentText>
         </DialogContent>
         <DialogActions>

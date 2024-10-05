@@ -31,12 +31,16 @@ import {
 const OPDPatientTable = lazy(() =>
   import("../../../components/Nurse/OPDPatientTableAndForm/OPD_PatientTable")
 );
+
+
 // const OPDPatientTable = lazy(() =>
 //   import("../../../components/superadmin/OPD_PatientTable/OPD_PatientTable")
 // );
 
 export default function OPDPatientList() {
   const dispatch = useDispatch();
+  const { doctors } = useSelector((state) => state.DoctorState);
+  const { patients } = useSelector((state) => state.PatientState);
 
   // const responseGetAllDoctors = useGetAllDoctorsQuery();
   // const responseGetAllDoctorProfessionalDetails =
@@ -122,8 +126,14 @@ export default function OPDPatientList() {
         totalPagesChange(responseGetAllOPDPatientsRefetch?.data?.totalPages)
       );
       setIsLoadingOnSearch(false);
-      fetchPatientNames();
-      fetchDoctorNames();
+      if (!patients || patients === 0) {
+
+        fetchPatientNames();
+      }
+      if (!doctors || doctors === 0) {
+
+        fetchDoctorNames();
+      }
     }
     // ------------------
     // // Doctors

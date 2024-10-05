@@ -95,14 +95,14 @@ export default function IPD_PatientPaymentReciept() {
   return (
     <>
       {responseGetIPDPatientById.isLoading &&
-      responseGetDoctorById.isLoading &&
-      responseGetPatientById.isLoading ? (
+        responseGetDoctorById.isLoading &&
+        responseGetPatientById.isLoading ? (
         "Loading..."
       ) : (
         <Fragment>
           {responseGetIPDPatientById.isSuccess &&
-          responseGetDoctorById.isSuccess &&
-          responseGetPatientById.isSuccess ? (
+            responseGetDoctorById.isSuccess &&
+            responseGetPatientById.isSuccess ? (
             <div className="w-full">
               <button onClick={() => handlePrint()} className="buttonFilled">
                 Print
@@ -180,9 +180,9 @@ export default function IPD_PatientPaymentReciept() {
                       {responseGetPatientById?.currentData?.patientCity ===
                         "" || responseGetPatientById?.currentData?.patientCity
                         ? responseGetPatientById?.currentData?.patientCity
-                        : JSON.parse(
-                            responseGetPatientById?.currentData?.patientCityNew
-                          ).value}
+                        : responseGetPatientById?.currentData?.patientCityNew ? JSON.parse(
+                          responseGetPatientById?.currentData?.patientCityNew
+                        ).value : ""}
                     </p>
                   </div>
                   <div className="flex">

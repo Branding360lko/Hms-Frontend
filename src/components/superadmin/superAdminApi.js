@@ -51,6 +51,7 @@ export const deleteOneMedicineData = async (Id,) => {
     }
 }
 // Test or Diagonsis Api
+
 export const getAllDiagonsisData = async () => {
     try {
         const response = await axios.get(
@@ -95,6 +96,112 @@ export const deleteOneDiagonsisData = async (Id,) => {
     try {
         const response = await axios.delete(
             `${process.env.React_App_Base_url + "delete-one-test/" + Id}`
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// Admission Charges Api
+
+export const getAllAdmissionChargeData = async () => {
+    try {
+        const response = await axios.get(
+            `${process.env.React_App_Base_url + "get-all-admission-charges"}`
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const addAdmissionChargeData = async (formData) => {
+    try {
+        const response = await axios.post(
+            `${process.env.React_App_Base_url + "add-admission-charge"}`, formData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const getOneAdmissionChargeData = async (Id) => {
+    try {
+        const response = await axios.get(
+            `${process.env.React_App_Base_url + "get-one-admission-charge/" + Id}`
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const updateAdmissionChargeData = async (Id, formData,) => {
+    try {
+        const response = await axios.put(
+            `${process.env.React_App_Base_url + "update-one-admission-charge/" + Id}`, formData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const deleteAdmissionChargeData = async (Id,) => {
+    try {
+        const response = await axios.delete(
+            `${process.env.React_App_Base_url + "delete-one-admission-charge/" + Id}`
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// Vital Service Api
+
+export const getAllVitalServicetData = async () => {
+    try {
+        const response = await axios.get(
+            `${process.env.React_App_Base_url + "get-all-vital-care"}`
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const addVitalServiceData = async (formData) => {
+    try {
+        const response = await axios.post(
+            `${process.env.React_App_Base_url + "add-vital-care"}`, formData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const getOneVitalServiceData = async (Id) => {
+    try {
+        const response = await axios.get(
+            `${process.env.React_App_Base_url + "get-one-vital-care/" + Id}`
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const updateVitalServiceData = async (Id, formData,) => {
+    try {
+        const response = await axios.put(
+            `${process.env.React_App_Base_url + "update-one-vital-care/" + Id}`, formData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const deleteVitalServiceData = async (Id,) => {
+    try {
+        const response = await axios.delete(
+            `${process.env.React_App_Base_url + "delete-one-vital-care/" + Id}`
         );
         return response;
     } catch (error) {
