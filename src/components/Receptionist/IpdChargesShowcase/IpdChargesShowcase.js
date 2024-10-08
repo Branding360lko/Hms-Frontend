@@ -64,7 +64,7 @@ function IpdChargesShowcase({
       <IpdPatientMedDocLabChargesShowcase ipdPatientData={ipdPatientData} />
 
       <div className="w-full">
-        <h3 className="text-xl font-semibold">Extra Charges</h3>
+        <h3 className="text-xl font-semibold">Other Charges</h3>
         <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
           <thead>
             <tr className="border-b-[1px]">
@@ -117,7 +117,7 @@ function IpdChargesShowcase({
           </tbody>
         </table>
         <div className="mt-4 font-bold">
-          Total Extra Charges: {totalMedicalCharges}
+          Total Other Charges: {totalMedicalCharges}
         </div>
       </div>
 

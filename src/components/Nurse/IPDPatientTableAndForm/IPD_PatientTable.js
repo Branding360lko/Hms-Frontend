@@ -1308,7 +1308,7 @@ export default function IPD_PatientTable({
       </form>
       <br />
       <div className=" flex flex-col justify-center items-start gap-5">
-        <h2>Add Extra Charges </h2>
+        <h2>Add Other Charges </h2>
         <AddOtherCharges
           handleAddMedicalCharges={handleAddMedicalCharges}
           mainId={mainId}
@@ -1363,6 +1363,7 @@ export default function IPD_PatientTable({
   // console.log("currentPatientBed:", currentPatientBed);
 
   // console.log("ipdPatientCurrentBalance:", ipdPatientCurrentBalance);
+  console.log(ipdPatientData, "ipdPatientData");
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -1493,6 +1494,13 @@ export default function IPD_PatientTable({
               <p className="font-[600] w-[150px]">Patient Weight: </p>
               <p>{ipdPatientData?.data?.patientData?.patientWeight}</p>
             </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Admission Charge: </p>
+              <p className="text-[14px]">
+                {ipdPatientData?.data?.ipdAdmissionCharge}
+              </p>
+            </div>
+
             {/* <div className="flex">
               <p className="font-[600] w-[150px]">Bed: </p>
               <p>{ipdPatientData?.data?.ipdPatientBed}</p>
@@ -1505,6 +1513,7 @@ export default function IPD_PatientTable({
                 {ipdPatientData?.data?.ipdPatientNotes}
               </p>
             </div>
+
             <div className="flex">
               <p className="font-[600] w-[150px]">Created On: </p>
               <p className="break-word text-[14px]">
