@@ -116,8 +116,77 @@ function IpdChargesShowcase({
             ))}
           </tbody>
         </table>
-        <div className="mt-4 font-bold">
+        <div className="mt-4 font-bold flex justify-end pr-[5%]">
           Total Other Charges: {totalMedicalCharges}
+        </div>
+      </div>
+      <div className="w-full">
+        <h3 className="text-xl font-semibold">Returned Medicine</h3>
+        <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+          <thead>
+            <tr className="border-b-[1px]">
+              <th className="text-center px-[4px] border-b-[1px] p-[10px]">
+                Item
+              </th>
+              <th className="text-center px-[4px] border-b-[1px] p-[10px]">
+                Quantity
+              </th>
+              <th className="text-center px-[4px] border-b-[1px] p-[10px]">
+                Price
+              </th>
+              <th className="text-center px-[4px] border-b-[1px] p-[10px]">
+                Sub Total
+              </th>
+              <th className="text-center px-[4px] border-b-[1px] p-[10px]">
+                Date
+              </th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-500 font-semibold">
+            {ipdPatientData?.balanceData?.ipdPatientReturnMedicineDetails?.medicine?.map(
+              (item, index) => (
+                <>
+                  <tr key={item._id}>
+                    <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                      {item.Name}
+                    </td>
+                    <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                      {item.Quantity}
+                    </td>
+                    <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                      Rs. {item.Price}
+                    </td>
+                    <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                      Rs. {item.subTotal}
+                    </td>
+                    <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                      {new Date(item.date).toLocaleDateString()}
+                    </td>
+                  </tr>
+
+                  {/* <tr key={charge._id}>
+                  <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                    {charge.items.map((item) => item.itemName).join(", ")}
+                  </td>
+                  <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                    {charge.price}
+                  </td>
+                  <td className="text-center text-[12px] py-4 px-[4px] border-b-[1px]">
+                    {new Date(charge.createdAt).toLocaleDateString()}
+                  </td>
+                </tr> */}
+                </>
+              )
+            )}
+          </tbody>
+        </table>
+        <div className="mt-4 font-bold w-full flex justify-end pr-[5%]">
+          Total Other Charges:{" "}
+          {ipdPatientData?.balanceData?.ipdPatientReturnMedicineDetails
+            ?.Total
+            ? ipdPatientData?.balanceData?.ipdPatientReturnMedicineDetails
+                ?.Total
+            : "N/A"}
         </div>
       </div>
 

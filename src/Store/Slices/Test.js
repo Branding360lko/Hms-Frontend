@@ -8,7 +8,7 @@ export const getTestDataHandle = createAsyncThunk(
   "getTestDataHandle",
   async () => {
     const { data } = await axios.get(
-      `${process.env.React_App_Base_url + "GET-ALL-Test"}`
+      `${process.env.React_App_Base_url + "GET-ALL-Avaliable-Test"}`
     );
     return data;
   }

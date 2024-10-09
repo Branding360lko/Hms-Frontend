@@ -5,7 +5,7 @@ import Table from "../../Table";
 
 import { FaSearch } from "react-icons/fa";
 import { MdViewKanban } from "react-icons/md";
-import { RiEdit2Fill } from "react-icons/ri";
+import { RiEdit2Fill, RiMedicineBottleFill, RiMedicineBottleLine } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { LuHardDriveDownload } from "react-icons/lu";
 import { MdOutlineReceiptLong } from "react-icons/md";
@@ -1363,7 +1363,7 @@ export default function IPD_PatientTable({
   // console.log("currentPatientBed:", currentPatientBed);
 
   // console.log("ipdPatientCurrentBalance:", ipdPatientCurrentBalance);
-  console.log(ipdPatientData, "ipdPatientData");
+  console.log(ipdPatientData, "ipdPatientData",ipdPatientData?.data?.ipdPatientIsInsured);
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -1498,6 +1498,13 @@ export default function IPD_PatientTable({
               <p className="font-[600] w-[150px]">Admission Charge: </p>
               <p className="text-[14px]">
                 {ipdPatientData?.data?.ipdAdmissionCharge}
+              </p>
+            </div> 
+              <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Insured: </p>
+              <p className="text-[14px]">
+                {ipdPatientData?.data?.ipdPatientIsInsured===true?"Insured":"Not Insured"}
+                
               </p>
             </div>
 
@@ -1790,6 +1797,13 @@ export default function IPD_PatientTable({
             className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
           >
             <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
+          </div>   
+            <div
+            onClick={() => handleOpenUpdateModal(list)}
+            className="p-[4px] h-fit w-fit border-[2px] border-[#b22222] rounded-[12px] cursor-pointer"
+          >
+            <RiMedicineBottleFill  className="text-[25px] text-[#b22222]"/>
+          
           </div>
           {/* <div
             onClick={() => handleClickOpenDialogBox(list)}
