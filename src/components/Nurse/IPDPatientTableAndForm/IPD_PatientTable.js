@@ -4,8 +4,12 @@ import "./IPD_PatientTable.css";
 import Table from "../../Table";
 
 import { FaSearch } from "react-icons/fa";
-import { MdViewKanban } from "react-icons/md";
-import { RiEdit2Fill, RiMedicineBottleFill, RiMedicineBottleLine } from "react-icons/ri";
+import { MdDelete, MdViewKanban } from "react-icons/md";
+import {
+  RiEdit2Fill,
+  RiMedicineBottleFill,
+  RiMedicineBottleLine,
+} from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { LuHardDriveDownload } from "react-icons/lu";
 import { MdOutlineReceiptLong } from "react-icons/md";
@@ -72,6 +76,13 @@ import axios from "axios";
 import ChangPatientBedModal from "../ChangPatientBed/ChangPatientBedModal";
 import NewTable from "../../NewTable/NewTable";
 import { useDebouncedSearch } from "../../../utils/useDebouncedSearch";
+import { CiViewList } from "react-icons/ci";
+import { IoMdTennisball } from "react-icons/io";
+import {
+  addIpdPatientReturnMedicine,
+  getOneIpdPatientReturnMedicine,
+  updateOneIpdPatientReturnMedicine,
+} from "../../Receptionist/NurseApi";
 
 export default function IPD_PatientTable({
   setPageLimit,
@@ -661,6 +672,39 @@ export default function IPD_PatientTable({
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [open1, setOpen1] = React.useState(false);
+  const handleOpen1 = () => setOpen1(true);
+  const handleClose1 = () => setOpen1(false);
+  const [returnMedicine, setReturnMedicine] = React.useState([]);
+  const [isReturnMedicineAvalible, setIsReturnMedicineAvalible] =
+    React.useState(false);
+  const [returnMedicineId, setReturnMedicineId] = React.useState("");
+  const addReturnMedicineHandle = (e) => {
+    e.preventDefault();
+    setReturnMedicine([
+      ...returnMedicine,
+      {
+        Name: "",
+        Quantity: "",
+        Price: "",
+      },
+    ]);
+  };
+  const getReturnMedicineData = (e, index) => {
+    let oldValue = [...returnMedicine];
+    oldValue[index] = {
+      ...oldValue[index],
+      [e.target.name]: e.target.value,
+    };
+
+    setReturnMedicine(oldValue && oldValue);
+  };
+  const deleteReturnMedicineHandle = (e, index) => {
+    e.preventDefault();
+    let oldValue = [...returnMedicine];
+    oldValue.splice(index, 1);
+    setReturnMedicine(oldValue && oldValue);
+  };
 
   const renderedPatientIDForDropdown = patients?.map((data) => {
     return {
@@ -1363,7 +1407,6 @@ export default function IPD_PatientTable({
   // console.log("currentPatientBed:", currentPatientBed);
 
   // console.log("ipdPatientCurrentBalance:", ipdPatientCurrentBalance);
-  console.log(ipdPatientData, "ipdPatientData",ipdPatientData?.data?.ipdPatientIsInsured);
 
   const modalViewPatientDetails = (
     <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
@@ -1499,12 +1542,13 @@ export default function IPD_PatientTable({
               <p className="text-[14px]">
                 {ipdPatientData?.data?.ipdAdmissionCharge}
               </p>
-            </div> 
-              <div className="flex">
+            </div>
+            <div className="flex">
               <p className="font-[600] w-[150px]">Patient Insured: </p>
               <p className="text-[14px]">
-                {ipdPatientData?.data?.ipdPatientIsInsured===true?"Insured":"Not Insured"}
-                
+                {ipdPatientData?.data?.ipdPatientIsInsured === true
+                  ? "Insured"
+                  : "Not Insured"}
               </p>
             </div>
 
@@ -1579,6 +1623,54 @@ export default function IPD_PatientTable({
   React.useEffect(() => {
     handleIpdPatientsFinalBalanceCall();
   }, []);
+  const getOneIpdPatientReturnMedicineHandle = async (Id) => {
+    const response = await getOneIpdPatientReturnMedicine(Id);
+    if (response?.status === 200) {
+      setIsReturnMedicineAvalible(true);
+      setMainId(response?.data?.data?.[0]?.ipdPatientMainId);
+      setReturnMedicineId(response?.data?.data?.[0]?.returnedMedicineId);
+      setReturnMedicine(response?.data?.data?.[0]?.medicine);
+    } else {
+      setIsReturnMedicineAvalible(false);
+    }
+
+  };
+
+  const addReturnMedicineDataHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("ipdPatientMainId", mainId);
+    formData.append("medicine", JSON.stringify(returnMedicine));
+
+    const result = await addIpdPatientReturnMedicine(formData);
+    if (result?.status === 201) {
+      handleClose1();
+      setReturnMedicine([]);
+      setSnackBarSuccessMessage(result?.data?.message);
+      setOpenSnackBarSuccess(true);
+    }
+  };
+  const updateOneIpdPatientReturnMedicineHandle = async (
+    e,
+    returnedMedicineId,
+    ipdPatientMainId
+  ) => {
+    e.preventDefault();
+    const formData = new FormData();
+
+    formData.append("medicine", JSON.stringify(returnMedicine));
+    const response = await updateOneIpdPatientReturnMedicine(
+      returnedMedicineId,
+      ipdPatientMainId,
+      formData
+    );
+    if (response?.status === 201) {
+      handleClose1();
+      setReturnMedicine([]);
+      setSnackBarSuccessMessage(response?.data?.message);
+      setOpenSnackBarSuccess(true);
+    }
+  };
 
   // console.log("ipdPatients:", ipdPatients);
 
@@ -1717,7 +1809,7 @@ export default function IPD_PatientTable({
             </button>
           ) : (
             <button
-              onClick={() => handleAddBalanceModalOpen(list)}
+              onClick={() => [handleAddBalanceModalOpen(list)]}
               className=" bg-blue-400 hover:bg-blue-500 text-white font-semibold px-2 py-1 rounded-md"
             >
               Add Balance
@@ -1797,13 +1889,16 @@ export default function IPD_PatientTable({
             className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
           >
             <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
-          </div>   
-            <div
-            onClick={() => handleOpenUpdateModal(list)}
+          </div>
+          <div
+            onClick={() => [
+              handleOpen1(list),
+              getOneIpdPatientReturnMedicineHandle(list?.data?.mainId),
+              setMainId(list?.data?.mainId),
+            ]}
             className="p-[4px] h-fit w-fit border-[2px] border-[#b22222] rounded-[12px] cursor-pointer"
           >
-            <RiMedicineBottleFill  className="text-[25px] text-[#b22222]"/>
-          
+            <RiMedicineBottleFill className="text-[25px] text-[#b22222]" />
           </div>
           {/* <div
             onClick={() => handleClickOpenDialogBox(list)}
@@ -1820,6 +1915,105 @@ export default function IPD_PatientTable({
   const keyFn = (list) => {
     return list.mainId;
   };
+
+
+  const AddMedicineModal = (
+    <div>
+      <form
+        onSubmit={(e) => [
+          !isReturnMedicineAvalible
+            ? addReturnMedicineDataHandle()
+            : updateOneIpdPatientReturnMedicineHandle(
+                e,
+                returnMedicineId,
+                mainId
+              ),
+        ]}
+      >
+        <table className="w-full table-auto border-spacing-2 text-[#595959] font-[300]">
+          <thead>
+            <th className="border-[1px] p-1 font-semibold">
+              <p>S_N</p>
+            </th>
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Medicine Name</p>
+            </th>
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Medicine Quantity</p>
+            </th>
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Medicine Price</p>
+            </th>
+
+            <th className="border-[1px] p-1 font-semibold">
+              <p>Action</p>
+            </th>
+          </thead>
+
+          <tbody>
+            {returnMedicine?.map((item, index) => (
+              <tr className="border-b-[1px]">
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  {index + 1}
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  <input
+                    type="text"
+                    placeholder="Medicine Name"
+                    name="Name"
+                    value={item?.Name}
+                    onChange={(e) => getReturnMedicineData(e, index)}
+                    className="w-full border-none	 outline-none pl-4"
+                    required
+                  />
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  <input
+                    type="number"
+                    placeholder="Medicine Quantity"
+                    name="Quantity"
+                    value={item?.Quantity}
+                    onChange={(e) => getReturnMedicineData(e, index)}
+                    className="w-full border-none	 outline-none pl-4"
+                    required
+                  />
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center border-r">
+                  <input
+                    type="number"
+                    placeholder="Medicine Price"
+                    name="Price"
+                    value={item?.Price}
+                    onChange={(e) => getReturnMedicineData(e, index)}
+                    className="w-full border-none	 outline-none pl-4"
+                    required
+                  />
+                </td>
+                <td className="justify-center text-[16px] py-4 px-[4px] text-center  flex-row border-r">
+                  <div className="flex gap-[10px] justify-center">
+                    <div
+                      className="p-[4px] h-fit w-fit border-[2px] border-[#000] rounded-[12px] cursor-pointer"
+                      onClick={(e) => deleteReturnMedicineHandle(e, index)}
+                    >
+                      <MdDelete className="text-[20px] text-[#ooo]" />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {returnMedicine?.length > 0 && (
+          <button className="bg-[#3497F9] text-white p-[10px] mt-[1rem] rounded-md">
+            {!isReturnMedicineAvalible
+              ? "Add Return Medicine"
+              : "Update Return Medicine"}{" "}
+          </button>
+        )}
+      </form>
+    </div>
+  );
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -2219,6 +2413,36 @@ export default function IPD_PatientTable({
             {modalViewPatientDetails}
           </Typography>
           {/* <Typography></Typography> */}
+        </Box>
+      </Modal>
+
+      {/* Add return Medicine*/}
+      <Modal
+        open={open1}
+        onClose={handleClose1}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            className="flex items-center justify-between w-full"
+          >
+            <h1 className="headingBottomUnderline w-fit pb-[10px]">
+              Add Return Medicine
+            </h1>
+            <button
+              className="bg-[#3497F9] text-white p-[10px] rounded-md"
+              onClick={addReturnMedicineHandle}
+            >
+              Add Return Medicine Table Row
+            </button>
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            {AddMedicineModal}
+          </Typography>
         </Box>
       </Modal>
       {/* Success Snackbar */}

@@ -496,8 +496,52 @@ export const updateTestPatientData = async (Id, formData) => {
     );
     return response;
   } catch (error) {
-    console.log(error, "error");
-
     throw new Error(error.response?.data || error.message);
+  }
+};
+export const addIpdPatientReturnMedicine = async (formData) => {
+  try {
+    const response = await axios.post(
+      `${process.env.React_App_Base_url + "add-return-medicine"}`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error.response?.data || error.message);
+  }
+};
+export const getOneIpdPatientReturnMedicine = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${
+        process.env.React_App_Base_url +
+        "get-one-ipd-patient-return-medicine/" +
+        Id
+      }`
+    );
+    return response;
+  } catch (error) {
+    console.log(error.response?.data?.message || error.message);
+  }
+};
+export const updateOneIpdPatientReturnMedicine = async (
+  returnedMedicineId,
+  ipdPatientMainId,
+  formData
+) => {
+  try {
+    const response = await axios.put(
+      `${
+        process.env.React_App_Base_url +
+        "update-one-return-medicine/" +
+        returnedMedicineId +
+        "/" +
+        ipdPatientMainId
+      }`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    console.log(error.response?.data?.message || error.message);
   }
 };
