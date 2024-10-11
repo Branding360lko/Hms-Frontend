@@ -58,6 +58,7 @@ const browserLinks = {
       ipdPatientList: "IPD Patient List",
       ipdPatientPaymentReceipt: "IPDPatient Payment Receipt",
       emergencyPatientList: "Emergency Patient List",
+      emergencyPatientPaymentReceipt: "Emergency Patient Payment Receipt",
       testPatient: "Patient Tests",
     },
   },

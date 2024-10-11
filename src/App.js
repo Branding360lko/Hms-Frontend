@@ -7,6 +7,8 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import IPD_PatientPaymentReciept from "./components/Nurse/IPDPatientTableAndForm/IPD_PatientPaymentReceipt/IPD_PatientPaymentReceipt";
+import EmergencyPatientPaymentReciept from "./components/Nurse/EmergencyPatientTable/EmergencyPatientPaymentReceipt/EmergencyPatientPaymentReceipt";
+
 import { useSelector, useDispatch } from "react-redux";
 import InActivityTimeout from "./utils/inActivityTimeout";
 // Services
@@ -1092,6 +1094,27 @@ function App() {
                         }
                       >
                         <EmergencyPatientReciept />
+                      </Suspense>
+                    }
+                  />
+                     <Route
+                    path={`${
+                      browserLinks.nurse.category
+                    }/${browserLinks.nurse.internalPages.emergencyPatientPaymentReceipt
+                      .split(" ")
+                      .join("")}/:emergencyPatientId/:dateTime`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <EmergencyPatientPaymentReciept />
+                        
                       </Suspense>
                     }
                   />
