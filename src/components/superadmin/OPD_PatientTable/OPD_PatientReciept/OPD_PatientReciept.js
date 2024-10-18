@@ -45,13 +45,13 @@ export default function OPD_PatientReciept() {
     return newDate.toLocaleTimeString();
   };
 
-  console.log(
-    responseGetDoctorById,
-    "responseGetPatientById",
+  // console.log(
+  //   responseGetDoctorById,
+  //   "responseGetPatientById",
 
-    responseGetPatientById?.currentData,
-    "responseGetPatientById?.currentData"
-  );
+  //   responseGetPatientById?.currentData,
+  //   "responseGetPatientById?.currentData"
+  // );
   const componentRef = useRef();
 
   const marginTop = "10px";
@@ -66,7 +66,7 @@ export default function OPD_PatientReciept() {
     content: () => componentRef.current,
     // pageStyle: "@page { size: auto;  margin: 25mm; } }",
   });
-
+  console.log(responseGetOPDPatientById?.currentData, "opd data");
   return (
     <>
       {responseGetOPDPatientById.isLoading &&
@@ -117,7 +117,6 @@ export default function OPD_PatientReciept() {
                 >
                   Payment Receipt
                 </h3>
-
                 <div className="grid grid-cols-2 gap-[10px] text-[14px]">
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">UHID</p>
@@ -208,16 +207,56 @@ export default function OPD_PatientReciept() {
                     </p>
                   </div>
                 </div>
-                <div
-                  className="flex justify-between p-[1rem]"
+             {responseGetOPDPatientById?.currentData?.opdPatientDicountPercentageByDoctor &&   <div
+                  className="flex justify-between px-[1rem]"
                   style={{
                     borderTop: "2px solid #373737",
-                    borderBottom: "2px solid #373737",
+                    // borderBottom: "2px solid #373737",
                   }}
+                >
+                  <h3>Discount Percentage:</h3>
+                  <p>
+                    {` ${responseGetOPDPatientById?.currentData?.opdPatientDicountPercentageByDoctor}`}
+                    %
+                  </p>
+                </div>}
+                <div
+                  className="flex justify-between px-[1rem]"
+                  style={
+                    {
+                      // borderTop: "2px solid #373737",
+                      // borderBottom: "2px solid #373737",
+                    }
+                  }
                 >
                   <h3>Consultation Fees:</h3>
                   <p>{`₹ ${responseGetOPDPatientById?.currentData?.opdPatientStandardCharges}`}</p>
                 </div>
+                {responseGetOPDPatientById?.currentData
+                  ?.opdPatientRefundedAmount>0 && (
+                  <div
+                    className="flex justify-between px-[1rem]"
+                    style={
+                      {
+                        // borderTop: "2px solid #373737",
+                        // borderBottom: "2px solid #373737",
+                      }
+                    }
+                  >
+                    <h3>Refunded Amount:</h3>
+                    <p>{`₹ ${responseGetOPDPatientById?.currentData?.opdPatientRefundedAmount}`}</p>
+                  </div>
+                )}
+                <div
+                  className="flex justify-between px-[1rem]"
+                  style={{
+                    // borderTop: "2px solid #373737",
+                    borderBottom: "2px solid #373737",
+                  }}
+                >
+                  <h3>Final Amount:</h3>
+                  <p>{`₹ ${responseGetOPDPatientById?.currentData?.opdPatientFinalChargedAmount}`}</p>
+                </div>{" "}
                 <div
                   className="flex justify-end items-center px-[1rem] pb-[10px]"
                   style={{
@@ -227,7 +266,11 @@ export default function OPD_PatientReciept() {
                 >
                   <p>{`₹ ${toWords.convert(
                     responseGetOPDPatientById?.currentData
-                      ?.opdPatientStandardCharges,
+                      ?.opdPatientFinalChargedAmount
+                      ? responseGetOPDPatientById?.currentData
+                          ?.opdPatientFinalChargedAmount
+                      : responseGetOPDPatientById?.currentData
+                          ?.opdPatientStandardCharges,
                     {
                       currency: true,
                     }

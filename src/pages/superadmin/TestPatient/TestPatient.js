@@ -24,6 +24,7 @@ import {
   getAllDoctors,
   // getAllDoctorsProfessionalDetails,
 } from "../../../Store/Slices/DoctorSlice";
+import TestPatientTable from "../../../components/Nurse/TestPatientTable/TestPatientTable";
 
 const TestPatientTableAndForm = lazy(() =>
   import("../../../components/Nurse/TestPatientTable/TestPatientTable")
@@ -78,20 +79,6 @@ export default function TestPatient() {
     // ------------------
   };
   useEffect(() => {
-    apiRefetch();
-    // OPD Patients
-    if (responseGetAllTestOfPatients.isSuccess) {
-      // const reverseArrayGetAllOPDPatients =
-      //   responseGetAllOPDPatients?.data?.map(
-      //     responseGetAllOPDPatients?.data?.pop,
-      //     [...responseGetAllOPDPatients?.data]
-      //   );
-      const filteredArrayGetAllTestOfPatients =
-        responseGetAllTestOfPatients?.data?.filter(
-          (data) => data.isDeleted === false && data
-        );
-      dispatch(getAllTestOfPatient(filteredArrayGetAllTestOfPatients));
-    }
     // --------------------
     fetchPatientNames();
     fetchDoctorNames();
@@ -121,7 +108,8 @@ export default function TestPatient() {
           <div className="superadmin-main-right flex flex-col w-[80%]">
             <UpperNav />
             <div className="superadmin-main-right_dashboard w-full overflow-y-scroll">
-              <TestPatientTableAndForm />
+              {/* <TestPatientTableAndForm /> */}
+              <TestPatientTable/>
             </div>
           </div>
         </div>

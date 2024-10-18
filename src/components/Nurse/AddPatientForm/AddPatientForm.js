@@ -52,6 +52,8 @@ export default function AddPatientForm() {
   const [patientAge, setPatientAge] = React.useState("");
   const [patientPhone, setPatientPhone] = React.useState("");
   const [patientPhone2, setPatientPhone2] = React.useState("");
+  const [patientAdharCard, setPatientAdharCard] = React.useState();
+  const [patientAgeMonth, setPatientAgeMonth] = React.useState();
   const [patientHeight, setPatientHeight] = React.useState("");
   const [patientWeight, setPatientWeight] = React.useState("");
   const [patientBloodGroup, setPatientBloodGroup] = React.useState("");
@@ -216,13 +218,11 @@ export default function AddPatientForm() {
       "patientCareOfName",
       patientData?.patientCareOfName ? patientData?.patientCareOfName : ""
     );
-    // formData.append(
-    //   "patientDateOfBirth",
-    //   patientData?.patientDateOfBirth?.startDate
-    // );
     formData.append("patientDateOfBirth", "NODATA");
     formData.append("patientAge", patientData?.patientAge);
+    formData.append("patientAgeMonth", patientAgeMonth ? patientAgeMonth : 0);
     formData.append("patientPhone", patientData?.patientPhone);
+    formData.append("patientAdharNumber", patientAdharCard);
     // formData.append("patientPhone2", patientData?.patientPhone2);
     formData.append("patientHeight", patientData?.patientHeight);
     formData.append("patientWeight", patientData?.patientWeight);
@@ -238,7 +238,6 @@ export default function AddPatientForm() {
       "patientStateNew",
       JSON.stringify(patientData?.patientState)
     );
-    // formData.append("patientCountry", patientData?.patientCountry);
     formData.append("patientZipCode", patientData?.patientZipCode);
     formData.append("patientImage", patientData?.patientImage);
     formData.append(
@@ -262,16 +261,7 @@ export default function AddPatientForm() {
 
     addPatient(formData);
     setLoading(true);
-
-    // console.log(formData);
   };
-
-  // const renderedAdmittingDoctorForDropdown = doctors?.map((data) => {
-  //   return {
-  //     value: data.doctorId,
-  //     label: `${data.doctorName} / ${data.doctorId}`,
-  //   };
-  // });
 
   return (
     <Suspense fallback={<>...</>}>
@@ -310,28 +300,13 @@ export default function AddPatientForm() {
                       placeholder="Enter patient email"
                       {...register("patientEmail")}
                     />
-                    {/* {errors.patientEmail && (
-              <span className="text-[red]">This field is required</span>
-            )} */}
                   </div>
                   <div className="flex flex-col gap-[6px]">
-                    <label className="text-[14px]">Age *</label>
-                    {/* <DatePicker
-              className="py-[10px] outline-none border-b"
-              required
-              selected={patientDateOfBirth.startDate}
-              maxDate={new Date()}
-              onChange={(date) =>
-                setPatientDateOfBirth({
-                  startDate: date,
-                })
-              }
-            /> */}
+                    <label className="text-[14px]">Age Year*</label>
+
                     <input
                       className="py-[10px] outline-none border-b"
-                      // type='number'
-                      placeholder="Enter age"
-                      // {...register("patientAge", { required: true })}
+                      placeholder="Enter Age Year"
                       required
                       value={patientAge}
                       onChange={(e) => {
@@ -339,9 +314,64 @@ export default function AddPatientForm() {
                         setPatientAge(value);
                       }}
                     />
-                    {/* {errors.patientAge && (
-              <span className='text-[red]'>This field is required</span>
-            )} */}
+                  </div>
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Age Month*</label>
+
+                    {/* <input
+                      className="py-[10px] outline-none border-b"
+                      placeholder="Enter age"
+                      required
+                      value={patientAge}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        setPatientAge(value);
+                      }}
+                    /> */}
+                    <select
+                      className="py-[11.5px]  outline-none border-b bg-transparent"
+                      onChange={(e) =>
+                        setPatientAgeMonth(Number(e.target.value))
+                      }
+                    >
+                      <option className="px-2">Select months</option>
+                      <option className="px-2" value="0">
+                        0 months
+                      </option>
+                      <option className="px-2" value="1">
+                        1 month
+                      </option>
+                      <option className="px-2" value="2">
+                        2 months
+                      </option>
+                      <option className="px-2" value="3">
+                        3 months
+                      </option>
+                      <option className="px-2" value="4">
+                        4 months
+                      </option>
+                      <option className="px-2" value="5">
+                        5 months
+                      </option>
+                      <option className="px-2" value="6">
+                        6 months
+                      </option>
+                      <option className="px-2" value="7">
+                        7 months
+                      </option>
+                      <option className="px-2" value="8">
+                        8 months
+                      </option>
+                      <option className="px-2" value="9">
+                        9 months
+                      </option>
+                      <option className="px-2" value="10">
+                        10 months
+                      </option>
+                      <option className="px-2" value="11">
+                        11 months
+                      </option>
+                    </select>
                   </div>
                   <div className="flex flex-col gap-[6px]">
                     <label className="text-[14px]">Relative category</label>
@@ -402,7 +432,6 @@ export default function AddPatientForm() {
                       )}
                     </div>
                   )}
-
                   {/* <div className='flex flex-col gap-[6px]'>
             <label className='text-[14px]'>Date Of Birth *</label>
             <DatePicker
@@ -425,7 +454,6 @@ export default function AddPatientForm() {
               <span className='text-[red]'>This field is required</span>
             )}
           </div> */}
-
                   <div className="flex flex-col gap-[6px]">
                     <label className="text-[14px]">Phone *</label>
                     <input
@@ -440,19 +468,24 @@ export default function AddPatientForm() {
                         setPatientPhone(value);
                       }}
                       placeholder="Enter patient phone number"
-                      // {...register("patientPhone", {
-                      //   required: true,
-                      //   minLength: 10,
-                      //   maxLength: 10,
-                      // })}
                     />
-                    {/* {errors.patientPhone && (
-              <span className='text-[red]'>
-                This field is required with 10 digits
-              </span>
-            )} */}
+                  </div>{" "}
+                  <div className="flex flex-col gap-[6px]">
+                    <label className="text-[14px]">Aadhaar Card No</label>
+                    <input
+                      className="py-[10px] outline-none border-b"
+                      // type='number'
+                      required
+                      minLength={12}
+                      maxLength={12}
+                      value={patientAdharCard}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        setPatientAdharCard(Number(value));
+                      }}
+                      placeholder="Enter patient Aadhaar Card Number"
+                    />
                   </div>
-
                   <div className="flex flex-col gap-[6px]">
                     <label className="text-[14px]">Height</label>
                     <input

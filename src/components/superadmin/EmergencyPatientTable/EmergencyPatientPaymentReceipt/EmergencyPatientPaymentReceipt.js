@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
-import "./OPD_PatientReciept.css";
+// import "./IPD_PatientReciept.css";
 
 import { useParams } from "react-router-dom";
 
@@ -9,49 +9,81 @@ import logoImage from "../../../../assets/logo.png";
 
 import { useReactToPrint } from "react-to-print";
 
-import { useGetOPDPatientByIdQuery } from "../../../../Store/Services/OPDPatientService";
+// import { useGetIPDPatientByIdQuery } from "../../../../Store/Services/IPDPatientService";
 import { useGetDoctorByIdQuery } from "../../../../Store/Services/DoctorService";
 import { useGetPatientByIdQuery } from "../../../../Store/Services/PatientService";
 
 import { ToWords } from "to-words";
+// import { useGetIPDPatientBalanceByIdQuery } from "../../../../Store/Services/IPDPatientBalanceService";
+import {
+  useGetEmergencyPatientBalanceByIdQuery,
+  useGetEmergencyPatientByIdQuery,
+} from "../../../../Store/Services/EmergencyPatientService";
 
-export default function OPD_PatientReciept() {
+export default function EmergencyPatientPaymentReciept() {
   const toWords = new ToWords();
-  const { opdPatientId } = useParams();
+  const { emergencyPatientId } = useParams();
+
+  const { dateTime } = useParams();
 
   const [doctorId, setDoctorId] = useState("");
   const [patientId, setPatientId] = useState("");
 
-  const responseGetOPDPatientById = useGetOPDPatientByIdQuery(opdPatientId);
+  const [selectedDateDeposit, setSelectedDateDeposit] = useState(null);
+
+  const responseGetPatientDetailsById =
+    useGetEmergencyPatientByIdQuery(emergencyPatientId);
   const responseGetDoctorById = useGetDoctorByIdQuery(doctorId);
   const responseGetPatientById = useGetPatientByIdQuery(patientId);
 
+  const responseGetPatientDeposits =
+    useGetEmergencyPatientBalanceByIdQuery(emergencyPatientId);
+
   useEffect(() => {
-    if (responseGetOPDPatientById.isSuccess) {
-      setDoctorId(responseGetOPDPatientById?.currentData?.opdDoctorId);
-      setPatientId(responseGetOPDPatientById?.currentData?.opdPatientId);
+    if (responseGetPatientDetailsById.isSuccess) {
+      setDoctorId(responseGetPatientDetailsById?.currentData?.doctorId);
+      setPatientId(responseGetPatientDetailsById?.currentData?.patientId);
     }
-  }, [responseGetOPDPatientById.isSuccess]);
+  }, [responseGetPatientDetailsById.isSuccess]);
+
+  useEffect(() => {
+    const allDeposits = responseGetPatientDeposits?.currentData?.data?.balance;
+    console.log("allDeposits:", allDeposits);
+    if (allDeposits) {
+      const requiredDeposit = allDeposits.find(
+        (deposit) => deposit.createdAt === dateTime
+      );
+      if (requiredDeposit) {
+        setSelectedDateDeposit(requiredDeposit);
+      }
+    }
+  }, [responseGetPatientDeposits?.isSuccess]);
+
+  console.log("selectedDateDeposit:", selectedDateDeposit);
+
+  console.log("responseGetPatientDeposits:", responseGetPatientDeposits);
+
+  console.log("responseGetPatientDetailsById:", responseGetPatientDetailsById);
+
+  console.log("responseGetPatientById:", responseGetPatientById);
 
   const date = (dateTime) => {
-    const newdate = new Date(dateTime);
-
-    return newdate.toLocaleDateString();
+    const newDate = new Date(dateTime);
+    return newDate.toLocaleDateString("en-IN"); // specifying 'en-IN' locale for the date format
   };
 
   const time = (dateTime) => {
     const newDate = new Date(dateTime);
-
-    return newDate.toLocaleTimeString();
+    return newDate.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata", // specifying the time zone for Indian time
+    });
   };
 
-  // console.log(
-  //   responseGetDoctorById,
-  //   "responseGetPatientById",
-
-  //   responseGetPatientById?.currentData,
-  //   "responseGetPatientById?.currentData"
-  // );
+  //   console.log(responseGetDoctorById);
 
   const componentRef = useRef();
 
@@ -67,17 +99,16 @@ export default function OPD_PatientReciept() {
     content: () => componentRef.current,
     // pageStyle: "@page { size: auto;  margin: 25mm; } }",
   });
-  console.log(responseGetOPDPatientById?.currentData,'opd data');
 
   return (
     <>
-      {responseGetOPDPatientById.isLoading &&
+      {responseGetPatientDetailsById.isLoading &&
       responseGetDoctorById.isLoading &&
       responseGetPatientById.isLoading ? (
         "Loading..."
       ) : (
         <Fragment>
-          {responseGetOPDPatientById.isSuccess &&
+          {responseGetPatientDetailsById.isSuccess &&
           responseGetDoctorById.isSuccess &&
           responseGetPatientById.isSuccess ? (
             <div className="w-full">
@@ -117,28 +148,31 @@ export default function OPD_PatientReciept() {
                     borderBottom: "2px solid #373737",
                   }}
                 >
-                  Payment Receipt
+                  Emergency Payment Receipt
                 </h3>
 
                 <div className="grid grid-cols-2 gap-[10px] text-[14px]">
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">UHID</p>
                     <p>
-                      {responseGetOPDPatientById?.currentData?.opdPatientId}
+                      {responseGetPatientDetailsById?.currentData?.patientId}
                     </p>
                   </div>
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">
-                      Visit Date
+                      Payment Date
                     </p>
                     {/* <p className="border-b-[2px] border-dotted border-black w-[200px]">{``}</p> */}
                     <p>
-                      {`${date(
-                        responseGetOPDPatientById?.currentData
-                          ?.opdDoctorVisitDate
-                      )} - ${time(
-                        responseGetOPDPatientById?.currentData
-                          ?.opdDoctorVisitDate
+                      {/* {`${date(
+                    responseGetOPDPatientById?.currentData
+                      ?.opdDoctorVisitDate
+                  )} - ${time(
+                    responseGetOPDPatientById?.currentData
+                      ?.opdDoctorVisitDate
+                  )}`} */}
+                      {`${date(selectedDateDeposit?.createdAt)} - ${time(
+                        selectedDateDeposit?.createdAt
                       )}`}
                     </p>
                   </div>
@@ -155,9 +189,11 @@ export default function OPD_PatientReciept() {
                       {responseGetPatientById?.currentData?.patientCity ===
                         "" || responseGetPatientById?.currentData?.patientCity
                         ? responseGetPatientById?.currentData?.patientCity
-                        : JSON.parse(
+                        : responseGetPatientById?.currentData?.patientCityNew
+                        ? JSON.parse(
                             responseGetPatientById?.currentData?.patientCityNew
-                          ).value}
+                          ).value
+                        : ""}
                     </p>
                   </div>
                   <div className="flex">
@@ -174,13 +210,13 @@ export default function OPD_PatientReciept() {
                     <p>{responseGetPatientById?.currentData?.patientGender}</p>
                   </div>
                   {/* <div className="flex">
-                    <p className="font-[500] w-[130px] text-start">DOB</p>
-                    <p>
-                      {date(
-                        responseGetPatientById?.currentData?.patientDateOfBirth
-                      )}
-                    </p>
-                  </div> */}
+            <p className="font-[500] w-[130px] text-start">DOB</p>
+            <p>
+              {date(
+                responseGetPatientById?.currentData?.patientDateOfBirth
+              )}
+            </p>
+          </div> */}
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">Age</p>
                     <p>{responseGetPatientById?.currentData?.patientAge}</p>
@@ -191,9 +227,9 @@ export default function OPD_PatientReciept() {
                   </div>
                   <div className="flex">
                     <p className="font-[500] w-[130px] text-start">
-                      OPD Bill No.
+                      IPD Patient ID:
                     </p>
-                    <p>{opdPatientId}</p>
+                    <p>{emergencyPatientId}</p>
                   </div>
 
                   <div className="flex">
@@ -201,10 +237,23 @@ export default function OPD_PatientReciept() {
                       Payment Mode
                     </p>
                     <p>
-                      {
-                        responseGetOPDPatientById?.currentData
-                          ?.opdPatientPaymentMode
-                      }
+                      {/* {
+                    responseGetOPDPatientById?.currentData
+                      ?.opdPatientPaymentMode
+                  } */}
+                      {selectedDateDeposit?.paymentMethod}
+                    </p>
+                  </div>
+                  <div className="flex">
+                    <p className="font-[500] w-[130px] text-start">
+                      Deposit Note
+                    </p>
+                    <p>
+                      {/* {
+                    responseGetOPDPatientById?.currentData
+                      ?.opdPatientPaymentMode
+                  } */}
+                      {selectedDateDeposit?.balanceNote}
                     </p>
                   </div>
                 </div>
@@ -215,9 +264,13 @@ export default function OPD_PatientReciept() {
                     borderBottom: "2px solid #373737",
                   }}
                 >
-                  <h3>Consultation Fees:</h3>
-                  <p>{`₹ ${responseGetOPDPatientById?.currentData?.opdPatientStandardCharges}`}</p>
+                  <h3>Deposit Amount:</h3>
+                  <p>
+                    {/* {`₹ ${responseGetOPDPatientById?.currentData?.opdPatientStandardCharges}`} */}
+                    ₹&nbsp; {selectedDateDeposit?.addedBalance}
+                  </p>
                 </div>
+
                 <div
                   className="flex justify-end items-center px-[1rem] pb-[10px]"
                   style={{
@@ -225,13 +278,11 @@ export default function OPD_PatientReciept() {
                     borderBottom: "2px solid #373737",
                   }}
                 >
-                  <p>{`₹ ${toWords.convert(
-                    responseGetOPDPatientById?.currentData
-                      ?.opdPatientStandardCharges,
-                    {
+                  <p>
+                    {`₹ ${toWords.convert(selectedDateDeposit?.addedBalance, {
                       currency: true,
-                    }
-                  )}`}</p>
+                    })}`}
+                  </p>
                 </div>
               </div>
             </div>

@@ -719,6 +719,27 @@ function App() {
                       </Suspense>
                     }
                   />
+                   <Route
+                    path={`${
+                      browserLinks.superadmin.category
+                    }/${browserLinks.superadmin.internalPages.emergencyPatientPaymentReceipt
+                      .split(" ")
+                      .join("")}/:emergencyPatientId/:dateTime`}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <EmergencyPatientPaymentReciept />
+                        
+                      </Suspense>
+                    }
+                  />
                   <Route
                     path={browserLinks.superadmin.internalPages.testPatient
                       .split(" ")

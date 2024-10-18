@@ -132,7 +132,7 @@ export default function PatientTable() {
   }, []);
 
   React.useEffect(() => {
-    setAllCitiesByStates(City.getCitiesOfState("IN", patientState.value));
+    setAllCitiesByStates(City.getCitiesOfState("IN", patientState?.value));
   }, [patientState]);
 
   const renderedStatesForDropdown = allStates?.map((data) => {

@@ -12,6 +12,8 @@ const browserLinks = {
       nurses: "Nurses",
       messages: "Messages",
       educationContent: "Education Content",
+      emergencyPatientList: "Emergency Patient List",
+      emergencyPatientPaymentReceipt: "Emergency Patient Payment Receipt",
       // medicineInventory: "Medicine Inventory",
       settings: "Settings",
       opd: "OPD",

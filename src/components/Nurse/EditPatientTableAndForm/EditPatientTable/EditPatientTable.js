@@ -1,7 +1,7 @@
 import React from "react";
 import "./EditPatientTable.css";
-import Table from "../../../Table";
-import { useSelector } from "react-redux";
+import Table from "../../../TableWithApi";
+import { useSelector, useDispatch } from "react-redux";
 import parse from "html-react-parser";
 import { Suspense } from "react";
 import { FaSearch } from "react-icons/fa";
@@ -15,8 +15,28 @@ import Checkbox from "@mui/material/Checkbox";
 import { Link } from "react-router-dom";
 import { date } from "../../../../utils/DateAndTimeConvertor";
 
+import {
+  createPatientChange,
+  updatePatientChange,
+  deletePatientChange,
+  pageChange,
+  limitChange,
+  // queryChange,
+  patientUHIDforSearchChange,
+  patientNameForSearchChange,
+  patientMobileNumberForSearchChange,
+} from "../../../../Store/Slices/PatientSlice";
+
+import { GrPowerReset } from "react-icons/gr";
+
+import { useCallback } from "react";
+import { debounce } from "lodash";
+
 export default function EditPatientTable({ setViewEditForm, setPatientId }) {
-  const { patients } = useSelector((state) => state.PatientState);
+  const dispatch = useDispatch();
+  const { patients, page, limit, totalPages } = useSelector(
+    (state) => state.PatientState
+  );
 
   const time = (dateTime) => {
     const newDate = new Date(dateTime);
@@ -24,17 +44,15 @@ export default function EditPatientTable({ setViewEditForm, setPatientId }) {
     return newDate.toLocaleTimeString();
   };
 
-  const [search, setSearch] = React.useState("");
+  // const filteredArray = patients?.filter((data) => {
+  //   if (search !== "") {
+  //     const userSearch = search.toLowerCase();
+  //     const searchInData = data?.patientId?.toLowerCase();
 
-  const filteredArray = patients?.filter((data) => {
-    if (search !== "") {
-      const userSearch = search.toLowerCase();
-      const searchInData = data?.patientId?.toLowerCase();
-
-      return searchInData?.startsWith(userSearch);
-    }
-    return data;
-  });
+  //     return searchInData?.startsWith(userSearch);
+  //   }
+  //   return data;
+  // });
 
   // const mappedPatientData = filteredArray?.map((patient, index) => {
   //   return {
@@ -109,26 +127,252 @@ export default function EditPatientTable({ setViewEditForm, setPatientId }) {
   const keyFn = (list) => {
     return list.patientName;
   };
+
+  const [search, setSearch] = React.useState("");
+  const [search2, setSearch2] = React.useState("");
+  const [search3, setSearch3] = React.useState("");
+
+  // const handleSearch = useCallback(
+  //   debounce((searchTerm) => {
+  //     dispatch(patientUHIDforSearchChange(searchTerm));
+  //   }, 1000),
+  //   [search]
+  // );
+  // const handleSearch1 = useCallback(
+  //   debounce((searchTerm) => {
+  //     dispatch(patientNameForSearchChange(searchTerm));
+  //   }, 1000),
+  //   [search2]
+  // );
+  // const handleSearch2 = useCallback(
+  //   debounce((searchTerm) => {
+  //     dispatch(patientMobileNumberForSearchChange(searchTerm));
+  //   }, 1000),
+  //   [search3]
+  // );
+  const handleSearch = useCallback(
+    debounce((searchTerm) => {
+      if (searchTerm) {
+        // setIsLoadingOnSearch(true);
+        dispatch(pageChange(1));
+        dispatch(patientUHIDforSearchChange(searchTerm));
+      } else {
+        dispatch(patientUHIDforSearchChange(''))
+        dispatch(pageChange(1));
+        // setIsLoadingOnSearch(true);
+      }
+      
+    }, 1000),
+    []
+  );
+
+  const handleSearch1 = useCallback(
+    debounce((searchTerm) => {
+      if (searchTerm) {
+        // setIsLoadingOnSearch(true);
+        dispatch(patientNameForSearchChange(searchTerm));
+        dispatch(pageChange(1));
+      } else {
+        dispatch(patientNameForSearchChange(''));
+        // setIsLoadingOnSearch(true);
+        dispatch(pageChange(1));
+      }
+  
+    }, 1000),
+    []
+  );
+
+  const handleSearch2 = useCallback(
+    debounce((searchTerm) => {
+      if (searchTerm) {
+        // setIsLoadingOnSearch(true);
+        dispatch(patientMobileNumberForSearchChange(searchTerm));
+        dispatch(pageChange(1));
+      } else {
+        dispatch(patientMobileNumberForSearchChange(''));
+        dispatch(pageChange(1));
+        // setIsLoadingOnSearch(true);
+      }
+    
+    }, 1000),
+    []
+  );
+
+  // Input change handlers
+  const handleInputChange1 = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    handleSearch(value); // Call debounced search function
+  };
+
+  const handleInputChange2 = (e) => {
+    const value = e.target.value;
+    setSearch2(value);
+    handleSearch1(value);
+  };
+
+  const handleInputChange3 = (e) => {
+    const value = e.target.value;
+    setSearch3(value);
+    handleSearch2(value);
+  };
+
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
         <div className="flex justify-between">
           <h2 className="border-b-[4px] border-[#3497F9]">Patient List</h2>
         </div>
-        <div className="flex justify-between">
-          <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
-            <FaSearch className="text-[#56585A]" />
-            <input
-              className="bg-transparent outline-none"
-              placeholder="Search by UHID"
-              onChange={(e) => setSearch(e.target.value)}
+        {/* <div className="flex justify-between">
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search}
+                className="bg-transparent outline-none"
+                placeholder="Search by patient name"
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(queryChange(search))}
+              >
+                Search
+              </button>
+            </div>
+            <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                dispatch(queryChange(""));
+              }}
             />
           </div>
+          
+        </div> */}
+        <div className="grid grid-cols-2 gap-[1rem]">
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search}
+                className="bg-transparent outline-none"
+                placeholder="Search by UHID"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSearch2("");
+                  setSearch3("");
+                  // const searchTerm = e.target.value;
+                  handleSearch(e.target.value);
+                  dispatch(patientNameForSearchChange(""));
+                  dispatch(patientMobileNumberForSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(opdPatientIdChange(search))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search2}
+                className="bg-transparent outline-none"
+                placeholder="Search by patient name"
+                onChange={(e) => {
+                  setSearch2(e.target.value);
+                  setSearch("");
+                  setSearch3("");
+                  // handleSearch1(e.target.value);
+                  handleSearch1(e.target.value);
+                  dispatch(patientMobileNumberForSearchChange(""));
+                  dispatch(patientUHIDforSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+          <div className="flex items-center gap-[1rem]">
+            <div className="flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]">
+              <FaSearch className="text-[#56585A]" />
+              <input
+                value={search3}
+                className="bg-transparent outline-none"
+                placeholder="Search by mobile number"
+                onChange={(e) => {
+                  setSearch3(e.target.value);
+                  setSearch("");
+                  setSearch2("");
+                  handleSearch2(e.target.value);
+                  dispatch(patientNameForSearchChange(""));
+                  dispatch(patientUHIDforSearchChange(""));
+                }}
+              />
+              {/* <button
+                className="border-l-[2px] border-gray pl-[4px] hover:underline"
+                onClick={() => dispatch(patientNameChange(search2))}
+              >
+                Search
+              </button> */}
+            </div>
+            {/* <GrPowerReset
+              className="text-[20px] cursor-pointer"
+              onClick={() => {
+                setSearch("");
+                setSearch2("");
+                setSearch3("");
+                dispatch(patientNameChange(""));
+                dispatch(opdPatientIdChange(""));
+                dispatch(patientNameChange(""));
+              }}
+            /> */}
+          </div>
+
           {/* <div className='flex gap-[10px] bg-[#F4F6F6] items-center p-[10px] rounded-[18px]'>
             <input type='date' className='bg-transparent outline-none' />
           </div> */}
         </div>
-        <Table data={filteredArray} config={config} keyFn={keyFn} />
+        <Table
+          data={patients}
+          config={config}
+          keyFn={keyFn}
+          pageChange={pageChange}
+          limitChange={limitChange}
+          page={page}
+          limit={limit}
+          totalPages={totalPages}
+        />
       </div>
     </Suspense>
   );
