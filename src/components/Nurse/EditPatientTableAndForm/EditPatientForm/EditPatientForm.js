@@ -554,7 +554,7 @@ export default function EditPatientForm({ patientId, setViewEditForm }) {
                       <input
                         className="py-[10px] outline-none border-b"
                         // type='number'
-                        required
+                      
                         minLength={12}
                         maxLength={12}
                         value={patientAdharCard}

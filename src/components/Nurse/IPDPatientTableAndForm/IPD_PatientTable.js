@@ -1922,7 +1922,7 @@ export default function IPD_PatientTable({
       <form
         onSubmit={(e) => [
           !isReturnMedicineAvalible
-            ? addReturnMedicineDataHandle()
+            ? addReturnMedicineDataHandle(e)
             : updateOneIpdPatientReturnMedicineHandle(
                 e,
                 returnMedicineId,
@@ -2003,13 +2003,13 @@ export default function IPD_PatientTable({
             ))}
           </tbody>
         </table>
-        {returnMedicine?.length > 0 && (
+        
           <button className="bg-[#3497F9] text-white p-[10px] mt-[1rem] rounded-md">
             {!isReturnMedicineAvalible
               ? "Add Return Medicine"
               : "Update Return Medicine"}{" "}
           </button>
-        )}
+    
       </form>
     </div>
   );

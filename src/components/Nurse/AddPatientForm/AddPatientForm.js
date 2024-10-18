@@ -475,7 +475,7 @@ export default function AddPatientForm() {
                     <input
                       className="py-[10px] outline-none border-b"
                       // type='number'
-                      required
+                    
                       minLength={12}
                       maxLength={12}
                       value={patientAdharCard}

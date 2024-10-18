@@ -132,7 +132,7 @@ export default function PatientViewPage() {
                         Phone Number of Attendent:
                       </p>
                       <p>
-                        {responseGetPatientById?.currentData?.patientPhone2}hgfh
+                        {responseGetPatientById?.currentData?.patientPhone2}
                       </p>
                     </div>
                     <div className="flex">
