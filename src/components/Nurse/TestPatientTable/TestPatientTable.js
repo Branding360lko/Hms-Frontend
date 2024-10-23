@@ -30,7 +30,7 @@ import * as React from "react";
 import Snackbars from "../../SnackBar";
 import DialogBoxToDelete from "../../DialogBoxToDelete";
 import logoImage from "../../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
   createTestOfPatientChange,
@@ -50,9 +50,10 @@ import {
   addPatientsTestData,
   getAllPatientsTestData,
   getSinglePatientsTestData,
+  giveDiscountToTestPatient,
   updateTestPatientData,
 } from "../../Receptionist/NurseApi";
-import { CiViewList } from "react-icons/ci";
+import { CiDiscount1, CiViewList } from "react-icons/ci";
 import PaginationComponent from "../../Pagination";
 import { useReactToPrint } from "react-to-print";
 import { ToWords } from "to-words";
@@ -60,6 +61,14 @@ import useDebounce from "../../../utils/DebounceHook";
 import PaginationForApi from "../../PaginationForApi";
 import { LinearProgress } from "@mui/material";
 export default function TestPatientTable() {
+  const location = useLocation();
+
+  const pathname = location.pathname;
+
+  const pathSegments = pathname.split("/");
+
+  const role = pathSegments[1];
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toWords = new ToWords();
@@ -106,6 +115,12 @@ export default function TestPatientTable() {
   const [searchTest, setSearchTest] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const selectRef = React.useRef(null);
+  const [testPatientDiscount, setTestPatientDiscount] = useState({
+    discountAmount: "",
+    discountPercentage: "",
+    finalAmount: "",
+    refundedAmount: "",
+  });
   const addTestTableHandle = (e) => {
     e.preventDefault();
     setSelectedTest([
@@ -198,6 +213,7 @@ export default function TestPatientTable() {
   const [testPatientName, setTestPatientName] = React.useState();
   const [testDoctorName, setTestDoctorName] = React.useState();
   const [actionType, setActionType] = useState("");
+  const [testPatientId, setTestPatientId] = useState("");
   const [testPatientUHID, setTestPatientUHID] = React.useState({
     value: "",
     label: "",
@@ -214,6 +230,7 @@ export default function TestPatientTable() {
   const [patientType, setPatientType] = React.useState("OPD");
   const [paymentType, setPaymentType] = React.useState();
   const [notes, setNotes] = React.useState("");
+  const { adminRole } = useSelector((state) => state.AdminState);
 
   const style = {
     position: "absolute",
@@ -228,8 +245,20 @@ export default function TestPatientTable() {
     outline: "none",
     boxShadow: 24,
     p: 4,
+    overflowY: "scroll",
   };
 
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [selectedDiscount, setSelectedDiscount] = useState();
+  const [customDiscount, setCustomDiscount] = useState();
   // Snackbar--------------------
   // ----Succcess
   const [openSnackbarSuccess, setOpenSnackBarSuccess] = React.useState(false);
@@ -916,26 +945,11 @@ export default function TestPatientTable() {
               <p className="font-[600] w-[150px]">Patient Gender: </p>
               <p>{selectedPatientDetails?.patientData?.patientGender}</p>
             </div>
-            {/* <div className='flex'>
-              <p className='font-[600] w-[150px]'>Case No: </p>
-              <p>{opdPatientData?.data?.opdCaseId}</p>
-            </div> */}
-            {/* <div className="flex">
-              <p className="font-[600] w-[150px]">Patient DOB: </p>
-              <p>{date(opdPatientData?.patientData?.patientDateOfBirth)}</p>
-            </div> */}
-            {/* <div className='flex'>
-              <p className='font-[600] w-[150px]'>OPD No: </p>
-              <p>{opdPatientData?.data?.opdId}</p>
-            </div> */}
+
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Phone: </p>
               <p>{selectedPatientDetails?.patientData?.patientPhone}</p>
             </div>
-            {/* <div className='flex'>
-              <p className='font-[600] w-[150px]'>Blood Pressure: </p>
-              <p>{opdPatientData?.data?.opdPatientBloodPressure}</p>
-            </div> */}
             <div className="flex">
               <p className="font-[600] w-[150px]">Patient Height: </p>
               <p>{selectedPatientDetails?.patientData?.patientHeight}</p>
@@ -991,7 +1005,23 @@ export default function TestPatientTable() {
               <strong className="text-[14px]">
                 ₹ {selectedPatientDetails?.total}
               </strong>
-            </div>
+            </div>{" "}
+            {testPatientDiscount?.discountAmount > 0 && (
+              <div className="w-full flex  items-end justify-end gap-2">
+                <p className="font-[600] ">Discount Amount: </p>
+                <strong className="text-[14px]">
+                  ₹ {testPatientDiscount?.discountAmount}
+                </strong>
+              </div>
+            )}
+            {testPatientDiscount?.finalAmount > 0 && (
+              <div className="w-full flex  items-end justify-end gap-2">
+                <p className="font-[600] ">Final Amount Charged: </p>
+                <strong className="text-[14px]">
+                  ₹ {testPatientDiscount?.finalAmount}
+                </strong>
+              </div>
+            )}
             <div className="flex gap-2">
               <p className="font-[600]">Notes: </p>
               <p className="text-[14px]">{selectedPatientDetails?.note}</p>
@@ -1050,7 +1080,6 @@ export default function TestPatientTable() {
         >
           Test Payment Receipt
         </h3>
-
         <div className="grid grid-cols-2 gap-[10px] text-[14px] px-4 py-2 px-[2rem]">
           <div className="flex">
             <p className="font-[500] w-[130px] text-start">UHID</p>
@@ -1159,7 +1188,29 @@ export default function TestPatientTable() {
         >
           <h3>Total Charge's:</h3>
           <p>{`₹ ${selectedPatientDetails?.total}`}</p>
-        </div>
+        </div>{" "}
+        {testPatientDiscount?.discountAmount > 0 && (
+          <div
+            className="flex justify-between p-[1rem]"
+            style={{
+              borderBottom: "2px solid #373737",
+            }}
+          >
+            <h3>Discount Amount:</h3>
+            <p>{`₹ ${testPatientDiscount?.discountAmount}`}</p>
+          </div>
+        )}
+        {testPatientDiscount?.finalAmount > 0 && (
+          <div
+            className="flex justify-between p-[1rem]"
+            style={{
+              borderBottom: "2px solid #373737",
+            }}
+          >
+            <h3>Final Charged Amount:</h3>
+            <p>{`₹ ${testPatientDiscount?.finalAmount}`}</p>
+          </div>
+        )}
         <div
           className="flex justify-end items-center px-[2rem] pb-[10px]"
           style={{
@@ -1169,7 +1220,11 @@ export default function TestPatientTable() {
         >
           <p>{`₹ ${toWords.convert(
             `${
-              selectedPatientDetails?.total ? selectedPatientDetails?.total : 0
+              testPatientDiscount?.finalAmount > 0
+                ? testPatientDiscount?.finalAmount
+                : selectedPatientDetails?.total > 0
+                ? selectedPatientDetails?.total
+                : 0
             }`,
             {
               currency: true,
@@ -1179,17 +1234,6 @@ export default function TestPatientTable() {
       </div>
     </div>
   );
-
-  // const filteredArray = testOfPatients?.filter((data) => {
-  //   if (search !== "") {
-  //     const userSearch = search.toLowerCase();
-  //     const searchInData = data?.testPatientId?.toLowerCase();
-
-  //     return searchInData?.startsWith(userSearch);
-  //   }
-  //   return data;
-  // });
-
   const mappedEmergencyRegTableData = testOfPatients?.map((data, index) => {
     return {
       id: index + 1,
@@ -1253,6 +1297,7 @@ export default function TestPatientTable() {
     setNotes(result?.data && result?.data?.[0]?.note);
     setMainId(result?.data && result?.data?.[0]?.mainId);
     setTestPatientUHID(result?.data && result?.data?.[0]?.testPatientId);
+    setTestPatientId(result?.data && result?.data?.[0]?.mainId);
     result?.data?.[0]?.test?.map((item) =>
       setSelectedTest([
         ...selectedTest,
@@ -1270,12 +1315,20 @@ export default function TestPatientTable() {
     setTestPatientName(
       result?.data && result?.data?.[0]?.patientData?.patientName
     );
+    setTestPatientDiscount({
+      discountPercentage: result?.data && result?.data?.[0]?.discountPercentage,
+      finalAmount: result?.data && result?.data?.[0]?.finalChargedAmount,
+      refundedAmount: result?.data && result?.data?.[0]?.refundedAmount,
+      discountAmount: result?.data && result?.data?.[0]?.discountAmount,
+    });
     if (result?.status === 200 && actionType === "saveAndPrint") {
       setTimeout(() => {
         handlePrint();
       }, 0);
     }
   };
+  console.log(testPatientDiscount);
+
   const updateTestPatientDataHandle = async (e, Id) => {
     e.preventDefault();
     const formData = new FormData();
@@ -1291,6 +1344,25 @@ export default function TestPatientTable() {
       setSnackBarSuccessMessage(result?.data);
     }
     console.log(result, "result");
+  };
+  const giveDiscountToTestPatientHandle = async (e, Id) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append(
+      "discountPercentage",
+      customDiscount === "" || customDiscount === null
+        ? selectedDiscount
+        : customDiscount
+    );
+    formData.append("discountGivenBy", adminRole);
+    const response = await giveDiscountToTestPatient(Id, formData);
+    if (response?.status === 201) {
+      handleClose();
+      setCustomDiscount("");
+      setSelectedDiscount("");
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(response?.data?.message);
+    }
   };
   const emptyVisitedPageRecord = React.useMemo(() => {
     setVisitedPages([]);
@@ -1414,6 +1486,17 @@ export default function TestPatientTable() {
                         >
                           <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
                         </div>
+                        {role === "Superadmin" && (
+                          <div
+                            onClick={() => [
+                              handleOpen(),
+                              getSinglePatientsTestDataHandle(item?.mainId),
+                            ]}
+                            className="p-[4px] h-fit w-fit border-[2px] border-[#800080] rounded-[12px] cursor-pointer"
+                          >
+                            <CiDiscount1 className="text-[25px] text-[#800080]" />
+                          </div>
+                        )}
                         {/* <div
                         className="p-[4px] h-fit w-fit border-[2px] border-[#3497F9] rounded-[12px] cursor-pointer"
                         onClick={() => [
@@ -1486,10 +1569,6 @@ export default function TestPatientTable() {
                 Test Patient
               </h1>
               <button
-                // onClick={handleGeneratePdf}
-
-                // to={opdPatientData?.data?.mainId}
-                // to={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.opdPatients}/${opdPatientData?.data?.mainId}`}
                 className="buttonFilled flex items-center gap-[10px]"
                 onClick={handlePrint}
               >
@@ -1500,6 +1579,86 @@ export default function TestPatientTable() {
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewEmergencyPatient}
+          </Typography>
+        </Box>
+      </Modal>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center">
+              <h1 className="headingBottomUnderline w-fit pb-[10px]">
+                Test Patient
+              </h1>
+              <button
+                className="buttonFilled flex items-center gap-[10px]"
+                onClick={handlePrint}
+              >
+                <LuHardDriveDownload />
+                <p>Print Receipt</p>
+              </button>
+            </div>
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            {modalViewEmergencyPatient}
+          </Typography>
+          <Typography
+            id="modal-modal-description"
+            sx={{ mt: 2 }}
+            className="py-[2rem]"
+          >
+            <h2>Select A Discount</h2>
+            <form
+              className="flex items-start justify-start gap-3 flex-col"
+              onSubmit={(e) =>
+                giveDiscountToTestPatientHandle(e, testPatientId)
+              }
+            >
+              <div className="flex items-center justify-start gap-4 mt-3">
+                <span className="flex items-start justify-start flex-col">
+                  <select
+                    className="border-2 w-[15rem] py-2 px-1 rounded-md outline-none"
+                    value={selectedDiscount}
+                    onChange={(e) => [
+                      setSelectedDiscount(Number(e.target.value)),
+                      setCustomDiscount(""),
+                    ]}
+                    required={
+                      customDiscount === "" ||
+                      customDiscount === undefined ||
+                      customDiscount === null
+                    }
+                  >
+                    <option>Select One</option>
+                    <option value={"50"}>Partial Refund</option>
+                    <option value={"100"}>Full Refund</option>
+                  </select>
+                </span>
+                <p>Or</p>
+                <input
+                  type="number"
+                  placeholder="Enter A Custom Discount Percentage"
+                  className="border-2 outline-none py-2 px-1 rounded-md w-[20rem]"
+                  value={customDiscount}
+                  onChange={(e) => [
+                    setCustomDiscount(Number(e.target.value)),
+                    setSelectedDiscount(""),
+                  ]}
+                  required={
+                    selectedDiscount === "" ||
+                    selectedDiscount === undefined ||
+                    selectedDiscount === null
+                  }
+                />
+              </div>
+              <button className="bg-[#3497F9] text-white p-[10px] rounded-md">
+                Give Discount
+              </button>
+            </form>
           </Typography>
         </Box>
       </Modal>

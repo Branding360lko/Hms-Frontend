@@ -995,7 +995,7 @@ import {
   patientMobileNumberChange,
 } from "../../../Store/Slices/OPDPatientSlice";
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { getOpdPatientsDateWiseReportData } from "../../Receptionist/NurseApi";
 import { LinearProgress } from "@mui/material";
@@ -1004,6 +1004,12 @@ export default function OPD_PatientTable({
   isLoadingOnSearch,
   setIsLoadingOnSearch,
 }) {
+  const location = useLocation();
+  const pathname = location.pathname;
+  const pathSegments = pathname.split("/");
+  const role = pathSegments[1];
+  console.log(role);
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
@@ -1918,7 +1924,7 @@ export default function OPD_PatientTable({
     };
   }, []);
 
-  console.log(isLoadingOnSearch,"isLoadingOnSearch");
+  // console.log(isLoadingOnSearch,"isLoadingOnSearch");
   
   const getOpdPatientsDateWiseReportDataHandle = async (e) => {
     e.preventDefault();

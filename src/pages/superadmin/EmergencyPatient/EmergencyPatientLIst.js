@@ -413,7 +413,7 @@ export default function EmergencyPatientLIst() {
         <div className="superadmin-main flex flex-row w-full h-screen">
           <div className="superadmin-main-left w-[20%] shadow-lg">
             <SideNav
-              activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.emergencyPatientList}`}
+              activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.emergencyPatient}`}
             />
           </div>
           <div className="superadmin-main-right flex flex-col w-[80%]">

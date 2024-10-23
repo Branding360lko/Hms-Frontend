@@ -501,7 +501,7 @@ export default function IPD_Patients() {
         <div className="superadmin-main flex flex-row w-full h-screen">
           <div className="superadmin-main-left w-[20%] shadow-lg">
             <SideNav
-              activePage={`${browserLinks.nurse.category}/${browserLinks.nurse.internalPages.ipdPatientList}`}
+              activePage={`${browserLinks.superadmin.category}/${browserLinks.superadmin.internalPages.ipdPatients}`}
             />
           </div>
           <div className="superadmin-main-right flex flex-col w-[80%]">

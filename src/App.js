@@ -11,28 +11,10 @@ import EmergencyPatientPaymentReciept from "./components/Nurse/EmergencyPatientT
 
 import { useSelector, useDispatch } from "react-redux";
 import InActivityTimeout from "./utils/inActivityTimeout";
-// Services
-// import { useGetAllPatientsQuery } from "./Store/Services/PatientService";
-// import {
-//   useGetAllDoctorsQuery,
-//   useGetAllDoctorProfessionalDetailsQuery,
-// } from "./Store/Services/DoctorService";
-// import { useGetAllOPDPatientQuery } from "./Store/Services/OPDPatientService";
-// import { useGetAllIPDPatientsQuery } from "./Store/Services/IPDPatientService";
-// import { useGetAllBillingsQuery } from "./Store/Services/BillingService";
 import {
   useGetAllAdminsQuery,
   useAdminProfileQuery,
 } from "./Store/Services/AdminService";
-
-// Slices
-// import { getAllPatients } from "./Store/Slices/PatientSlice";
-// import {
-//   getAllDoctors,
-//   getAllDoctorsProfessionalDetails,
-// } from "./Store/Slices/DoctorSlice";
-// import { getAllOPDPatients } from "./Store/Slices/OPDPatientSlice";
-// import { getAllIPDPatients } from "./Store/Slices/IPDPatientSlice";
 import { getAllBillings } from "./Store/Slices/BillingSlice";
 import {
   getAllAdmins,
@@ -40,7 +22,6 @@ import {
   getAdminLoggedInData,
   getAdminRole,
 } from "./Store/Slices/AdminSlice";
-
 import Cookies from "js-cookie";
 import { getEmployeeDataHandle } from "./Store/Slices/HrSlice";
 import PatientsList from "./pages/Pharmacist/PatientsList/PatientsList";
@@ -116,6 +97,9 @@ const SuperAdminAdmissionChargePage = lazy(() =>
 );
 const SuperAdminVitalServicePage = lazy(() =>
   import("./pages/superadmin/VitalServices/VitalServices")
+);
+const SuperAdminHospitalInventoryPage = lazy(() =>
+  import("./pages/superadmin/HospitalInventry/HospitalInventry")
 );
 
 const BillDownloadPage = lazy(() =>
@@ -282,17 +266,6 @@ const DoctorsRefer = lazy(() =>
 
 function App() {
   const dispatch = useDispatch();
-
-  // -------------------------------------------------------------------
-  // const responseGetAllPatients = useGetAllPatientsQuery();
-  // const responseGetAllDoctors = useGetAllDoctorsQuery();
-  // const responseGetAllDoctorProfessionalDetails =
-  //   useGetAllDoctorProfessionalDetailsQuery();
-  // const responseGetAllOPDPatients = useGetAllOPDPatientQuery();
-  // const responseGetAllIPDPatients = useGetAllIPDPatientsQuery();
-  // const responseGetAllBillings = useGetAllBillingsQuery();
-  // const responseGetAllAdmins = useGetAllAdminsQuery();
-
   const { adminRole, updateAdmin } = useSelector((state) => state.AdminState);
   const responseGetProfile = useAdminProfileQuery(
     localStorage.getItem("AdminToken")
@@ -301,28 +274,6 @@ function App() {
   React.useEffect(() => {
     responseGetProfile.refetch();
   }, [updateAdmin]);
-  // -------------------------------------------------------------------
-
-  // -------------------------------------------------------------------
-  // const { patients, patientCreate, patientUpdate, patientDelete } = useSelector(
-  //   (state) => state.PatientState
-  // );
-  // const {
-  //   doctors,
-  //   doctorProfessionalDetails,
-  //   createDoctor,
-  //   updateDoctor,
-  //   deleteDoctor,
-  // } = useSelector((state) => state.DoctorState);
-  // const { OPDPatients, createOPDPatient, updateOPDPatient, deleteOPDPatient } =
-  //   useSelector((state) => state.OPDPatientState);
-
-  // const { ipdPatients, createIpdPatient, updateIpdPatient, deleteIpdPatient } =
-  //   useSelector((state) => state.IPDPatientState);
-
-  // const { billings, createBilling, updateBilling, deleteBilling } = useSelector(
-  //   (state) => state.BillingState
-  // );
 
   React.useEffect(() => {
     if (
@@ -719,7 +670,7 @@ function App() {
                       </Suspense>
                     }
                   />
-                   <Route
+                  <Route
                     path={`${
                       browserLinks.superadmin.category
                     }/${browserLinks.superadmin.internalPages.emergencyPatientPaymentReceipt
@@ -736,7 +687,6 @@ function App() {
                         }
                       >
                         <EmergencyPatientPaymentReciept />
-                        
                       </Suspense>
                     }
                   />
@@ -773,6 +723,24 @@ function App() {
                         }
                       >
                         <SuperAdminMedicineIntentoryPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={browserLinks.superadmin.internalPages.hospitalInventry
+                      .split(" ")
+                      .join("")}
+                    element={
+                      <Suspense
+                        fallback={
+                          <>
+                            <Box sx={{ width: "100%" }}>
+                              <LinearProgress />
+                            </Box>
+                          </>
+                        }
+                      >
+                        <SuperAdminHospitalInventoryPage />
                       </Suspense>
                     }
                   />
@@ -1118,7 +1086,7 @@ function App() {
                       </Suspense>
                     }
                   />
-                     <Route
+                  <Route
                     path={`${
                       browserLinks.nurse.category
                     }/${browserLinks.nurse.internalPages.emergencyPatientPaymentReceipt
@@ -1135,7 +1103,6 @@ function App() {
                         }
                       >
                         <EmergencyPatientPaymentReciept />
-                        
                       </Suspense>
                     }
                   />

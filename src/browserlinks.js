@@ -23,6 +23,7 @@ const browserLinks = {
       testPatient: "Test Patients",
       emergencyPatient: "Emergency Patients",
       department: "Department",
+      hospitalInventry: "Hospital Inventory",
       medicineInventory: "Medicine Inventory",
       diagnosisList: "Diagnosis List",
       admissionCharges: "Admission Charges",

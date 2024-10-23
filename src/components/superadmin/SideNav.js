@@ -18,6 +18,7 @@ import { IoSettings } from "react-icons/io5";
 import { FaFileAlt } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { GiMedicines } from "react-icons/gi";
+import { MdInventory } from "react-icons/md";
 
 export default function SideNav({ activePage }) {
   const navigate = useNavigate();
@@ -86,6 +87,10 @@ export default function SideNav({ activePage }) {
       name: browserLinks.superadmin.internalPages.department,
     },
     {
+      icon: <MdInventory  />,
+      name: browserLinks.superadmin.internalPages.hospitalInventry,
+    },  
+     {
       icon: <GiMedicines />,
       name: browserLinks.superadmin.internalPages.medicineInventory,
     },

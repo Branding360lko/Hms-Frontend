@@ -53,7 +53,7 @@ export default function AddPatientForm() {
   const [patientPhone, setPatientPhone] = React.useState("");
   const [patientPhone2, setPatientPhone2] = React.useState("");
   const [patientAdharCard, setPatientAdharCard] = React.useState();
-  const [patientAgeMonth, setPatientAgeMonth] = React.useState();
+  const [patientAgeMonth, setPatientAgeMonth] = React.useState(0);
   const [patientHeight, setPatientHeight] = React.useState("");
   const [patientWeight, setPatientWeight] = React.useState("");
   const [patientBloodGroup, setPatientBloodGroup] = React.useState("");
@@ -222,7 +222,12 @@ export default function AddPatientForm() {
     formData.append("patientAge", patientData?.patientAge);
     formData.append("patientAgeMonth", patientAgeMonth ? patientAgeMonth : 0);
     formData.append("patientPhone", patientData?.patientPhone);
-    formData.append("patientAdharNumber", patientAdharCard);
+    formData.append(
+      "patientAdharNumber",
+      patientAdharCard === undefined || patientAdharCard === null
+        ? 0
+        : patientAdharCard
+    );
     // formData.append("patientPhone2", patientData?.patientPhone2);
     formData.append("patientHeight", patientData?.patientHeight);
     formData.append("patientWeight", patientData?.patientWeight);
@@ -262,6 +267,7 @@ export default function AddPatientForm() {
     addPatient(formData);
     setLoading(true);
   };
+  console.log(patientAdharCard);
 
   return (
     <Suspense fallback={<>...</>}>
@@ -475,7 +481,7 @@ export default function AddPatientForm() {
                     <input
                       className="py-[10px] outline-none border-b"
                       // type='number'
-                    
+
                       minLength={12}
                       maxLength={12}
                       value={patientAdharCard}

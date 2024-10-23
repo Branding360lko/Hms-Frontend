@@ -545,3 +545,24 @@ export const updateOneIpdPatientReturnMedicine = async (
     console.log(error.response?.data?.message || error.message);
   }
 };
+export const giveDiscountToTestPatient = async (Id, formData) => {
+  try {
+    const response = await axios.post(
+      `${process.env.React_App_Base_url + "add-discount-test/" + Id}`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error.response?.data || error.message);
+  }
+};
+export const getOpdPatientDataAlongWithPatientData = async (Id) => {
+  try {
+    const response = await axios.get(
+      `${process.env.React_App_Base_url + "get-opd-data-with-patient-data/" +Id}`,
+    );
+    return response;
+  } catch (error) {
+    throw new Error(error.response?.data || error.message);
+  }
+};

@@ -52,15 +52,32 @@ import {
   patientMobileNumberChange,
 } from "../../../Store/Slices/OPDPatientSlice";
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { getOpdPatientsDateWiseReportData } from "../../Receptionist/NurseApi";
+import {
+  getOpdPatientDataAlongWithPatientData,
+  getOpdPatientsDateWiseReportData,
+  giveDiscountToOPDPatientData,
+} from "../../Receptionist/NurseApi";
 import { LinearProgress } from "@mui/material";
+import { CiDiscount1 } from "react-icons/ci";
 
 export default function OPD_PatientTable({
   isLoadingOnSearch,
   setIsLoadingOnSearch,
 }) {
+  const location = useLocation();
+
+  const pathname = location.pathname;
+
+  const pathSegments = pathname.split("/");
+
+  const role = pathSegments[1];
+
+  const { adminLoggedInData } = useSelector((state) => state.AdminState);
+
+  console.log(adminLoggedInData);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { doctors } = useSelector((state) => state.DoctorState);
@@ -155,7 +172,11 @@ export default function OPD_PatientTable({
 
   const [mainId, setMainId] = React.useState("");
   const [opdPatientData, setOpdPatientData] = React.useState("");
+  const [opdPatientDataWithPatient, setOpdPatientDataWithPatient] =
+    React.useState();
 
+  const [selectedDiscount, setSelectedDiscount] = React.useState();
+  const [customDiscount, setCustomDiscount] = React.useState();
   const date = (dateTime) => {
     const newdate = new Date(dateTime);
 
@@ -199,23 +220,9 @@ export default function OPD_PatientTable({
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  // const [patientId, setPatientId] = React.useState("");
-
-  // const fetchPatientNames = async () => {
-  //   return await axios
-  //     .get(`${process.env.React_App_Base_url}DropdownData-Patient`, {
-  //       params: { query: "" },
-  //     })
-  //     .then((res) => dispatch(getAllPatients(res.data)))
-  //     .catch((err) => console.error(err));
-  // };
-
-  // React.useEffect(() => {
-  //   fetchPatientNames();
-  // }, [opdPatientId]);
-
-  // console.log(opdPatientId);
+  const [open1, setOpen1] = React.useState(false);
+  const handleOpen1 = () => setOpen1(true);
+  const handleClose1 = () => setOpen1(false);
 
   const renderedPatientIDForDropdown = patients?.map((data) => {
     return {
@@ -294,10 +301,6 @@ export default function OPD_PatientTable({
 
     createOPDPatient(submitData);
   };
-  console.log(
-    responseCreateOPDPatient?.data?.data?.mainId,
-    "responseCreateOPDPatient?.data?.data?.mainId"
-  );
 
   // console.log(opdPatientId);
 
@@ -791,38 +794,206 @@ export default function OPD_PatientTable({
       </div>
     </div>
   );
+
+  const modalDiscountPatientDetails = (
+    <div className="flex flex-col w-full text-[#3E454D] gap-[2rem] overflow-y-scroll px-[10px] pb-[2rem] h-[450px]">
+      <div className="border-b flex gap-[1rem] py-[1rem] w-full">
+        <h3 className="font-[500]">ID: </h3>
+        <h3>{opdPatientDataWithPatient?.mainId}</h3>
+      </div>
+      <div className="flex w-full">
+        <div className="w-[25%] flex flex-col items-center">
+          <img
+            className="w-[200px] h-[200px] object-contain"
+            src={
+              opdPatientData?.patientData?.patientImage
+                ? process.env.React_App_Base_Image_Url +
+                  opdPatientData?.patientData?.patientImage
+                : placeholder
+            }
+            alt="patientImage"
+          />
+          {/* <button className='buttonFilled w-fit'>Button</button> */}
+        </div>
+        <div className="w-[75%] flex flex-col gap-[10px] text-[14px]">
+          <div className="grid grid-cols-2 gap-[10px]">
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Id: </p>
+              <p>{opdPatientDataWithPatient?.opdPatientId}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Id: </p>
+              <p>{opdPatientDataWithPatient?.opdDoctorId}</p>
+            </div>
+
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Name: </p>
+              <p>{opdPatientDataWithPatient?.patientData?.[0]?.patientName}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Name: </p>
+              <p>{opdPatientData?.doctorData?.doctorName}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Blood Group: </p>
+              <p>
+                {opdPatientDataWithPatient?.patientData?.[0]?.patientBloodGroup}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Doctor Phone: </p>
+              <p>{opdPatientData?.doctorData?.doctorPhone}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Gender: </p>
+              <p>
+                {opdPatientDataWithPatient?.patientData?.[0]?.patientGender}
+              </p>
+            </div>
+            {/* <div className='flex'>
+              <p className='font-[600] w-[150px]'>Case No: </p>
+              <p>{opdPatientData?.data?.opdCaseId}</p>
+            </div> */}
+            {/* <div className="flex">
+              <p className="font-[600] w-[150px]">Patient DOB: </p>
+              <p>{date(opdPatientData?.patientData?.patientDateOfBirth)}</p>
+            </div> */}
+            {/* <div className='flex'>
+              <p className='font-[600] w-[150px]'>OPD No: </p>
+              <p>{opdPatientData?.data?.opdId}</p>
+            </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Phone: </p>
+              <p>{opdPatientDataWithPatient?.patientData?.[0]?.patientPhone}</p>
+            </div>
+            {/* <div className='flex'>
+              <p className='font-[600] w-[150px]'>Blood Pressure: </p>
+              <p>{opdPatientData?.data?.opdPatientBloodPressure}</p>
+            </div> */}
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Height: </p>
+              <p>
+                {opdPatientDataWithPatient?.patientData?.[0]?.patientHeight}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Standard Charge: </p>
+              <p>₹{opdPatientDataWithPatient?.opdPatientStandardCharges}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Refund Given By Doctor: </p>
+              <p>₹{opdPatientDataWithPatient?.opdPatientRefundedAmount}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">
+                Final Amount Charged From Patient:{" "}
+              </p>
+              <p>₹{opdPatientDataWithPatient?.opdPatientFinalChargedAmount}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Patient Weight: </p>
+              <p>
+                {opdPatientDataWithPatient?.patientData?.[0]?.patientWeight}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Payment Mode: </p>
+              <p>{opdPatientDataWithPatient?.opdPatientPaymentMode}</p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Visit Date: </p>
+              <p>{`${date(
+                opdPatientDataWithPatient?.opdDoctorVisitDate
+              )} / ${time(opdPatientDataWithPatient?.opdDoctorVisitDate)}`}</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-[10px]">
+            <div className="flex flex-col">
+              <p className="font-[600] w-[150px]">Notes: </p>
+              <p className="text-[14px]">
+                {opdPatientDataWithPatient?.opdPatientNotes}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Created On: </p>
+              <p className="break-word text-[14px]">
+                {`${date(opdPatientDataWithPatient?.createdAt)} ${time(
+                  opdPatientDataWithPatient?.createdAt
+                )}`}
+              </p>
+            </div>
+            <div className="flex">
+              <p className="font-[600] w-[150px]">Updated On: </p>
+              <p className="break-word text-[14px]">
+                {`${date(opdPatientDataWithPatient?.updatedAt)} ${time(
+                  opdPatientDataWithPatient?.updatedAt
+                )}`}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-start justify-start flex-col gap-3">
+        <h2>Select A Discount</h2>
+        <form
+          className="flex items-start justify-start gap-3 flex-col"
+          onSubmit={(e) =>
+            giveDiscountToOPDPatientDataHandle(
+              e,
+              opdPatientDataWithPatient?.mainId
+            )
+          }
+        >
+          <div className="flex items-center justify-start gap-4 mt-3">
+            <span className="flex items-start justify-start flex-col">
+              <select
+                className="border-2 w-[15rem] py-2 px-1 rounded-md outline-none"
+                value={selectedDiscount}
+                onChange={(e) => [
+                  setSelectedDiscount(Number(e.target.value)),
+                  setCustomDiscount(""),
+                ]}
+                required={
+                  customDiscount === "" ||
+                  customDiscount === undefined ||
+                  customDiscount === null
+                }
+              >
+                <option>Select One</option>
+                <option value={"50"}>Partial Refund</option>
+                <option value={"100"}>Full Refund</option>
+              </select>
+            </span>
+            <p>Or</p>
+            <input
+              type="number"
+              placeholder="Enter A Custom Discount Percentage"
+              className="border-2 outline-none py-2 px-1 rounded-md w-[20rem]"
+              value={customDiscount}
+              onChange={(e) => [
+                setCustomDiscount(Number(e.target.value)),
+                setSelectedDiscount(""),
+              ]}
+              required={
+                selectedDiscount === "" ||
+                selectedDiscount === undefined ||
+                selectedDiscount === null
+              }
+            />
+          </div>
+          <button className="bg-[#3497F9] text-white p-[10px] rounded-md">
+            Give Discount
+          </button>
+        </form>
+      </div>
+    </div>
+  );
   // ---------------
 
   const [search, setSearch] = React.useState("");
   const [search2, setSearch2] = React.useState("");
   const [search3, setSearch3] = React.useState("");
-
-  // const filteredArray = OPDPatients?.filter((data) => {
-  //   if (search !== "") {
-  //     const userSearch = search.toLowerCase();
-  //     const searchInData = data?.opdPatientId?.toLowerCase();
-
-  //     return searchInData?.startsWith(userSearch);
-  //   }
-  //   return data;
-  // });
-
-  // const mappedBillData = filteredArray?.map((data, index) => {
-  //   const filteredPatientData = patients?.find(
-  //     (patient) => data?.opdPatientId === patient?.patientId
-  //   );
-  //   const filteredDoctorData = doctors?.find(
-  //     (doctor) => doctor?.doctorId === data?.opdDoctorId
-  //   );
-  //   return {
-  //     data,
-  //     patientData: filteredPatientData,
-  //     doctorData: filteredDoctorData,
-  //   };
-  // });
-
   const mappedOPDPatientData = OPDPatients;
-
   const config = [
     {
       label: "OPD Bill No",
@@ -868,11 +1039,15 @@ export default function OPD_PatientTable({
           >
             <RiEdit2Fill className="text-[25px] text-[#3497F9]" />
           </div>
-          {/* <div
-            onClick={() => handleClickOpenDialogBox(list)}
-            className='p-[4px] h-fit w-fit border-[2px] border-[#EB5757] rounded-[12px] cursor-pointer'>
-            <RiDeleteBin6Fill className='text-[25px] text-[#EB5757]' />
-          </div> */}
+          <div
+            onClick={() => [
+              handleOpen1(list),
+              getOpdPatientDataAlongWithPatientDataHandle(list?.mainId),
+            ]}
+            className="p-[4px] h-fit w-fit border-[2px] border-[#800080] rounded-[12px] cursor-pointer"
+          >
+            <CiDiscount1 className="text-[25px] text-[#800080]" />
+          </div>
         </div>
       ),
     },
@@ -925,9 +1100,37 @@ export default function OPD_PatientTable({
       console.error("Error downloading the report:", error.message);
     }
   };
-  React.useEffect(() => {
-    console.log(selectedDate);
-  }, [selectedDate]);
+  const getOpdPatientDataAlongWithPatientDataHandle = async (Id) => {
+    const result = await getOpdPatientDataAlongWithPatientData(Id);
+    setOpdPatientDataWithPatient(result?.data?.data && result?.data?.data);
+  };
+
+  const giveDiscountToOPDPatientDataHandle = async (e, Id) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append(
+      "refundPercentage",
+      customDiscount === "" || customDiscount === null
+        ? selectedDiscount
+        : customDiscount
+    );
+    formData.append("refundAlotedByDoctor", adminLoggedInData?.adminId);
+    const result = await giveDiscountToOPDPatientData(Id, formData);
+    if (result?.status === 201) {
+      handleClose1();
+      setCustomDiscount("");
+      setSelectedDiscount("");
+      handleClickSnackbarSuccess();
+      setSnackBarSuccessMessage(result?.data?.message);
+    }
+    if (result?.status !== 201) {
+      handleClose1();
+      setCustomDiscount("");
+      setSelectedDiscount("");
+      handleClickSnackbarWarning();
+      setSnackBarSuccessMessage("Something Went Wrong Try Later Again!");
+    }
+  };
   return (
     <Suspense fallback={<>...</>}>
       <div className="flex flex-col gap-[1rem] p-[1rem]">
@@ -1161,6 +1364,21 @@ export default function OPD_PatientTable({
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             {modalViewPatientDetails}
+          </Typography>
+        </Box>
+      </Modal>
+      <Modal
+        open={open1}
+        onClose={handleClose1}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <div className="flex justify-between items-center"></div>
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            {modalDiscountPatientDetails}
           </Typography>
         </Box>
       </Modal>
