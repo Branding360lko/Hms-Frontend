@@ -267,8 +267,6 @@ function HospitalInventryTable() {
   useEffect(() => {
     getAllHospitalInventoryDataHandle();
   }, []);
-  console.log(hospitalInventory);
-
   return (
     <div className="flex flex-col gap-[1rem] p-[1rem]">
       <div className="flex justify-between">
